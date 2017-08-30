@@ -16,6 +16,8 @@ namespace Hello1
         static void Main(string[] args)
         {
             Console.Out.WriteLine("Hello World");
+
+            Console.Out.Write("This is a change");
             Console.In.ReadLine();
         }
     }
