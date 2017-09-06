@@ -108,15 +108,40 @@ namespace FormulaEvaluator
                 }
                 else if(token == "*" || token == "/")
                 {
-
+                    operators.Push(token);
                 }
                 else if(token == "(")
                 {
-
+                    operators.Push(token);
                 }
                 else if(token == ")")
                 {
+                    if(operators.IsAtTop("+"))
+                    {
+                        // pop value stack twice 
+                        int value1 = values.Pop();
+                        int value2 = values.Pop();
+                        // pop the operator stack once
+                        operators.Pop();
 
+                        // apply operator to the values and push result to values
+                        int result = value1 + value2;
+                        values.Push(result);
+
+
+                    }
+                    else if(operators.IsAtTop("-"))
+                    {
+                        // pop value stack twice 
+                        int value1 = values.Pop();
+                        int value2 = values.Pop();
+                        // pop the operator stack once
+                        operators.Pop();
+
+                        // apply operator to the values and push result to values
+                        int result = value2 - value1;
+                        values.Push(result);
+                    }
                 }
             }
 
