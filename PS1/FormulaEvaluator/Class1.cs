@@ -50,7 +50,7 @@ namespace FormulaEvaluator
         public static int Evaluate(String exp, Lookup variableEvaluator)
         {
             // split the expression into tokens, clean it of empty strings and excess white space and check that each token is valid
-            List<string> tokens = new List<string>(CleanAndValidateTokens(Regex.Split(exp, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)")));
+            IEnumerable<string> tokens = CleanAndValidateTokens(Regex.Split(exp, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)"));
 
             Stack<int> values = new Stack<int>();
             Stack<string> operators = new Stack<string>();
@@ -62,53 +62,48 @@ namespace FormulaEvaluator
                 int operand;
                 if(int.TryParse(token, out operand))
                 {
-                    // operand is an integer, check if operator * or / is at top of stack and apply it
-                    if(operators.IsAtTop("*"))
-                    {
-                        // make sure there are two values to multiply
-                        if (values.Count < 1)
-                        {
-                            throw new ArgumentException("There is only one value to multiply");
-                        }
-
-                        int number = values.Pop();
-                        int result = number * operand;
-
-                        values.Push(result);
-
-                    }
-                    else if(operators.IsAtTop("/"))
-                    {
-                        // make sure there are two values to divide
-                        if(values.Count < 1)
-                        {
-                            throw new ArgumentException("There is only one value to divide");
-                        }
-
-                        if (operand == 0)
-                        {
-                            throw new ArgumentException("Divide by zero");
-                        }
-
-                        int number = values.Pop();
-                        int result = number / operand;
-
-                        values.Push(result);
-                    }
-                    // * or / is not at top of operator stack, push operand to top of stack
-                    else
-                    {
-                        values.Push(operand);
-                    }
-                       
+                    HandleInt(operand, values, operators);
                 }
                 // check if token is variable
                 else if(token.StartsWithLetter())
                 {
-
+                    HandleInt(variableEvaluator(token), values, operators);
                 }
                 else if(token == "+" || token == "-")
                 {
+                    // make sure there are enough operands to apply the operator
+                    if (values.Count < 2)
+                    {
+                        throw new ArgumentException("There are not enough operands to apply " + token + " operator");
+                    }
+
+                    if (operators.IsAtTop("+"))
+                    {
+                        // pop value stack twice 
+                        int value1 = values.Pop();
+                        int value2 = values.Pop();
+                        // pop the operator stack once
+                        operators.Pop();
+
+                        // apply operator to the values and push result to values
+                        int result = value1 + value2;
+                        values.Push(result);
+                    }
+                    else if (operators.IsAtTop("-"))
+                    {
+                        // pop value stack twice 
+                        int value1 = values.Pop();
+                        int value2 = values.Pop();
+                        // pop the operator stack once
+                        operators.Pop();
+
+                        // apply operator to the values and push result to values
+                        int result = value2 - value1;
+                        values.Push(result);
+                    }
+
+                    // push + or - operator to operators stack
+                    operators.Push(token);
 
                 }
                 else if(token == "*" || token == "/")
@@ -144,6 +139,60 @@ namespace FormulaEvaluator
 
             // TODO...
             return 0;
+        }
+
+        /// <summary>
+        /// If * or / is at the top of the operator stack, pops the value stack and pops the operator stack. 
+        /// then applies the popped operator to the popped number and t. Pushes the result onto the value stack.
+        /// Otherwise, pushes t onto the value stack.
+        /// 
+        /// If the value stack is empty, or the operation results in divide by zero, throws ArgumentException
+        /// </summary>
+        /// <param name="t">the integer token</param>
+        /// <param name="values">a stack containing values for the evaluate method</param>
+        /// <param name="operators">a stack containing operators for the evaluate method</param>
+        private static void HandleInt(int t, Stack<int> values, Stack<string> operators)
+        {
+            // operand is an integer, check if operator * or / is at top of stack and apply it
+            if(operators.IsAtTop("*"))
+            {
+                // make sure there are two values to multiply
+                if(values.Count < 1)
+                {
+                    throw new ArgumentException("There is only one value to multiply");
+                }
+
+                operators.Pop();
+                int number = values.Pop();
+                int result = number * t;
+
+                values.Push(result);
+
+            }
+            else if(operators.IsAtTop("/"))
+            {
+                // make sure there are two values to divide
+                if(values.Count < 1)
+                {
+                    throw new ArgumentException("There is only one value to divide");
+                }
+
+                if(t == 0)
+                {
+                    throw new ArgumentException("Divide by zero");
+                }
+
+                operators.Pop();
+                int number = values.Pop();
+                int result = number / t;
+
+                values.Push(result);
+            }
+            // * or / is not at top of operator stack, push operand to top of stack
+            else
+            {
+                values.Push(t);
+            }
         }
 
         /// <summary>
