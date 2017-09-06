@@ -25,7 +25,7 @@ namespace FormulaEvaluator
         /// Evaluates integer arithmatic expressions using standard infix notation. 
         /// Evaluate is capable of evaluating expressions which are made up of non negative
         /// integers and addition, subtraction, multiplication and division operations using 
-        /// standard presidence srules. For Example "(2 + 7) * 5 - 3" will evaluate to 42.
+        /// standard presidence rules. For Example "(2 + 7) * 5 - 3" will evaluate to 42.
         /// </para>
         /// <para>
         /// The only accepted mathmatic symbols are "(", ")", "+", "-", "*", or "/".
@@ -62,14 +62,45 @@ namespace FormulaEvaluator
                 int operand;
                 if(int.TryParse(token, out operand))
                 {
+                    // operand is an integer, check if operator * or / is at top of stack and apply it
                     if(operators.IsAtTop("*"))
                     {
+                        // make sure there are two values to multiply
+                        if (values.Count < 1)
+                        {
+                            throw new ArgumentException("There is only one value to multiply");
+                        }
+
+                        int number = values.Pop();
+                        int result = number * operand;
+
+                        values.Push(result);
 
                     }
                     else if(operators.IsAtTop("/"))
                     {
+                        // make sure there are two values to divide
+                        if(values.Count < 1)
+                        {
+                            throw new ArgumentException("There is only one value to divide");
+                        }
 
+                        if (operand == 0)
+                        {
+                            throw new ArgumentException("Divide by zero");
+                        }
+
+                        int number = values.Pop();
+                        int result = number / operand;
+
+                        values.Push(result);
                     }
+                    // * or / is not at top of operator stack, push operand to top of stack
+                    else
+                    {
+                        values.Push(operand);
+                    }
+                       
                 }
                 // check if token is variable
                 else if(token.StartsWithLetter())
@@ -135,7 +166,7 @@ namespace FormulaEvaluator
                     {
                         // if invalid, throw exception
                         string errorMessage = "Invalid token \"" + s + "\"";
-                        throw new ArgumentException();
+                        throw new ArgumentException(errorMessage);
                     }
                     yield return s;
                 }
