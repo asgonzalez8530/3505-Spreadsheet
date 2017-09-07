@@ -92,7 +92,7 @@ namespace FormulaEvaluator
                 }
                 else if(token == ")")
                 {
-                    // if pluss or minus is at top of operator stack,
+                    // if plus or minus is at top of operator stack,
                     // apply it to the top two operands on top of values stack
                     if(operators.IsAtTop("+") || operators.IsAtTop("-"))
                     {
