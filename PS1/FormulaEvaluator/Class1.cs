@@ -71,38 +71,14 @@ namespace FormulaEvaluator
                 }
                 else if(token == "+" || token == "-")
                 {
-                    // make sure there are enough operands to apply the operator
-                    if (values.Count < 2)
+                    // if pluss or minus is at top of operator stack,
+                    // apply it to the top two operands on top of values stack
+                    if(operators.IsAtTop("+") || operators.IsAtTop("-"))
                     {
-                        throw new ArgumentException("There are not enough operands to apply " + token + " operator");
+                        ApplyOperatorStack(values, operators);
                     }
 
-                    if (operators.IsAtTop("+"))
-                    {
-                        // pop value stack twice 
-                        int value1 = values.Pop();
-                        int value2 = values.Pop();
-                        // pop the operator stack once
-                        operators.Pop();
-
-                        // apply operator to the values and push result to values
-                        int result = value1 + value2;
-                        values.Push(result);
-                    }
-                    else if (operators.IsAtTop("-"))
-                    {
-                        // pop value stack twice 
-                        int value1 = values.Pop();
-                        int value2 = values.Pop();
-                        // pop the operator stack once
-                        operators.Pop();
-
-                        // apply operator to the values and push result to values
-                        int result = value2 - value1;
-                        values.Push(result);
-                    }
-
-                    // push + or - operator to operators stack
+                    // push + or - token to operators stack
                     operators.Push(token);
 
                 }
@@ -116,34 +92,33 @@ namespace FormulaEvaluator
                 }
                 else if(token == ")")
                 {
-                    if(operators.IsAtTop("+"))
+                    // if pluss or minus is at top of operator stack,
+                    // apply it to the top two operands on top of values stack
+                    if(operators.IsAtTop("+") || operators.IsAtTop("-"))
                     {
-                        // pop value stack twice 
-                        int value1 = values.Pop();
-                        int value2 = values.Pop();
-                        // pop the operator stack once
-                        operators.Pop();
+                        ApplyOperatorStack(values, operators);
 
-                        // apply operator to the values and push result to values
-                        int result = value1 + value2;
-                        values.Push(result);
-
-
+                        // now that + or - has been applied, next operator on stack
+                        // should be "("
+                        if(operators.IsAtTop("("))
+                        {
+                            operators.Pop();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Missmatched Parenthesis. ')' encountered without paired '(' ");
+                        }
                     }
-                    else if(operators.IsAtTop("-"))
+
+
+                    if(operators.IsAtTop("*") || operators.IsAtTop("/"))
                     {
-                        // pop value stack twice 
-                        int value1 = values.Pop();
-                        int value2 = values.Pop();
-                        // pop the operator stack once
-                        operators.Pop();
-
-                        // apply operator to the values and push result to values
-                        int result = value2 - value1;
-                        values.Push(result);
+                        ApplyOperatorStack(values, operators);
                     }
+
                 }
             }
+            // the last token has been processed.
 
             // operator stack is empty
             if(operators.Count == 0)
@@ -155,15 +130,38 @@ namespace FormulaEvaluator
                 else
                 {
                     // there is more than one value in the values stack
-                    // which is an error
+                    throw new ArgumentException("Syntax error: There are operands without associated operators");
                 }
             }
-
             // operator stack is not empty
+            // there should be exactly one operator in operators stack
+            else if (operators.Count == 1)
+            {
+                // the only operator token should be '+' or '-'
+                if(operators.IsAtTop("+") || operators.IsAtTop("-"))
+                {
+                    if(values.Count == 2)
+                    {
+                        ApplyOperatorStack(values, operators);
+                        return values.Pop();
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Syntax error: There are an incorrect number of operands for operators");
+                    }
+                }
+                // the operator wasnt a + or -
+                else
+                {
+                    throw new ArgumentException("Syntax error: unable to apply proper order of operations");
+                }
+            }
+            // there is more than one operator in operators stack
+            else
+            {
+                throw new ArgumentException("Syntax error: there are operators without proper number of operands");
+            }
 
-
-            // TODO...
-            return 0;
         }
 
         /// <summary>
@@ -179,38 +177,15 @@ namespace FormulaEvaluator
         private static void HandleInt(int t, Stack<int> values, Stack<string> operators)
         {
             // operand is an integer, check if operator * or / is at top of stack and apply it
-            if(operators.IsAtTop("*"))
+            if(operators.IsAtTop("*") || operators.IsAtTop("/"))
             {
                 // make sure there are two values to multiply
                 if(values.Count < 1)
                 {
-                    throw new ArgumentException("There is only one value to multiply");
+                    throw new ArgumentException("There is only one value to apply " + operators.Peek() + " operator");
                 }
 
-                operators.Pop();
-                int number = values.Pop();
-                int result = number * t;
-
-                values.Push(result);
-
-            }
-            else if(operators.IsAtTop("/"))
-            {
-                // make sure there are two values to divide
-                if(values.Count < 1)
-                {
-                    throw new ArgumentException("There is only one value to divide");
-                }
-
-                if(t == 0)
-                {
-                    throw new ArgumentException("Divide by zero");
-                }
-
-                operators.Pop();
-                int number = values.Pop();
-                int result = number / t;
-
+                int result = ApplyOperator(values.Pop(), t, operators.Pop());
                 values.Push(result);
             }
             // * or / is not at top of operator stack, push operand to top of stack
@@ -219,6 +194,69 @@ namespace FormulaEvaluator
                 values.Push(t);
             }
         }
+
+        /// <summary>
+        /// Pops the value stack twice and the operator stack once, then applies the 
+        /// popped operator to the popped numbers, then pushes the result onto the value stack.
+        /// 
+        /// If there are not two operators on the operator stack, throws ArgumentException
+        /// </summary>
+        /// <param name="values">a stack containing values for the evaluate method</param>
+        /// <param name="operators">a stack containing operators for the evaluate method</param>
+        private static void ApplyOperatorStack(Stack<int> values, Stack<string> operators)
+        {
+            // make sure there are enough operands to apply the operator
+            if(values.Count < 2)
+            {
+                throw new ArgumentException("There are not enough operands to apply " + operators.Peek() + " operator");
+            }
+
+            // pop value stack twice 
+            int value2 = values.Pop();
+            int value1 = values.Pop();
+            // pop the operator stack once
+            string op = operators.Pop();
+
+            // apply operator and push the result to the values stack
+            values.Push(ApplyOperator(value1, value2, op));
+
+        }
+
+        /// <summary>
+        /// Applies the operator op to val1 and val2 respectively and returns the result
+        /// For example, if op is "*" will return val1 * val2. 
+        /// 
+        /// The only valid operators are "+", "-", "*", and "/". 
+        /// 
+        /// If val2 = 0 and op = "/" will throw ArgumentException.
+        /// </summary>
+        private static int ApplyOperator(int val1, int val2, string op)
+        {
+            int result = 0;
+            switch(op)
+            {
+                case "+":
+                    // apply + operator
+                    return val1 + val2;
+                case "-":
+                    // apply - operator
+                    return val1 - val2;
+                case "*":
+                    // apply * operator
+                    return val1 * val2;
+                case "/":
+                    // check for divide by zero
+                    if(val2 == 0)
+                    {
+                        throw new ArgumentException("Cannot divide by zero");
+                    }
+                    // apply / operator
+                    return val1 / val2;
+            }
+            return result;
+        }
+
+
 
         /// <summary>
         /// Takes an array object filled with the tokens that make up a formula and removes all leading and ending whitespace from
