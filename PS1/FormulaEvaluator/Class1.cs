@@ -110,7 +110,6 @@ namespace FormulaEvaluator
                         }
                     }
 
-
                     if(operators.IsAtTop("*") || operators.IsAtTop("/"))
                     {
                         ApplyOperatorStack(values, operators);
@@ -150,7 +149,7 @@ namespace FormulaEvaluator
                         throw new ArgumentException("Syntax error: There are an incorrect number of operands for operators");
                     }
                 }
-                // the operator wasnt a + or -
+                // the operator wasn't a + or -
                 else
                 {
                     throw new ArgumentException("Syntax error: unable to apply proper order of operations");
@@ -197,9 +196,9 @@ namespace FormulaEvaluator
 
         /// <summary>
         /// Pops the value stack twice and the operator stack once, then applies the 
-        /// popped operator to the popped numbers, then pushes the result onto the value stack.
+        /// popped operator to the popped values, then pushes the result onto the value stack.
         /// 
-        /// If there are not two operators on the operator stack, throws ArgumentException
+        /// If there are less than two operators on the operator stack, throws ArgumentException
         /// </summary>
         /// <param name="values">a stack containing values for the evaluate method</param>
         /// <param name="operators">a stack containing operators for the evaluate method</param>
@@ -286,7 +285,7 @@ namespace FormulaEvaluator
         }
 
         /// <summary>
-        /// Takes in a string, token, and returns true if it a valid token
+        /// Takes in a string, token, and returns true if it's a valid token
         /// 
         /// Tokens are valid if they are  "(", ")", "+", "-", "*", or "/".
         /// Tokens are also valid if it is a string which is a letter followed 
