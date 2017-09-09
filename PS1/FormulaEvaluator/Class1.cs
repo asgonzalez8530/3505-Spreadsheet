@@ -97,17 +97,17 @@ namespace FormulaEvaluator
                     if(operators.IsAtTop("+") || operators.IsAtTop("-"))
                     {
                         ApplyOperatorStack(values, operators);
+                    }
 
-                        // now that + or - has been applied, next operator on stack
-                        // should be "("
-                        if(operators.IsAtTop("("))
-                        {
-                            operators.Pop();
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Missmatched Parenthesis. ')' encountered without paired '(' ");
-                        }
+                    // now that + or - has been applied, next operator on stack
+                    // should be "("
+                    if(operators.IsAtTop("("))
+                    {
+                        operators.Pop();
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Missmatched Parenthesis. ')' encountered without paired '(' ");
                     }
 
                     if(operators.IsAtTop("*") || operators.IsAtTop("/"))
