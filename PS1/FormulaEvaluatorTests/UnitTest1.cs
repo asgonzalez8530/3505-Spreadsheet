@@ -231,39 +231,112 @@ namespace FormulaEvaluatorTests
 
             Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
 
-            // anything divided by itself should be 1
-            expression = "314/314 ";
-            expected = 1;
+            
 
-            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
-
-            // zero divided anything should be 0
-            expression = "Bb34 / \t   16 ";
-            expected = 0;
-
-            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
-
-            // something divided by 1 will equal that something
-            expression = "2398389 / 1 ";
-            expected = 2398389;
-
-            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
-
-            // multiplication and divide should be applied left to right
-            expression = "14 / 7 * 4 / 2  ";
-            expected = 4;
-
-            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
-
-            //  a fraction divided by a number is the same as a fraction multiplied
-            // by the reciprical of that number
-            expression = "14 / 7 / 2";
-            //expected = 1;
-            string equivalent = "14 / 7 * 1 / 2";
-
-            Assert.AreEqual(Evaluator.Evaluate(expression, x => 0), Evaluator.Evaluate(equivalent, x => 0));
+            
 
             // need divide by zero
+
+        }
+
+        [TestMethod]
+        public void DivideBySelf()
+        {
+            // anything divided by itself should be 1
+            string expression = "b3/b3 ";
+            int expected = 1;
+
+            for (int i = 1; i < 10; i = i * 2)
+            {
+                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+            }
+            
+        }
+
+        [TestMethod]
+        public void ZeroDivideSomething()
+        {
+            // zero divided anything should be 0
+            string expression = "0/b3 ";
+            int expected = 0;
+
+            for(int i = 1; i < 10; i = i * 2)
+            {
+                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+            }
+        }
+
+        [TestMethod]
+        public void DivideByOne()
+        {
+            // zero divided anything should be 0
+            string expression = "z58/1 ";
+            int expected = 0;
+
+            for(int i = 1; i < 10; i = i * 2)
+            {
+                expected = i;
+                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+            }
+        }
+
+        [TestMethod]
+        public void MultiplyAndDivideLtoR()
+        {
+            // multiplication and divide should be applied left to right
+            string expression = "14 / 7 * 4 / 2  ";
+            int expected = 4;
+
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
+        }
+
+        [TestMethod]
+        public void FractionDividedByNumber()
+        {
+            //  a fraction divided by a number is the same as a fraction multiplied
+            // by the reciprical of that number
+            string expression = "14 / 7 / b1";
+
+            string equivalent = "14 / 7 * 1 / b1";
+
+            for(int i = 1; i < 100; i = i+2)
+            {
+                Assert.AreEqual(Evaluator.Evaluate(expression, x => i), Evaluator.Evaluate(equivalent, x => i));
+            }
+           
+        }
+
+        [TestMethod]
+        public void DivideByZero()
+        {
+            //Cannot divide by zero, should throw exception
+            string expression = "14 / 0";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                //should never reach the next line
+                Assert.Fail();
+            }
+            catch (ArgumentException)
+            {
+                // if no fail was detected, will pass test
+            }
+
+            expression = "b1 / (b1 - b1)";
+
+            for(int i = 1; i < 25; i *= 2)
+            {
+                try
+                {
+                    Evaluator.Evaluate(expression, x => i);
+                    Assert.Fail();
+                }
+                catch (ArgumentException)
+                {
+                    // if no fail was detected, will pass test
+                }
+            }
 
         }
 
