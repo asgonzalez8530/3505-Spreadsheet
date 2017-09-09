@@ -498,7 +498,7 @@ namespace FormulaEvaluatorTests
         {
 
 
-            string expression = "(14 / 7)) * 4 / 2 ";
+            string expression = "(14 / 7)) * 4 / 2 + 5";
 
             try
             {
@@ -573,7 +573,7 @@ namespace FormulaEvaluatorTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TryPassingNullString()
         {
             string expression = null;
@@ -593,6 +593,14 @@ namespace FormulaEvaluatorTests
         {
             string expression = "()";
             int expected = 0;
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
+        }
+
+        [TestMethod]
+        public void EveryOperandAndVariable()
+        {
+            string expression = "(2 * b5) - 4 + 7 / 4";
+            int expected = 7;
             Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
         }
     }
