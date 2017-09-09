@@ -5,7 +5,7 @@ using FormulaEvaluator;
 namespace FormulaEvaluatorTests
 {
     [TestClass]
-    public class UnitTest1
+    public class EvaluatorTests
     {
 
         // test examples given in assignment
