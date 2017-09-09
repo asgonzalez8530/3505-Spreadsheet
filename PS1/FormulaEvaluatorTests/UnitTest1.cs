@@ -87,7 +87,7 @@ namespace FormulaEvaluatorTests
         {
             // expression evaluates to 11 
             string expression = "2+3^2";
-            
+
             // ^ is an invalid token, should throw exception
             int actual = Evaluator.Evaluate(expression, x => 0);
         }
@@ -130,12 +130,12 @@ namespace FormulaEvaluatorTests
         public void ValidVariableNames()
         {
             // an array with several valid variable names
-            string[] variables = { "A1", "B2", "AaBbCc1234", "alskdjfalsdkjf1", "TheAnswerToLifeTheUniverseAndEverythingIs42", "pI3141592654", "z129384701923874109"};
+            string[] variables = { "A1", "B2", "AaBbCc1234", "alskdjfalsdkjf1", "TheAnswerToLifeTheUniverseAndEverythingIs42", "pI3141592654", "z129384701923874109" };
             // an array with several just a bunch of values to lookup
-            int[] values = { 0, 10, 1234, 2 * 15, 42, 314159265, -18, 300, 254, 122584};
+            int[] values = { 0, 10, 1234, 2 * 15, 42, 314159265, -18, 300, 254, 122584 };
 
             // test each variable name in variables
-            for (int i = 0; i < variables.Length; i++)
+            for(int i = 0; i < variables.Length; i++)
             {
                 // the lookup function in this case will look up the value in the values field at the same index
                 // B2 should map to 10
@@ -176,8 +176,8 @@ namespace FormulaEvaluatorTests
                     Assert.AreEqual(values[i] * 2, Evaluator.Evaluate(variables[i], x => values[i] + values[i]));
                     // should never reach the following statement because an exception should always be thrown
                     Assert.Fail();
-                } 
-                catch (ArgumentException)
+                }
+                catch(ArgumentException)
                 {
                     // exception was caught, continue testing the next invalid name
                 }
@@ -215,6 +215,7 @@ namespace FormulaEvaluatorTests
 
         }
 
+        // check a bunch of division properties
         [TestMethod]
         public void IntDivisionSumTest()
         {
@@ -231,12 +232,6 @@ namespace FormulaEvaluatorTests
 
             Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
 
-            
-
-            
-
-            // need divide by zero
-
         }
 
         [TestMethod]
@@ -246,11 +241,12 @@ namespace FormulaEvaluatorTests
             string expression = "b3/b3 ";
             int expected = 1;
 
-            for (int i = 1; i < 10; i = i * 2)
+            for(int i = 1; i < 10; i++)
             {
-                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+                int n = (int)Math.Pow(2, i);
+                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => n));
             }
-            
+
         }
 
         [TestMethod]
@@ -260,23 +256,23 @@ namespace FormulaEvaluatorTests
             string expression = "0/b3 ";
             int expected = 0;
 
-            for(int i = 1; i < 10; i = i * 2)
+            for(int i = 1; i < 10; i++)
             {
-                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+                int n = (int)Math.Pow(2, i);
+                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => n));
             }
         }
 
         [TestMethod]
         public void DivideByOne()
         {
-            // zero divided anything should be 0
+            // something divided by 1 should equal that something
             string expression = "z58/1 ";
-            int expected = 0;
 
-            for(int i = 1; i < 10; i = i * 2)
+            for(int i = 1; i < 10; i++)
             {
-                expected = i;
-                Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => i));
+                int n = (int)Math.Pow(2, i);
+                Assert.AreEqual(n, Evaluator.Evaluate(expression, x => n));
             }
         }
 
@@ -299,11 +295,11 @@ namespace FormulaEvaluatorTests
 
             string equivalent = "14 / 7 * 1 / b1";
 
-            for(int i = 1; i < 100; i = i+2)
+            for(int i = 1; i < 100; i = i + 2)
             {
                 Assert.AreEqual(Evaluator.Evaluate(expression, x => i), Evaluator.Evaluate(equivalent, x => i));
             }
-           
+
         }
 
         [TestMethod]
@@ -318,26 +314,92 @@ namespace FormulaEvaluatorTests
                 //should never reach the next line
                 Assert.Fail();
             }
-            catch (ArgumentException)
+            catch(ArgumentException)
             {
                 // if no fail was detected, will pass test
             }
 
             expression = "b1 / (b1 - b1)";
 
-            for(int i = 1; i < 25; i *= 2)
+            for(int i = 1; i < 25; i++)
             {
+
                 try
                 {
-                    Evaluator.Evaluate(expression, x => i);
+                    int n = (int)Math.Pow(2, i);
+                    Evaluator.Evaluate(expression, x => n);
+
+                    //should never reach the next line
                     Assert.Fail();
                 }
-                catch (ArgumentException)
+                catch(ArgumentException)
                 {
                     // if no fail was detected, will pass test
                 }
             }
 
+        }
+
+        [TestMethod]
+        public void DivideByNegative()
+        {
+            // a number divided by something negative should equal a negative number 
+            string expression = "14 / (0 - 2)";
+            int expected = -7;
+
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
+        }
+
+        // multiplication properties
+        [TestMethod]
+        public void MultiplyByZero()
+        {
+            // a number multiplied by zero equals zero
+            string expression = "18 * 0";
+            int expected = 0;
+
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
+
+            // test it with another operator
+            expression = "bbsd45 * 99 + 3";
+            expected = 3;
+
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
+
+            // zero should follow the multiplication
+            expression = "bbsd45 * 2 * 4 * 8 * 16 * 32 * 64 * 128";
+            expected = 0;
+
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 0));
+        }
+
+        [TestMethod]
+        public void MultiplyByOne()
+        {
+            //something multiplied by 1 equals that something
+            string expression = "a4 * 1";
+
+
+            for(int i = 1; i < 10; i++)
+            {
+                int n = (int)Math.Pow(2, i);
+                Assert.AreEqual(n, Evaluator.Evaluate(expression, x => n));
+            }
+        }
+
+        // addition properties
+        [TestMethod]
+        public void AddToZero()
+        {
+            //something added to 0 equals that something
+            string expression = "a4 + 0 ";
+
+
+            for(int i = 1; i < 10; i++)
+            {
+                int n = (int)Math.Pow(2, i);
+                Assert.AreEqual(n, Evaluator.Evaluate(expression, x => n));
+            }
         }
 
         [TestMethod]
@@ -365,6 +427,173 @@ namespace FormulaEvaluatorTests
 
         }
 
+        // mess with operators
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TooManyOperatorsAtEnd()
+        {
 
+            // extra operator at end
+            string expression = "14 / 7 * 4 / 2  +";
+
+            Evaluator.Evaluate(expression, x => 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TooManyOperatorsAtStart()
+        {
+
+            // extra operator at end
+            string expression = " * 14 / 7 * 4 / 2 ";
+
+            Evaluator.Evaluate(expression, x => 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TooManyOperatorsInMiddle()
+        {
+
+            // extra operator at end
+            string expression = "14 / 7 * 4 * / 2 ";
+
+            Evaluator.Evaluate(expression, x => 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void NoOpperators()
+        {
+
+            // no opperators
+            string expression = "14  7";
+
+            Evaluator.Evaluate(expression, x => 0);
+
+        }
+
+        [TestMethod]
+        public void TryToPassNegativeInt()
+        {
+
+
+            string expression = "14 / -7 * 4  / 2 ";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+
+        }
+
+        [TestMethod]
+        public void MismatchedParenthesis()
+        {
+
+
+            string expression = "(14 / 7)) * 4 / 2 ";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+
+            expression = "((14 / 7) * 4 / 2 ";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+
+            expression = "(14 / 7) * 4 / 2 ) ";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+
+            expression = "((14 / 7 * 4 / 2 ";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+
+            expression = "14 / 7 * 4 / 2 ))";
+
+            try
+            {
+                Evaluator.Evaluate(expression, x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(ArgumentException)
+            {
+                // will pass if no fail is detected
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TryImplicitMultiplication()
+        {
+            string expression = "2(14+5)";
+            Evaluator.Evaluate(expression, x => 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TryPassingNullString()
+        {
+            string expression = null;
+            Evaluator.Evaluate(expression, x => 0);
+        }
+
+        [TestMethod]
+        public void NestedParenthesis()
+        {
+            string expression = "(5 + ((((b4)))))";
+            int expected = 10;
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
+        }
+
+        [TestMethod]
+        public void EmptyParenthesis()
+        {
+            string expression = "()";
+            int expected = 0;
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
+        }
     }
 }
