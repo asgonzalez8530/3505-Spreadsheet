@@ -589,11 +589,11 @@ namespace FormulaEvaluatorTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void EmptyParenthesis()
         {
             string expression = "()";
-            int expected = 0;
-            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
+            Evaluator.Evaluate(expression, x => 5);
         }
 
         [TestMethod]
@@ -602,6 +602,14 @@ namespace FormulaEvaluatorTests
             string expression = "(2 * b5) - 4 + 7 / 4";
             int expected = 7;
             Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => 5));
+        }
+
+        [TestMethod]
+        public void EveryOperandAndVariableCrazyWWhiteSpace()
+        {
+            string expression = "(2 + b5 * 3) - (4 + 7 / 4 -3+8-1* \t\t\t\n  zd56) / (b5)";
+            int expected = 6;
+            Assert.AreEqual(expected, Evaluator.Evaluate(expression, x => x == "b5"? 2: 5));
         }
     }
 }
