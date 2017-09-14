@@ -1,4 +1,6 @@
-﻿// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
+﻿// Implemented by Aaron Bellis u0981638 CS3500-006 Fall2017
+
+// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
 // Version 1.1 (Fixed error in comment for RemoveDependency.)
 
 using System;
@@ -38,11 +40,19 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
+
+        private Dictionary<string, HashSet<string>> dependents;
+        private Dictionary<string, HashSet<string>> dependees;
+        private int size;
+        
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
+            dependents = new Dictionary<string, HashSet<string>>();
+            dependees = new Dictionary<string, HashSet<string>>();
+            size = 0;
         }
 
 
@@ -51,7 +61,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int Size
         {
-            get { return 0; }
+            get { return size; }
+            private set { }
         }
 
 
@@ -64,7 +75,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return 0; }
+            get { return size; }
+            
         }
 
 
@@ -73,7 +85,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependents(string s)
         {
-            return false;
+            return dependents.ContainsKey(s);
         }
 
 
@@ -82,7 +94,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependees(string s)
         {
-            return false;
+            return dependees.ContainsKey(s);
         }
 
 
@@ -91,7 +103,15 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            return null;
+            if (dependents.ContainsKey(s))
+            {
+                return dependents[s];
+            }
+            else
+            {
+                return new HashSet<string>();
+            }
+
         }
 
         /// <summary>
@@ -99,7 +119,14 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-            return null;
+            if(dependents.ContainsKey(s))
+            {
+                return dependees[s];
+            }
+            else
+            {
+                return new HashSet<string>();
+            }
         }
 
 
@@ -112,9 +139,11 @@ namespace SpreadsheetUtilities
         ///
         /// </summary>
         /// <param name="s"> s must be evaluated first. T depends on S</param>
-        /// <param name="t"> t cannot be evaluated until s is</param>        /// 
+        /// <param name="t"> t cannot be evaluated until s is</param>
         public void AddDependency(string s, string t)
         {
+            
+            
         }
 
 
@@ -145,6 +174,45 @@ namespace SpreadsheetUtilities
         {
         }
 
+        /// <summary>
+        /// Handles updating the
+        /// </summary>
+        private void IncreaseSize()
+        {
+
+        }
+
+        
+    }
+
+    internal static class ExtensionMethods
+    {
+        /// <summary>
+        /// Takes two strings, a key and a value. If the key exists, adds the value to its coresponding HashSet.
+        /// If the value does not exist, creates a new HashSet adds the value to it then creates an entry in the dictionary
+        /// keyed by the parameter key, which looks up the new HashSet.
+        /// 
+        /// Returns true if the dictionary or underlying values were modified, else returns false
+        /// </summary>
+        /// <param name="key">The string used to lookup individual Hashsets</param>
+        /// <param name="value">A string to be added to a keyed HashSet</param>
+        /// <returns>Returns true if the Dictionary, or underlying HashSets were changed, else returns false</returns>
+        public static bool AddKeyValue(this Dictionary<string, HashSet<string>> dict, string key, string value)
+        {
+            if(dict.ContainsKey(key))
+            {
+                // this returns true if the hashset was modified
+                return dict[key].Add(value);
+            }
+            else
+            {
+                HashSet<string> set = new HashSet<string>();
+                set.Add(key);
+                dict.Add(key, set);
+                // since we are creating everything to add, it is going to be added
+                return true;
+            }
+        }
     }
 
 }

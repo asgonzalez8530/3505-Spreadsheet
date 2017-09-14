@@ -12,7 +12,7 @@ namespace FormulaEvaluator
     /// </summary>
     public static class Evaluator
     {
-        //private const string allTokensPattern= @"(^\($)|(^\)$)|(^-$)|(^\+$)|(^\*$)|(^/$)|(^[a-zA-Z]+\d+$)|(^\d+$)";
+        
 
         /// <summary>
         /// A Lookup function maps the value of some string v to an integer value
