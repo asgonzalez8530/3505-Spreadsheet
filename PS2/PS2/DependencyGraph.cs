@@ -44,7 +44,7 @@ namespace SpreadsheetUtilities
         private Dictionary<string, HashSet<string>> dependents;
         private Dictionary<string, HashSet<string>> dependees;
         private int size;
-        
+
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
@@ -62,7 +62,6 @@ namespace SpreadsheetUtilities
         public int Size
         {
             get { return size; }
-            private set { }
         }
 
 
@@ -75,8 +74,18 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return size; }
-            
+            get
+            {
+                if (dependees.ContainsKey(s))
+                {
+                    return dependees[s].Count;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
         }
 
 
@@ -103,9 +112,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            if (dependents.ContainsKey(s))
+            if(dependents.ContainsKey(s))
             {
-                return dependents[s];
+                // per instructions, create copy for this implementation
+                return dependents[s].ToList<string>();
             }
             else
             {
@@ -119,9 +129,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-            if(dependents.ContainsKey(s))
+            if(dependees.ContainsKey(s))
             {
-                return dependees[s];
+                // per instructions, create copy for this implementation
+                return dependees[s].ToList<string>();
             }
             else
             {
@@ -142,8 +153,19 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t cannot be evaluated until s is</param>
         public void AddDependency(string s, string t)
         {
-            
-            
+            // update dependents and dependees and check if either was changed
+            // done this way instead of 
+            // dependents.AddKeyAndHashValue(s, t) || dependees.AddKeyAndHashValue(t, s)
+            // because dependees.AddKeyAndHashValue(t, s) wouldn't be called if first is true
+            bool added;
+            added = dependents.AddKeyAndHashValue(s, t);
+            added = dependees.AddKeyAndHashValue(t, s) || added;
+
+            if(added)
+            {
+                size++;
+            }
+
         }
 
 
@@ -154,7 +176,20 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
+            // done this way instead of 
+            // dependents.AddKeyAndHashValue(s, t) || dependees.AddKeyAndHashValue(t, s)
+            // because dependees.RemoveKeyAndHashValue(t, s) wouldn't be called if first is true
+            bool removed;
+            removed = dependents.RemoveKeyAndHashValue(s, t);
+            removed = dependees.RemoveKeyAndHashValue(t, s) || removed;
+
+            if(removed)
+            {
+                size--;
+            }
         }
+
+
 
 
         /// <summary>
@@ -163,6 +198,22 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
+            // if s has dependents remove them
+            if(dependents.ContainsKey(s))
+            {
+                string[] oldDependents = dependents[s].ToArray();
+                foreach(string r in oldDependents)
+                {
+                    RemoveDependency(s, r);
+                }
+            }
+
+            // add new dependents
+            foreach(string t in newDependents)
+            {
+                AddDependency(s, t);
+            }
+
         }
 
 
@@ -172,32 +223,38 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            // if s has dependees remove them
+            if(dependees.ContainsKey(s))
+            {
+                string[] oldDependees = dependees[s].ToArray();
+                foreach(string r in oldDependees)
+                {
+                    RemoveDependency(r, s);
+                }
+            }
+
+            // add new dependees
+            foreach(string t in newDependees)
+            {
+                AddDependency(t, s);
+            }
         }
 
-        /// <summary>
-        /// Handles updating the
-        /// </summary>
-        private void IncreaseSize()
-        {
-
-        }
-
-        
     }
 
     internal static class ExtensionMethods
     {
         /// <summary>
         /// Takes two strings, a key and a value. If the key exists, adds the value to its coresponding HashSet.
-        /// If the value does not exist, creates a new HashSet adds the value to it then creates an entry in the dictionary
-        /// keyed by the parameter key, which looks up the new HashSet.
+        /// If the value does not exist, creates a new HashSet which contains the value then creates an entry 
+        /// in the dictionary keyed by the parameter key, which looks up the new HashSet.
         /// 
         /// Returns true if the dictionary or underlying values were modified, else returns false
         /// </summary>
         /// <param name="key">The string used to lookup individual Hashsets</param>
         /// <param name="value">A string to be added to a keyed HashSet</param>
         /// <returns>Returns true if the Dictionary, or underlying HashSets were changed, else returns false</returns>
-        public static bool AddKeyValue(this Dictionary<string, HashSet<string>> dict, string key, string value)
+        public static bool AddKeyAndHashValue(this Dictionary<string, HashSet<string>> dict, string key, string value)
         {
             if(dict.ContainsKey(key))
             {
@@ -206,11 +263,50 @@ namespace SpreadsheetUtilities
             }
             else
             {
-                HashSet<string> set = new HashSet<string>();
-                set.Add(key);
-                dict.Add(key, set);
-                // since we are creating everything to add, it is going to be added
+                dict.Add(key, new HashSet<string> { value });
+                // since we are creating everything to add, we know it had to be added
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Takes two strings, a key and a value. If the key exists, removes the value from its corresponding 
+        /// HashSet. If the corresponding HashSet becomes empty, the key and the corresponding HashSet are 
+        /// removed from the dictionary.
+        /// 
+        /// Returns true if the dictionary or underlying values were modified, else returns false
+        /// </summary>
+        /// <param name="key">The string used to lookup individual Hashsets</param>
+        /// <param name="value">A string to be removed from a keyed HashSet</param>
+        /// <returns>Returns true if the Dictionary, or underlying HashSets were changed, else returns false</returns>
+        public static bool RemoveKeyAndHashValue(this Dictionary<string, HashSet<string>> dict, string key, string value)
+        {
+            if(dict.ContainsKey(key))
+            {
+                // key was found
+                // this returns true if the hashset was modified
+                if(dict[key].Remove(value))
+                {
+                    // if the value was removed, see if we need to remove the key
+                    if(dict[key].Count < 1)
+                    {
+                        dict.Remove(key);
+                    }
+
+                    // we have modified the Dictionary or underlying HashSet, return true;
+                    return true;
+                }
+                else
+                {
+                    // Key was found but the value wasn't in the HashSet to be removed
+                    return false;
+                }
+            }
+            else
+            {
+
+                // neither the key or the value was found, nothing was changed
+                return false;
             }
         }
     }
