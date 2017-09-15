@@ -41,8 +41,15 @@ namespace SpreadsheetUtilities
     public class DependencyGraph
     {
 
+        // a dictionary which looks up all dependents of s. If s
+        // has no dependents the key s will not be in the dictionary.
         private Dictionary<string, HashSet<string>> dependents;
+
+        // a dictionary which looks up all dependees of t. If s
+        // has no dependents the key t will not be in the dictionary.
         private Dictionary<string, HashSet<string>> dependees;
+
+        // Holds the size of this dependency graph
         private int size;
 
         /// <summary>
@@ -115,7 +122,7 @@ namespace SpreadsheetUtilities
             if(dependents.ContainsKey(s))
             {
                 // per instructions, create copy for this implementation
-                return dependents[s].ToList<string>();
+                return dependents[s].ToList();
             }
             else
             {
@@ -132,7 +139,7 @@ namespace SpreadsheetUtilities
             if(dependees.ContainsKey(s))
             {
                 // per instructions, create copy for this implementation
-                return dependees[s].ToList<string>();
+                return dependees[s].ToList();
             }
             else
             {
@@ -188,8 +195,6 @@ namespace SpreadsheetUtilities
                 size--;
             }
         }
-
-
 
 
         /// <summary>

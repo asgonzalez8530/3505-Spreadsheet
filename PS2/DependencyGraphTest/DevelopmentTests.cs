@@ -1,4 +1,6 @@
-﻿using SpreadsheetUtilities;
+﻿// tests in indicated sections written by Aaron Bellis u0981638 for CS3500
+
+using SpreadsheetUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -478,6 +480,21 @@ namespace PS2GradingTests
                 Assert.IsTrue(dees[i].SetEquals(new HashSet<string>(t.GetDependees(letters[i]))));
             }
 
+        }
+
+        // ************************** Additional Tests By Aaron Bellis ************************* //
+
+        /// <summary>
+        /// Make sure removing dependency not in graph changes nothing
+        ///</summary>
+        [TestMethod()]
+        public void RemoveDependencyDoesntExist()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.RemoveDependency("a", "d");
+            Assert.AreEqual(2, t.Size);
         }
     }
 }
