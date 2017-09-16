@@ -1,4 +1,4 @@
-﻿// tests in indicated sections written by Aaron Bellis u0981638 for CS3500
+﻿// tests in indicated sections written by Aaron Bellis u0981638 for CS3500-006 Fall 2017
 
 using SpreadsheetUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +15,7 @@ namespace PS2GradingTests
     ///  way toward ensuring correctness.
     /// 
     ///  You are strongly encouraged to write additional tests as you think about the required
-    ///  functionality of yoru library.
+    ///  functionality of your library.
     /// 
     ///</summary>
     [TestClass()]
