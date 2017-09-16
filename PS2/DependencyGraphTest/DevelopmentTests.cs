@@ -485,16 +485,440 @@ namespace PS2GradingTests
         // ************************** Additional Tests By Aaron Bellis ************************* //
 
         /// <summary>
-        /// Make sure removing dependency not in graph changes nothing
+        /// check the size of graph after adding several dependencies
         ///</summary>
         [TestMethod()]
-        public void RemoveDependencyDoesntExist()
+        public void GraphSizeAdd()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("c", "d");
+
+            // size should be the 3
+            Assert.AreEqual(3, t.Size);
+        }
+
+        /// <summary>
+        /// Check the size of the graph after adding several dependencies including duplicates
+        ///</summary>
+        [TestMethod()]
+        public void GraphSizeAddDuplicate()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("c", "d");
+
+            // add duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // size should be the same
+            Assert.AreEqual(3, t.Size);
+        }
+
+        /// <summary>
+        /// Check the size of the graph after adding several dependencies then removing a few
+        ///</summary>
+        [TestMethod()]
+        public void GraphSizeAddRemove()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("c", "d");
+            t.AddDependency("d", "e");
+            t.AddDependency("e", "f");
+            t.AddDependency("f", "g");
+
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // size should be the same
+            Assert.AreEqual(4, t.Size);
+        }
+
+        /// <summary>
+        /// Check the size of the graph after adding several dependencies including duplicates
+        /// then removing a few
+        ///</summary>
+        [TestMethod()]
+        public void GraphSizeAddRemoveDuplicates()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("c", "d");
+            t.AddDependency("d", "e");
+            t.AddDependency("e", "f");
+            t.AddDependency("f", "g");
+
+            // add some duplicates
+            t.AddDependency("c", "d");
+            t.AddDependency("d", "e");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // size should be the same
+            Assert.AreEqual(4, t.Size);
+        }
+
+        /// <summary>
+        /// indexer for Dependency graph checks the size of the indexed dependees
+        /// check size of several sets of dependees
+        ///</summary>
+        [TestMethod()]
+        public void GraphIndexer()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
             t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.AddDependency("b", "a");
+            t.AddDependency("b", "c");
+            t.AddDependency("e", "a");
+
+            // add some duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // dependees of a = {"b", "e"}
+            // dependees of b = {}
+            // dependees of c = {"a"}
+            // dependees of d = {"a"}
+            // dependees of e = {}
+
+            // check each member in indexer
+            Assert.AreEqual(2, t["a"]);
+            Assert.AreEqual(0, t["b"]);
+            Assert.AreEqual(1, t["c"]);
+            Assert.AreEqual(1, t["d"]);
+            Assert.AreEqual(0, t["e"]);
+        }
+
+        /// <summary>
+        /// check HasDependents for a small graph
+        ///</summary>
+        [TestMethod()]
+        public void HasDependentsTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.AddDependency("b", "a");
+            t.AddDependency("b", "c");
+            t.AddDependency("e", "a");
+
+            // add some duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // dependents of a = {"c", "d"}
+            // dependents of b = {"a"}
+            // dependents of c = {}
+            // dependents of d = {}
+            // dependents of e = {"a"}
+
+            // dependees of a = {"b", "e"}
+            // dependees of b = {}
+            // dependees of c = {"a"}
+            // dependees of d = {"a"}
+            // dependees of e = {}
+
+            // check dependents of each graph member
+            Assert.IsTrue(t.HasDependents("a"));
+            Assert.IsTrue(t.HasDependents("b"));
+            Assert.IsFalse(t.HasDependents("c"));
+            Assert.IsFalse(t.HasDependents("d"));
+            Assert.IsTrue(t.HasDependents("e"));
+        }
+
+        /// <summary>
+        /// check HasDependees for a small graph
+        ///</summary>
+        [TestMethod()]
+        public void HasDependeesTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.AddDependency("b", "a");
+            t.AddDependency("b", "c");
+            t.AddDependency("e", "a");
+
+            // add some duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // dependents of a = {"c", "d"}
+            // dependents of b = {"a"}
+            // dependents of c = {}
+            // dependents of d = {}
+            // dependents of e = {"a"}
+
+            // dependees of a = {"b", "e"}
+            // dependees of b = {}
+            // dependees of c = {"a"}
+            // dependees of d = {"a"}
+            // dependees of e = {}
+
+            // check dependees of each graph member
+            Assert.IsTrue(t.HasDependees("a"));
+            Assert.IsFalse(t.HasDependees("b"));
+            Assert.IsTrue(t.HasDependees("c"));
+            Assert.IsTrue(t.HasDependees("d"));
+            Assert.IsFalse(t.HasDependees("e"));
+        }
+
+        /// <summary>
+        /// check GetDependents for a small graph
+        ///</summary>
+        [TestMethod()]
+        public void GetDependentsTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.AddDependency("b", "a");
+            t.AddDependency("b", "c");
+            t.AddDependency("e", "a");
+
+            // add some duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // dependents of a = {"c", "d"}
+            // dependents of b = {"a"}
+            // dependents of c = {}
+            // dependents of d = {}
+            // dependents of e = {"a"}
+
+            List<string> aDependents = new List<string> { "c", "d" };
+            List<string> bDependents = new List<string> { "a" };
+            List<string> cDependents = new List<string> { };
+            List<string> dDependents = new List<string> { };
+            List<string> eDependents = new List<string> { "a" };
+
+
+            // dependees of a = {"b", "e"}
+            // dependees of b = {}
+            // dependees of c = {"a"}
+            // dependees of d = {"a"}
+            // dependees of e = {}
+
+
+            // check dependees of each graph member
+            Assert.IsTrue(StringListEquals(aDependents, new List<string>(t.GetDependents("a"))));
+            Assert.IsTrue(StringListEquals(bDependents, new List<string>(t.GetDependents("b"))));
+            Assert.IsTrue(StringListEquals(cDependents, new List<string>(t.GetDependents("c"))));
+            Assert.IsTrue(StringListEquals(dDependents, new List<string>(t.GetDependents("d"))));
+            Assert.IsTrue(StringListEquals(eDependents, new List<string>(t.GetDependents("e"))));
+        }
+
+        /// <summary>
+        /// check GetDependents for a small graph
+        ///</summary>
+        [TestMethod()]
+        public void GetDependeesTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.AddDependency("b", "a");
+            t.AddDependency("b", "c");
+            t.AddDependency("e", "a");
+
+            // add some duplicates
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+
+            // remove a couple dependencies
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("b", "c");
+
+            // dependents of a = {"c", "d"}
+            // dependents of b = {"a"}
+            // dependents of c = {}
+            // dependents of d = {}
+            // dependents of e = {"a"}
+
+            // dependees of a = {"b", "e"}
+            // dependees of b = {}
+            // dependees of c = {"a"}
+            // dependees of d = {"a"}
+            // dependees of e = {}
+
+            List<string> aDependees = new List<string> { "b", "e" };
+            List<string> bDependees = new List<string> { };
+            List<string> cDependees = new List<string> { "a" };
+            List<string> dDependees = new List<string> { "a" };
+            List<string> eDependees = new List<string> { };
+
+
+            // check dependees of each graph member
+            Assert.IsTrue(StringListEquals(aDependees, new List<string>(t.GetDependees("a"))));
+            Assert.IsTrue(StringListEquals(bDependees, new List<string>(t.GetDependees("b"))));
+            Assert.IsTrue(StringListEquals(cDependees, new List<string>(t.GetDependees("c"))));
+            Assert.IsTrue(StringListEquals(dDependees, new List<string>(t.GetDependees("d"))));
+            Assert.IsTrue(StringListEquals(eDependees, new List<string>(t.GetDependees("e"))));
+        }
+
+        
+
+        /// <summary>
+        /// try removing from empty graph
+        ///</summary>
+        [TestMethod()]
+        public void RemoveEmptyGraph()
+        {
+            DependencyGraph t = new DependencyGraph();
+            // removing from an empty graph shouldn't cause any error
+            t.RemoveDependency("a", "b");
+
+            // state should be the same
+            Assert.AreEqual(0, t.Size);
+        }
+
+        /// <summary>
+        /// try removing from empty graph
+        ///</summary>
+        [TestMethod()]
+        public void RemoveTooMany()
+        {
+            DependencyGraph t = new DependencyGraph();
+            // add then remove dependencies
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("a", "c");
+
+            // removing from an empty graph shouldn't cause any error
+            t.RemoveDependency("a", "b");
+            t.RemoveDependency("a", "c");
+            t.RemoveDependency("b", "r");
+
+            // check graph state
+            Assert.AreEqual(0, t.Size);
+            Assert.IsFalse(t.HasDependents("a"));
+            Assert.IsFalse(t.HasDependents("b"));
+            Assert.IsFalse(t.HasDependees("b"));
+            Assert.IsFalse(t.HasDependees("c"));
+            Assert.IsFalse(t.HasDependees("r"));
+        }
+
+        /// <summary>
+        /// Make sure removing dependency not in graph changes nothing
+        ///</summary>
+        [TestMethod()]
+        public void RemoveDependencyDoesntExistSize()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            // remove a dependency that doesn't exist. 
             t.RemoveDependency("a", "d");
+            // check state
+            // there should be two dependencies in graph
             Assert.AreEqual(2, t.Size);
+        }
+
+        /// <summary>
+        /// Make sure removing dependency not in graph changes nothing
+        ///</summary>
+        [TestMethod()]
+        public void RemoveDependencyDoesntExistDependents()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            // remove a dependency that doesn't exist. 
+            t.RemoveDependency("a", "d");
+            // check state
+
+            // a should have two dependents
+            List<string> dependents = new List<string>(t.GetDependents("a"));
+            Assert.AreEqual(2, dependents.Count);
+
+
+        }
+
+        /// <summary>
+        /// Make sure removing dependency not in graph changes nothing
+        ///</summary>
+        [TestMethod()]
+        public void RemoveDependencyDoesntExistDependees()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            // remove a dependency that doesn't exist. 
+            t.RemoveDependency("a", "d");
+            // check state
+
+            // "b" and "c" should have one dependee called "a"
+            List<string> dependees = new List<string>(t.GetDependees("b"));
+            Assert.AreEqual(1, dependees.Count);
+            Assert.AreEqual("a", dependees[0]);
+            dependees = new List<string>(t.GetDependees("c"));
+            Assert.AreEqual(1, dependees.Count);
+            Assert.AreEqual("a", dependees[0]);
+
+        }
+
+        //****************************methods to facilitate testing *************************************// 
+
+        /// <summary>
+        /// This determines if two List<string> objects are equal. They are equal if they are the same size 
+        /// and contain the same members. The order does not matter.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        private bool StringListEquals(List<string> a, List<string> b)
+        {
+            // check the size
+            if(a.Count != b.Count)
+            {
+                return false;
+            }
+
+            // check the elements of a against b
+            // since they are the same size should check everything in b
+            foreach(string s in a)
+            {
+                if(!b.Contains(s))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
         }
     }
 }
