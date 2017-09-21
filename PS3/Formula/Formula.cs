@@ -1,4 +1,6 @@
-﻿// Skeleton written by Joe Zachary for CS 3500, September 2013
+﻿// implemented by Aaron Bellis u0981638 for CS 3500 Fall 2017
+
+// Skeleton written by Joe Zachary for CS 3500, September 2013
 // Read the entire skeleton carefully and completely before you
 // do anything else!
 
@@ -44,6 +46,21 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class Formula
     {
+        // A list which contains a tokenized version of this formula. Tokens contained in this 
+        // list will be valid and in an order that is syntactically correct. 
+        private List<string> tokens;
+
+        // Contains the set of all varaibles contained in this formula. The variables are stored in
+        // normalized form. 
+        private HashSet<string> variables;
+
+
+        // might not need these, available to store normalizer and validator
+        private Func<string, string> normal;
+
+        private Func<string, bool> validator;
+
+
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -122,7 +139,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<String> GetVariables()
         {
-            return null;
+            return variables.ToList();
         }
 
         /// <summary>
@@ -137,7 +154,13 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override string ToString()
         {
-            return null;
+            string s = "";
+            foreach (string t in tokens)
+            {
+                s += t;
+            }
+
+            return s;
         }
 
         /// <summary>
@@ -162,7 +185,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override bool Equals(object obj)
         {
-            return false;
+            Formula f = obj as Formula;
+            return f != null && f.ToString() == obj.ToString();
         }
 
         /// <summary>
@@ -172,7 +196,14 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            return false;
+            // check if both formulas are null
+            if (ReferenceEquals(f1, null))
+            {
+                return ReferenceEquals(f2, null);
+            }
+
+            // return the overridden value of Equals()
+            return f1.Equals(f2);
         }
 
         /// <summary>
@@ -182,7 +213,14 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator !=(Formula f1, Formula f2)
         {
-            return false;
+            // check if both formulas are null
+            if(ReferenceEquals(f1, null))
+            {
+                return !ReferenceEquals(f2, null);
+            }
+
+            // return the overridden value of Equals()
+            return !f1.Equals(f2);
         }
 
         /// <summary>
@@ -192,7 +230,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override int GetHashCode()
         {
-            return 0;
+            return ToString().GetHashCode();
         }
 
         /// <summary>
