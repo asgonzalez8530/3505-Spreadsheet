@@ -1,4 +1,4 @@
-﻿// implemented by Aaron Bellis u0981638 for CS 3500 Fall 2017
+﻿    // implemented by Aaron Bellis u0981638 for CS 3500 Fall 2017
 
 // Skeleton written by Joe Zachary for CS 3500, September 2013
 // Read the entire skeleton carefully and completely before you
@@ -55,12 +55,6 @@ namespace SpreadsheetUtilities
         private HashSet<string> variables;
 
 
-        // might not need these, available to store normalizer and validator
-        private Func<string, string> normal;
-
-        private Func<string, bool> validator;
-
-
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -98,6 +92,87 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
+            variables = new HashSet<string>();
+            // clean, validate and normalize tokens. And since we are checking variables, we may as well add them to
+            // the variables set.
+            List <string> validCleanedTokens = CleanAndValidate(GetTokens(formula), normalize, isValid);
+
+            // verify correct syntax
+            VerifySyntaxAndGetVariables(validCleanedTokens);
+
+            // store valid function
+            tokens = validCleanedTokens;
+        }
+
+
+
+
+
+        /// <summary>
+        /// Takes an IEnumerator<string> object which enumerates the individual tokens which make up
+        /// a formula, normalizes each token using the provided normalize deligate and checks 
+        /// that each token is valid. If a token is not valid throws a a FormulaFormatException with an 
+        /// explanatory message. 
+        /// 
+        /// Will return a list of all valid tokens which are cleaned and validated.
+        /// </summary>
+
+        /// <returns></returns>
+        private List<string> CleanAndValidate(IEnumerable<string> tokens, Func<string, string> normalize, Func<string, bool> isValid)
+        {
+            List<string> t = new List<string>();
+            foreach(string token in tokens)
+            {
+
+                // normalize
+                string v = normalize(token);
+                
+                // normalize double values
+                v = DoubleNormalize(v);
+
+                // if normalized token is not valid, throw exception.
+                if(!IsValidToken(v))
+                {
+                    string message = "Token, \"" + token + ",\" was invalid ";
+                    message += "when normalized to \"" + v + "\"";
+                    throw new FormulaFormatException(message);
+                }
+
+                // now that we know it is a valid token by normal 
+                // rules we can do a simple check for variables
+                if (v.StartsWithLetterOrUnderscore())
+                {
+                    if(!isValid(v))
+                    {
+                        string message = "Variable, \"" + token + ",\" was invalid ";
+                        message += "when normalized to \"" + v + "\"";
+                        throw new FormulaFormatException(message);
+                    }
+
+                    // we have a valid variable, may as well add it to variables set
+                    variables.Add(v);
+                }
+
+                t.Add(v);
+            }
+            return t;
+        }
+
+        /// <summary>
+        /// Takes in a string value, if it can be parsed to a double d, returns 
+        /// the d.ToString() else returns v unchanged. 
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        private string DoubleNormalize(string v)
+        {
+            double d = 0;
+            if (double.TryParse(v, out d))
+            {
+                return d.ToString();
+            }
+
+            return v;
         }
 
         /// <summary>
@@ -155,7 +230,7 @@ namespace SpreadsheetUtilities
         public override string ToString()
         {
             string s = "";
-            foreach (string t in tokens)
+            foreach(string t in tokens)
             {
                 s += t;
             }
@@ -186,7 +261,7 @@ namespace SpreadsheetUtilities
         public override bool Equals(object obj)
         {
             Formula f = obj as Formula;
-            return f != null && f.ToString() == obj.ToString();
+            return f != null && ToString() == f.ToString();
         }
 
         /// <summary>
@@ -197,7 +272,7 @@ namespace SpreadsheetUtilities
         public static bool operator ==(Formula f1, Formula f2)
         {
             // check if both formulas are null
-            if (ReferenceEquals(f1, null))
+            if(ReferenceEquals(f1, null))
             {
                 return ReferenceEquals(f2, null);
             }
@@ -234,6 +309,195 @@ namespace SpreadsheetUtilities
         }
 
         /// <summary>
+        /// Takes a list of valid tokens making up this formula and enumerates each variable.
+        /// 
+        /// If there is a syntax error in the cleaned tokens, throws a FormulaFormatException. 
+        /// </summary>
+        private void VerifySyntaxAndGetVariables(List<string> cleanedTokens)
+        {
+
+            // C complexity rules
+            OneTokenRule(cleanedTokens);
+            StartingTokenRule(cleanedTokens);
+            EndingTokenRule(cleanedTokens);
+
+            // N complexity rules
+            // counter for parentheses rules
+            int parenthesesCount = 0;
+            for(int i = 0; i < cleanedTokens.Count; i++)
+            {
+                if(cleanedTokens[i] == "(")
+                {
+                    parenthesesCount++;
+                    ParenthesesFollowRule(cleanedTokens, i);
+                }
+                else if(cleanedTokens[i] == ")")
+                {
+                    RightParenthesesRule(--parenthesesCount);
+                    ExtraFollowRule(cleanedTokens, i);
+                }
+                else if(cleanedTokens[i].StartsWithLetterOrUnderscore() || cleanedTokens[i].StartsWithNumber())
+                {
+                    ExtraFollowRule(cleanedTokens, i);
+                }
+            }
+
+            BalancedParenthesesRule(parenthesesCount);
+        }
+
+        /// <summary>
+        /// Extra Follow Rule: Any token that immediately follows a number, a variable, or a closing  
+        /// parenthesis must be either an operator or a closing parenthesis.
+        /// 
+        /// If the Extra Follow Rule is violated, throws a FormulaFormatException
+        /// </summary>
+        private void ExtraFollowRule(List<string> cleanedTokens, int i)
+        {
+            string message = "Extra Follow Rule Violation: Any token that immediately follows ";
+            message = "a number, a variable, or a closing parenthesis must be either an operator ";
+            message = "or a closing parenthesis.";
+
+            // check next token
+            if(cleanedTokens.Count < (i + 1))
+            {
+                string nextToken = cleanedTokens[i + 1];
+                if(!nextToken.IsOperator() || nextToken != ")")
+                {
+                    throw new FormulaFormatException(message);
+                }
+            }
+            // there wasn't a next token ... shouldn't have happened 
+            else
+            {
+                throw new FormulaFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Parentheses Follow Rule: Any token that immediately follows an opening parenthesis or
+        /// an operator must be either a number, a variable, or an opening parenthesis.
+        /// 
+        /// If the Parentheses Follow Rule is violated, throws a FormulaFormatException
+        /// </summary>
+        private void ParenthesesFollowRule(List<string> cleanedTokens, int i)
+        {
+            string message = "Parentheses Follow Rule Violation: Any token that immediately follows an ";
+            message += "opening parenthesis or an operator must be either a number, a variable, or an ";
+            message += "opening parenthesis.";
+
+            // check next token
+            if(cleanedTokens.Count < (i + 1))
+            {
+                string nextToken = cleanedTokens[i + 1];
+                if(!nextToken.StartsWithNumber() || !nextToken.StartsWithLetterOrUnderscore() || nextToken != "(")
+                {
+                    throw new FormulaFormatException(message);
+                }
+            }
+            // there wasn't a next token ... shouldn't have happened 
+            else
+            {
+                throw new FormulaFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Ending Token Rule: The last token of an expression must be a number, a variable, or a closing parenthesis.
+        /// 
+        /// If the Ending Token Rule is violated, throws a FormulaFormatException
+        /// </summary>
+        private void EndingTokenRule(List<string> cleanedTokens)
+        {
+            if(cleanedTokens.Count > 0)
+            {
+                string startingToken = cleanedTokens[0];
+                if(startingToken != ")" || !startingToken.StartsWithNumber() || startingToken.StartsWithLetterOrUnderscore())
+                {
+                    string message = "Ending Token Rule Violation: The last token of an expression must be a number, a ";
+                    message = "variable, or a closing parenthesis.";
+                    throw new FormulaFormatException(message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Starting Token Rule: The first token of an expression must be a number, a variable, or an opening parenthesis.
+        /// 
+        /// If Starting Token Rule is violated, throws FormulaFormatException
+        /// </summary>
+        private void StartingTokenRule(List<string> cleanedTokens)
+        {
+            if(cleanedTokens.Count > 0)
+            {
+                string startingToken = cleanedTokens[0];
+                if(startingToken != "(" || !startingToken.StartsWithNumber() || startingToken.StartsWithLetterOrUnderscore())
+                {
+                    string message = "Starting Token Rule Violation: The first token of an expression must be ";
+                    message = "a number, a variable, or an opening parenthesis";
+                    throw new FormulaFormatException(message);
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// One Token Rule: there must be at least one token.
+        /// 
+        /// If One Token Rule is violated, throws FormulaFormatException
+        /// </summary>
+        /// <param name="cleanedTokens"></param>
+        private void OneTokenRule(List<string> cleanedTokens)
+        {
+            // one token rule: there must be at least one token
+            if(cleanedTokens.Count < 1)
+            {
+                string message = "One Token Rule Violation: ";
+                message += "Formula must contain at least one token.";
+                throw new FormulaFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Balanced Parentheses Rule: The total number of opening parentheses must equal the total number 
+        /// of closing parentheses.
+        /// 
+        /// Takes an int which represents the number of opening parentheses minus the number of closing
+        /// parentheses. If Balanced Parentheses rule is violated throws FormulaFormatException.
+        /// </summary>
+        /// <param name="parenthesesCount"> The number of opening parentheses minus the number of closing
+        /// parentheses</param>
+        private void BalancedParenthesesRule(int parenthesesCount)
+        {
+            if(parenthesesCount != 0)
+            {
+                string message = "Balanced Parentheses Rule Violation: The total number of opening ";
+                message = "parentheses must equal the total number of closing parentheses";
+                throw new FormulaFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Right Parenthesis Rule: When reading tokens from left to right, at no point should 
+        /// the number of closing parentheses seen so far be greater than the number of opening 
+        /// parentheses seen so far.
+        /// 
+        /// Takes an int which represents the number of opening parentheses minus the number of closing
+        /// parentheses seen thus far when read from left to right. If right parenthesis rule is violated
+        /// throws FormulaFormatException.
+        /// </summary>
+        /// <param name="parenthesesCount"> The number of opening parentheses minus the number of closing
+        /// parentheses seen thus far when read from left to right</param>
+        private void RightParenthesesRule(int parenthesesCount)
+        {
+            if(parenthesesCount < 0)
+            {
+                string message = "Right Parentheses Rule Violation: Number of closing parentheses greater than ";
+                message = "opening parentheses when read from left to right";
+                throw new FormulaFormatException(message);
+            }
+        }
+
+        /// <summary>
         /// Given an expression, enumerates the tokens that compose it.  Tokens are left paren;
         /// right paren; one of the four operator symbols; a string consisting of a letter or underscore
         /// followed by zero or more letters, digits, or underscores; a double literal; and anything that doesn't
@@ -262,6 +526,24 @@ namespace SpreadsheetUtilities
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Takes in a string, token, and returns true if it's a valid token
+        /// 
+        /// Tokens are valid if they are  "(", ")", "+", "-", "*", or "/".
+        /// Tokens are also valid if it is a string which consists of a letter
+        /// or underscore followed by zero or more letters, underscores,
+        /// or digits or is a valid floating point number.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        private static bool IsValidToken(string token)
+        {
+            double d = 0;
+            // a pattern that matches all valid tokens without white space
+            string pattern = @"( ^\($ ) | ( ^\)$ ) | (^-$) | ( ^\+$ ) | ( ^\*$ ) | ( ^/$ ) | ( ^[a-zA-Z_][a-zA-Z\d_]*$ )";
+            return Regex.IsMatch(token, pattern, RegexOptions.IgnorePatternWhitespace) || double.TryParse(token, out d);
         }
     }
 
@@ -298,5 +580,34 @@ namespace SpreadsheetUtilities
         ///  The reason why this FormulaError was created.
         /// </summary>
         public string Reason { get; private set; }
+    }
+
+    internal static class ExtensionMethods
+    {
+        /// <summary>
+        /// Returns true if string begins with a number
+        /// </summary>
+        public static bool StartsWithNumber(this string s)
+        {
+            return (s[0] >= '0' && s[0] <= '9');
+        }
+
+        /// <summary>
+        /// Returns true if this string begins with a letter of the english alphabet or an underscore
+        /// </summary>
+        public static bool StartsWithLetterOrUnderscore(this String s)
+        {
+            return ((s[0] >= 'a' && s[0] <= 'z') || (s[0] >= 'A' && s[0] <= 'Z') || (s[0] == '_'));
+        }
+
+        /// <summary>
+        /// Returns true if this string is an operator '+', '-', '*' or '/'.
+        /// </summary>
+        public static bool IsOperator(this String s)
+        {
+            return (s == "+" || s == "-" || s == "*" || s == "/");
+        }
+
+
     }
 }
