@@ -199,8 +199,8 @@ namespace SpreadsheetUtilities
             Stack<double> values = new Stack<double>();
             Stack<string> operators = new Stack<string>();
 
-            
-            
+
+
 
             // this is the main body of the algorithm where the expression is evaluated
             foreach(string token in tokens)
@@ -226,12 +226,12 @@ namespace SpreadsheetUtilities
                         operand = lookup(token);
                         HandleDouble(operand, values, operators);
                     }
-                    catch (ArgumentException e)
+                    catch(ArgumentException e)
                     {
-                         
+
                         return new FormulaError(e.Message);
                     }
-                    
+
                 }
                 else if(token == "+" || token == "-")
                 {
@@ -528,26 +528,22 @@ namespace SpreadsheetUtilities
         /// 
         /// If the Extra Follow Rule is violated, throws a FormulaFormatException
         /// </summary>
-        private void ExtraFollowRule(List<string> cleanedTokens, int i)
+        private void ExtraFollowRule(List<string> cleanedTokens, int index)
         {
             string message = "Extra Follow Rule Violation: Any token that immediately follows ";
-            message = "a number, a variable, or a closing parenthesis must be either an operator ";
-            message = "or a closing parenthesis.";
+            message += "a number, a variable, or a closing parenthesis must be either an operator ";
+            message += "or a closing parenthesis.";
 
             // check next token
-            if(cleanedTokens.Count < (i + 1))
+            if(cleanedTokens.HasNext(index))
             {
-                string nextToken = cleanedTokens[i + 1];
-                if(!nextToken.IsOperator() || nextToken != ")")
+                string nextToken = cleanedTokens[index + 1];
+                if(!(nextToken.IsOperator() || nextToken == ")"))
                 {
                     throw new FormulaFormatException(message);
                 }
             }
-            // there wasn't a next token ... shouldn't have happened 
-            else
-            {
-                throw new FormulaFormatException(message);
-            }
+            // these tokens can end an expression
         }
 
         /// <summary>
@@ -556,17 +552,17 @@ namespace SpreadsheetUtilities
         /// 
         /// If the Parentheses Follow Rule is violated, throws a FormulaFormatException
         /// </summary>
-        private void ParenthesesFollowRule(List<string> cleanedTokens, int i)
+        private void ParenthesesFollowRule(List<string> cleanedTokens, int index)
         {
             string message = "Parentheses Follow Rule Violation: Any token that immediately follows an ";
             message += "opening parenthesis or an operator must be either a number, a variable, or an ";
             message += "opening parenthesis.";
 
             // check next token
-            if(cleanedTokens.Count < (i + 1))
+            if(cleanedTokens.HasNext(index))
             {
-                string nextToken = cleanedTokens[i + 1];
-                if(!nextToken.StartsWithNumber() || !nextToken.StartsWithLetterOrUnderscore() || nextToken != "(")
+                string nextToken = cleanedTokens[index + 1];
+                if(!(nextToken.StartsWithNumber() || nextToken.StartsWithLetterOrUnderscore() || nextToken == "("))
                 {
                     throw new FormulaFormatException(message);
                 }
@@ -587,11 +583,11 @@ namespace SpreadsheetUtilities
         {
             if(cleanedTokens.Count > 0)
             {
-                string startingToken = cleanedTokens[0];
-                if(startingToken != ")" || !startingToken.StartsWithNumber() || startingToken.StartsWithLetterOrUnderscore())
+                string endingToken = cleanedTokens[cleanedTokens.Count - 1];
+                if(!(endingToken == ")" || endingToken.StartsWithNumber() || endingToken.StartsWithLetterOrUnderscore()))
                 {
                     string message = "Ending Token Rule Violation: The last token of an expression must be a number, a ";
-                    message = "variable, or a closing parenthesis.";
+                    message += "variable, or a closing parenthesis.";
                     throw new FormulaFormatException(message);
                 }
             }
@@ -607,10 +603,10 @@ namespace SpreadsheetUtilities
             if(cleanedTokens.Count > 0)
             {
                 string startingToken = cleanedTokens[0];
-                if(startingToken != "(" || !startingToken.StartsWithNumber() || startingToken.StartsWithLetterOrUnderscore())
+                if(!(startingToken == "(" || startingToken.StartsWithNumber() || startingToken.StartsWithLetterOrUnderscore()))
                 {
                     string message = "Starting Token Rule Violation: The first token of an expression must be ";
-                    message = "a number, a variable, or an opening parenthesis";
+                    message += "a number, a variable, or an opening parenthesis";
                     throw new FormulaFormatException(message);
                 }
             }
@@ -648,7 +644,7 @@ namespace SpreadsheetUtilities
             if(parenthesesCount != 0)
             {
                 string message = "Balanced Parentheses Rule Violation: The total number of opening ";
-                message = "parentheses must equal the total number of closing parentheses";
+                message += "parentheses must equal the total number of closing parentheses";
                 throw new FormulaFormatException(message);
             }
         }
@@ -669,7 +665,7 @@ namespace SpreadsheetUtilities
             if(parenthesesCount < 0)
             {
                 string message = "Right Parentheses Rule Violation: Number of closing parentheses greater than ";
-                message = "opening parentheses when read from left to right";
+                message += "opening parentheses when read from left to right";
                 throw new FormulaFormatException(message);
             }
         }
@@ -794,6 +790,13 @@ namespace SpreadsheetUtilities
             return (stack.Count > 0 && stack.Peek() == s);
         }
 
-
+        /// <summary>
+        /// Takes an index and returns true if there is an item contained in this
+        /// list after that index. Else returns false.
+        /// </summary>
+        public static bool HasNext(this List<string> list, int index)
+        {
+            return (list.Count > (index + 1));
+        }
     }
 }
