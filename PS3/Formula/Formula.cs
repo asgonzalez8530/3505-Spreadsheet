@@ -106,8 +106,6 @@ namespace SpreadsheetUtilities
 
 
 
-
-
         /// <summary>
         /// Takes an IEnumerator<string> object which enumerates the individual tokens which make up
         /// a formula, normalizes each token using the provided normalize deligate and checks 
@@ -201,6 +199,9 @@ namespace SpreadsheetUtilities
             Stack<double> values = new Stack<double>();
             Stack<string> operators = new Stack<string>();
 
+            
+            
+
             // this is the main body of the algorithm where the expression is evaluated
             foreach(string token in tokens)
             {
@@ -208,12 +209,29 @@ namespace SpreadsheetUtilities
                 double operand;
                 if(double.TryParse(token, out operand))
                 {
-                    HandleDouble(operand, values, operators);
+                    try
+                    {
+                        HandleDouble(operand, values, operators);
+                    }
+                    catch(ArgumentException e)
+                    {
+                        return new FormulaError(e.Message);
+                    }
                 }
                 // check if token is variable
                 else if(token.StartsWithLetterOrUnderscore())
                 {
-                    HandleDouble(lookup(token), values, operators);
+                    try
+                    {
+                        operand = lookup(token);
+                        HandleDouble(operand, values, operators);
+                    }
+                    catch (ArgumentException e)
+                    {
+                         
+                        return new FormulaError(e.Message);
+                    }
+                    
                 }
                 else if(token == "+" || token == "-")
                 {
@@ -252,22 +270,32 @@ namespace SpreadsheetUtilities
 
                     if(operators.IsAtTop("*") || operators.IsAtTop("/"))
                     {
-                        ApplyOperatorStack(values, operators);
+                        try
+                        {
+                            ApplyOperatorStack(values, operators);
+                        }
+                        catch(ArgumentException e)
+                        {
+
+                            return new FormulaError(e.Message);
+                        }
+
                     }
 
                 }
             }
             // the last token has been processed.
-
-            if(operators.Count == 1)
+            if(operators.Count == 0)
+            {
+                return values.Pop();
+            }
+            else
+            // there should be one operator a + or -
             {
                 // the only operator token should be '+' or '-'
                 ApplyOperatorStack(values, operators);
                 return values.Pop();
-
             }
-
-            return values.Pop();
 
         }
 
@@ -276,17 +304,15 @@ namespace SpreadsheetUtilities
         /// then applies the popped operator to the popped number and t. Pushes the result onto the value stack.
         /// Otherwise, pushes t onto the value stack.
         /// 
-        /// If the value stack is empty, or the operation results in divide by zero, throws ArgumentException
         /// </summary>
-        /// <param name="t">the integer token</param>
+        /// <param name="t">the double token</param>
         /// <param name="values">a stack containing values for the evaluate method</param>
         /// <param name="operators">a stack containing operators for the evaluate method</param>
         private static void HandleDouble(double t, Stack<double> values, Stack<string> operators)
         {
-            // operand is an integer, check if operator * or / is at top of stack and apply it
+            // operand is a double, check if operator * or / is at top of stack and apply it
             if(operators.IsAtTop("*") || operators.IsAtTop("/"))
             {
-
                 double result = ApplyOperator(values.Pop(), t, operators.Pop());
                 values.Push(result);
             }
@@ -301,7 +327,6 @@ namespace SpreadsheetUtilities
         /// Pops the value stack twice and the operator stack once, then applies the 
         /// popped operator to the popped values, then pushes the result onto the value stack.
         /// 
-        /// If there are less than two operators on the operator stack, throws ArgumentException
         /// </summary>
         /// <param name="values">a stack containing values for the evaluate method</param>
         /// <param name="operators">a stack containing operators for the evaluate method</param>
@@ -329,7 +354,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         private static double ApplyOperator(double val1, double val2, string op)
         {
-            int result = 0;
+            double result = 0;
             switch(op)
             {
                 case "+":
