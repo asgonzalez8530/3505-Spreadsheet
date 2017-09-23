@@ -1,4 +1,4 @@
-﻿    // implemented by Aaron Bellis u0981638 for CS 3500 Fall 2017
+﻿// implemented by Aaron Bellis u0981638 for CS 3500 Fall 2017
 
 // Skeleton written by Joe Zachary for CS 3500, September 2013
 // Read the entire skeleton carefully and completely before you
@@ -95,7 +95,7 @@ namespace SpreadsheetUtilities
             variables = new HashSet<string>();
             // clean, validate and normalize tokens. And since we are checking variables, we may as well add them to
             // the variables set.
-            List <string> validCleanedTokens = CleanAndValidate(GetTokens(formula), normalize, isValid);
+            List<string> validCleanedTokens = CleanAndValidate(GetTokens(formula), normalize, isValid);
 
             // verify correct syntax
             VerifySyntaxAndGetVariables(validCleanedTokens);
@@ -126,7 +126,7 @@ namespace SpreadsheetUtilities
 
                 // normalize
                 string v = normalize(token);
-                
+
                 // normalize double values
                 v = DoubleNormalize(v);
 
@@ -140,7 +140,7 @@ namespace SpreadsheetUtilities
 
                 // now that we know it is a valid token by normal 
                 // rules we can do a simple check for variables
-                if (v.StartsWithLetterOrUnderscore())
+                if(v.StartsWithLetterOrUnderscore())
                 {
                     if(!isValid(v))
                     {
@@ -167,7 +167,7 @@ namespace SpreadsheetUtilities
         private string DoubleNormalize(string v)
         {
             double d = 0;
-            if (double.TryParse(v, out d))
+            if(double.TryParse(v, out d))
             {
                 return d.ToString();
             }
@@ -198,7 +198,159 @@ namespace SpreadsheetUtilities
         /// </summary>
         public object Evaluate(Func<string, double> lookup)
         {
-            return null;
+            Stack<double> values = new Stack<double>();
+            Stack<string> operators = new Stack<string>();
+
+            // this is the main body of the algorithm where the expression is evaluated
+            foreach(string token in tokens)
+            {
+                // check if token is double
+                double operand;
+                if(double.TryParse(token, out operand))
+                {
+                    HandleDouble(operand, values, operators);
+                }
+                // check if token is variable
+                else if(token.StartsWithLetterOrUnderscore())
+                {
+                    HandleDouble(lookup(token), values, operators);
+                }
+                else if(token == "+" || token == "-")
+                {
+                    // if plus or minus is at top of operator stack,
+                    // apply it to the top two operands on top of values stack
+                    if(operators.IsAtTop("+") || operators.IsAtTop("-"))
+                    {
+                        ApplyOperatorStack(values, operators);
+                    }
+
+                    // push + or - token to operators stack
+                    operators.Push(token);
+
+                }
+                else if(token == "*" || token == "/")
+                {
+                    operators.Push(token);
+                }
+                else if(token == "(")
+                {
+                    operators.Push(token);
+                }
+                else if(token == ")")
+                {
+                    // if plus or minus is at top of operator stack,
+                    // apply it to the top two operands on top of values stack
+                    if(operators.IsAtTop("+") || operators.IsAtTop("-"))
+                    {
+                        ApplyOperatorStack(values, operators);
+                    }
+
+                    // now that + or - has been applied, next operator on stack
+                    // should be "("
+                    operators.Pop();
+
+
+                    if(operators.IsAtTop("*") || operators.IsAtTop("/"))
+                    {
+                        ApplyOperatorStack(values, operators);
+                    }
+
+                }
+            }
+            // the last token has been processed.
+
+            if(operators.Count == 1)
+            {
+                // the only operator token should be '+' or '-'
+                ApplyOperatorStack(values, operators);
+                return values.Pop();
+
+            }
+
+            return values.Pop();
+
+        }
+
+        /// <summary>
+        /// If * or / is at the top of the operator stack, pops the value stack and pops the operator stack. 
+        /// then applies the popped operator to the popped number and t. Pushes the result onto the value stack.
+        /// Otherwise, pushes t onto the value stack.
+        /// 
+        /// If the value stack is empty, or the operation results in divide by zero, throws ArgumentException
+        /// </summary>
+        /// <param name="t">the integer token</param>
+        /// <param name="values">a stack containing values for the evaluate method</param>
+        /// <param name="operators">a stack containing operators for the evaluate method</param>
+        private static void HandleDouble(double t, Stack<double> values, Stack<string> operators)
+        {
+            // operand is an integer, check if operator * or / is at top of stack and apply it
+            if(operators.IsAtTop("*") || operators.IsAtTop("/"))
+            {
+
+                double result = ApplyOperator(values.Pop(), t, operators.Pop());
+                values.Push(result);
+            }
+            // * or / is not at top of operator stack, push operand to top of stack
+            else
+            {
+                values.Push(t);
+            }
+        }
+
+        /// <summary>
+        /// Pops the value stack twice and the operator stack once, then applies the 
+        /// popped operator to the popped values, then pushes the result onto the value stack.
+        /// 
+        /// If there are less than two operators on the operator stack, throws ArgumentException
+        /// </summary>
+        /// <param name="values">a stack containing values for the evaluate method</param>
+        /// <param name="operators">a stack containing operators for the evaluate method</param>
+        private static void ApplyOperatorStack(Stack<double> values, Stack<string> operators)
+        {
+
+            // pop value stack twice 
+            double value2 = values.Pop();
+            double value1 = values.Pop();
+            // pop the operator stack once
+            string op = operators.Pop();
+
+            // apply operator and push the result to the values stack
+            values.Push(ApplyOperator(value1, value2, op));
+
+        }
+
+        /// <summary>
+        /// Applies the operator op to val1 and val2 respectively and returns the result
+        /// For example, if op is "*" will return val1 * val2. 
+        /// 
+        /// The only valid operators are "+", "-", "*", and "/". 
+        /// 
+        /// If val2 = 0 and op = "/" will throw ArgumentException.
+        /// </summary>
+        private static double ApplyOperator(double val1, double val2, string op)
+        {
+            int result = 0;
+            switch(op)
+            {
+                case "+":
+                    // apply + operator
+                    return val1 + val2;
+                case "-":
+                    // apply - operator
+                    return val1 - val2;
+                case "*":
+                    // apply * operator
+                    return val1 * val2;
+                case "/":
+                    // check for divide by zero
+                    if(val2 == 0)
+                    {
+                        throw new ArgumentException("Cannot divide by zero");
+                    }
+                    // apply / operator
+                    return val1 / val2;
+            }
+            return result;
         }
 
         /// <summary>
@@ -606,6 +758,15 @@ namespace SpreadsheetUtilities
         public static bool IsOperator(this String s)
         {
             return (s == "+" || s == "-" || s == "*" || s == "/");
+        }
+
+        /// <summary>
+        /// Takes a string s and returns true if a string matching s is at the 
+        /// top of the stack, else returns false.
+        /// </summary>
+        public static bool IsAtTop(this Stack<string> stack, string s)
+        {
+            return (stack.Count > 0 && stack.Peek() == s);
         }
 
 
