@@ -3,6 +3,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
+using System.Collections.Generic;
 
 namespace FormulaClassTests
 {
@@ -97,7 +98,7 @@ namespace FormulaClassTests
 
             // ^ is an invalid token, should throw exception
             Formula formula = new Formula(expression);
-            double actual = (double)formula.Evaluate(x => 0);
+           
         }
 
         [TestMethod]
@@ -109,7 +110,7 @@ namespace FormulaClassTests
 
             // $ is an invalid token, should throw exception
             Formula formula = new Formula(expression);
-            double actual = (double)formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -121,7 +122,7 @@ namespace FormulaClassTests
 
             // $ is an invalid token, should throw exception
             Formula formula = new Formula(expression);
-            double actual = (double)formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -133,7 +134,7 @@ namespace FormulaClassTests
 
             // $ is an invalid token, should throw exception
             Formula formula = new Formula(expression);
-            double actual = (double)formula.Evaluate(x => 7);
+            
         }
 
         // test variable names
@@ -192,7 +193,7 @@ namespace FormulaClassTests
                 try
                 {
                     formula = new Formula(variables[i]);
-                    Assert.AreEqual(values[i] * 2, formula.Evaluate(x => values[i] + values[i]));
+                    
                     // should never reach the following statement because an exception should always be thrown
                     Assert.Fail();
                 }
@@ -465,7 +466,7 @@ namespace FormulaClassTests
             string expression = "14 / 7 * 4 / 2  +";
             Formula formula = new Formula(expression);
 
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -476,7 +477,7 @@ namespace FormulaClassTests
             string expression = " * 14 / 7 * 4 / 2 ";
             Formula formula = new Formula(expression);
 
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -487,7 +488,7 @@ namespace FormulaClassTests
             string expression = "14 / 7 * 4 * / 2 ";
             Formula formula = new Formula(expression);
 
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -499,7 +500,7 @@ namespace FormulaClassTests
             string expression = "14  7";
             Formula formula = new Formula(expression);
 
-            formula.Evaluate(x => 0);
+            
 
         }
 
@@ -513,7 +514,7 @@ namespace FormulaClassTests
             try
             {
                 Formula formula = new Formula(expression);
-                formula.Evaluate(x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -535,7 +536,7 @@ namespace FormulaClassTests
             try
             {
                 formula = new Formula(expression);
-                formula.Evaluate(x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -549,7 +550,7 @@ namespace FormulaClassTests
             try
             {
                 formula = new Formula(expression);
-                formula.Evaluate( x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -563,7 +564,7 @@ namespace FormulaClassTests
             try
             {
                 formula = new Formula(expression);
-                formula.Evaluate( x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -577,7 +578,7 @@ namespace FormulaClassTests
             try
             {
                 formula = new Formula(expression);
-                formula.Evaluate(x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -591,7 +592,7 @@ namespace FormulaClassTests
             try
             {
                 formula = new Formula(expression);
-                formula.Evaluate( x => 0);
+                
                 // should never reach this line of code
                 Assert.Fail();
             }
@@ -607,7 +608,7 @@ namespace FormulaClassTests
         {
             string expression = "2(14+5)";
             Formula formula = new Formula(expression);
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -616,7 +617,7 @@ namespace FormulaClassTests
         {
             string expression = null;
             Formula formula = new Formula(expression);
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -625,7 +626,7 @@ namespace FormulaClassTests
         {
             string expression = "";
             Formula formula = new Formula(expression);
-            formula.Evaluate(x => 0);
+            
         }
 
         [TestMethod]
@@ -643,7 +644,7 @@ namespace FormulaClassTests
         {
             string expression = "()";
             Formula formula = new Formula(expression);
-            formula.Evaluate(x => 5);
+            
         }
 
         [TestMethod]
@@ -659,10 +660,210 @@ namespace FormulaClassTests
         [TestMethod]
         public void EveryOperandAndVariableCrazyWWhiteSpace()
         {
-            string expression = "(2 + b5 * 3) - (4 + 7 / 4 -3+8-1* \t\t\t\n  zd56) / (b5)";
+            string expression = "(2.0 + b5 * 3) - (4 + 7 / 4 -3+8-1* \t\t\t\n  zd56) / (b5)";
             double expected = 5.125;
             Formula formula = new Formula(expression);
             Assert.AreEqual(expected, formula.Evaluate(x => x == "b5" ? 2 : 5));
         }
+
+        [TestMethod]
+        public void NormalizerValidatorConstructor()
+        {
+            string expression = "_b5 + 2";
+            double expected = 7.0;
+            // create object with multi-argument constructor
+            Formula formula = new Formula(expression, x => x.ToUpper(), s => s == s.ToUpper());
+            Assert.AreEqual(expected, formula.Evaluate(x => 5));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void BadNormalizerValidatorConstructor()
+        {
+            string expression = "_b5 + 2";
+            double expected = 7.0;
+            // create object with multi-argument constructor
+            // there can never be valid variables in this, we should expect an error
+            Formula formula = new Formula(expression, x => x.ToUpper(), s => s == s.ToLower());
+            
+        }
+
+        [TestMethod]
+        public void LookupThrowsException()
+        {
+            string expression = "_b5 + 2";
+            double expected = 7.0;
+            // create object with multi-argument constructor
+            
+            Formula formula = new Formula(expression, x => x.ToUpper(), s => true);
+            object o = formula.Evaluate(x => throw new ArgumentException());
+            string type = o.GetType().ToString();
+            Assert.IsInstanceOfType(o, new FormulaError().GetType());
+        }
+
+        [TestMethod]
+        public void GetVariablesDoubles()
+        {
+            string expression = "_b5 + c17 + _b5";
+            double expected = 15.0;
+            // create object with multi-argument constructor
+            Formula formula = new Formula(expression, x => x.ToUpper(), s => s == s.ToUpper());
+            List<string> variables = new List<string>(formula.GetVariables());
+
+            string[] expectedVariables = { "_B5", "C17" }; 
+
+            for (int i = 0; i < variables.Count; i++)
+            {
+                Assert.AreEqual(expectedVariables[i], variables[i]);
+            }
+
+            Assert.AreEqual(expectedVariables.Length, variables.Count);
+
+            Assert.AreEqual(expected, formula.Evaluate(x => 5));
+        }
+
+        [TestMethod]
+        public void GetVariablesNoVariables()
+        {
+            string expression = "5 + 5 + 5";
+            double expected = 15.0;
+            // create object with multi-argument constructor
+            Formula formula = new Formula(expression, x => x.ToUpper(), s => s == s.ToUpper());
+            List<string> variables = new List<string>(formula.GetVariables());
+
+            string[] expectedVariables = {  };
+
+            
+
+            Assert.AreEqual(expectedVariables.Length, variables.Count);
+
+            Assert.AreEqual(expected, formula.Evaluate(x => 5));
+        }
+
+        [TestMethod]
+        public void ToStringCheck()
+        {
+            string expression = "5 + 5 + 5";
+            
+            // create object with multi-argument constructor
+            Formula formula = new Formula(expression);
+            string actual = formula.ToString();
+            string expected = "5+5+5";
+
+            Assert.AreEqual(expected, actual);
+
+            expression = "b3 + \n\t\t25";
+            formula = new Formula(expression, x => x.ToUpper(), s => s == s.ToUpper());
+            actual = formula.ToString();
+            expected = "B3+25";
+
+            Assert.AreEqual(expected, actual);
+
+        }
+
+        [TestMethod]
+        public void EqualsCheck()
+        {
+            string expression1 = "5 + 5 + \t\t5";
+            string expression2 = "5 + 5 + 5";
+            string expression3 = "5 + 5 + 5.0";
+            // create object with multi-argument constructor
+            Formula formula1 = new Formula(expression1);
+            Formula formula2 = new Formula(expression2);
+            Formula formula3 = new Formula(expression3);
+
+            Assert.IsTrue(formula1.Equals(formula2));
+            Assert.IsTrue(formula2.Equals(formula1));
+            Assert.IsTrue(formula2.Equals(formula3));
+
+            Assert.IsFalse(formula2.Equals("5+5+5"));
+            Assert.IsFalse(formula1.Equals(null));
+
+            string expression4 = "5 + 5";
+            Formula formula4 = new Formula(expression4);
+            Assert.IsFalse(formula1.Equals(formula4));
+
+        }
+
+        [TestMethod]
+        public void EqualsOperator()
+        {
+            string expression1 = "5 + 5 + \t\t5";
+            string expression2 = "5 + 5 + 5";
+            string expression3 = "5 + 5 + 5.0";
+            // create object with multi-argument constructor
+            Formula formula1 = new Formula(expression1);
+            Formula formula2 = new Formula(expression2);
+            Formula formula3 = new Formula(expression3);
+
+            Assert.IsTrue(formula1 == formula2);
+            Assert.IsTrue(formula2 == formula1);
+            Assert.IsTrue(formula2 == formula3);
+
+            
+            Assert.IsFalse(formula1 == null);
+            Assert.IsTrue(null == null);
+            Assert.IsFalse(null == formula1);
+
+            string expression4 = "5 + 5";
+            Formula formula4 = new Formula(expression4);
+            Assert.IsFalse(formula1==formula4);
+
+        }
+
+        [TestMethod]
+        public void NotEqualsOperator()
+        {
+            string expression1 = "5 + 5 + \t\t5";
+            string expression2 = "5 + 5 + 5";
+            string expression3 = "5 + 5 + 5.0";
+            // create object with multi-argument constructor
+            Formula formula1 = new Formula(expression1);
+            Formula formula2 = new Formula(expression2);
+            Formula formula3 = new Formula(expression3);
+
+            Assert.IsFalse(formula1 != formula2);
+            Assert.IsFalse(formula2 != formula1);
+            Assert.IsFalse(formula2 != formula3);
+
+
+            Assert.IsTrue(formula1 != null);
+            Assert.IsFalse(null != null);
+            Assert.IsTrue(null != formula1);
+
+            string expression4 = "5 + 5";
+            Formula formula4 = new Formula(expression4);
+            Assert.IsTrue(formula1 != formula4);
+
+        }
+
+        [TestMethod]
+        public void GetHashcodeCheck()
+        {
+            string expression1 = "5 + 5 + \t\t5";
+            string expression2 = "5 + 5 + 5";
+            string expression3 = "5 + 5 + 5.0";
+            // create object with multi-argument constructor
+            Formula formula1 = new Formula(expression1);
+            Formula formula2 = new Formula(expression2);
+            Formula formula3 = new Formula(expression3);
+
+            Assert.IsTrue(formula1.GetHashCode() == formula2.GetHashCode());
+            Assert.IsTrue(formula2.GetHashCode() == formula1.GetHashCode());
+            Assert.IsTrue(formula2.GetHashCode() == formula3.GetHashCode());
+            Assert.IsTrue(formula2.GetHashCode() == "5+5+5".GetHashCode());
+
+            Assert.IsFalse(formula1.GetHashCode() == null);
+            
+            Assert.IsFalse(null == formula1.GetHashCode());
+
+            string expression4 = "5 + 5";
+            Formula formula4 = new Formula(expression4);
+            Assert.IsFalse(formula1.GetHashCode() == formula4.GetHashCode());
+
+        }
+
+
+
     }
 }
