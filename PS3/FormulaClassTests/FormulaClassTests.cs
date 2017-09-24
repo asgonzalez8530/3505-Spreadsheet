@@ -503,143 +503,166 @@ namespace FormulaClassTests
 
         }
 
-        //[TestMethod]
-        //public void TryToPassNegativeInt()
-        //{
+        [TestMethod]
+        public void TryToPassNegativeInt()
+        {
 
 
-        //    string expression = "14 / -7 * 4  / 2 ";
+            string expression = "14 / -7 * 4  / 2 ";
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
+            try
+            {
+                Formula formula = new Formula(expression);
+                formula.Evaluate(x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
 
-        //}
+        }
 
-        //[TestMethod]
-        //public void MismatchedParenthesis()
-        //{
+        [TestMethod]
+        public void MismatchedParenthesis()
+        {
 
 
-        //    string expression = "(14 / 7)) * 4 / 2 + 5";
+            string expression = "(14 / 7)) * 4 / 2 + 5";
+            Formula formula;
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
+            try
+            {
+                formula = new Formula(expression);
+                formula.Evaluate(x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
 
-        //    expression = "((14 / 7) * 4 / 2 ";
+            expression = "((14 / 7) * 4 / 2 ";
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
+            try
+            {
+                formula = new Formula(expression);
+                formula.Evaluate( x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
 
-        //    expression = "(14 / 7) * 4 / 2 ) ";
+            expression = "(14 / 7) * 4 / 2 ) ";
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
+            try
+            {
+                formula = new Formula(expression);
+                formula.Evaluate( x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
 
-        //    expression = "((14 / 7 * 4 / 2 ";
+            expression = "((14 / 7 * 4 / 2 ";
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
+            try
+            {
+                formula = new Formula(expression);
+                formula.Evaluate(x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
 
-        //    expression = "14 / 7 * 4 / 2 ))";
+            expression = "14 / 7 * 4 / 2 ))";
 
-        //    try
-        //    {
-        //        formula.Evaluate(expression, x => 0);
-        //        // should never reach this line of code
-        //        Assert.Fail();
-        //    }
-        //    catch(ArgumentException)
-        //    {
-        //        // will pass if no fail is detected
-        //    }
-        //}
+            try
+            {
+                formula = new Formula(expression);
+                formula.Evaluate( x => 0);
+                // should never reach this line of code
+                Assert.Fail();
+            }
+            catch(FormulaFormatException)
+            {
+                // will pass if no fail is detected
+            }
+        }
 
-        //[TestMethod]
-        //[ExpectedException(typeof(ArgumentException))]
-        //public void TryImplicitMultiplication()
-        //{
-        //    string expression = "2(14+5)";
-        //    formula.Evaluate(expression, x => 0);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void TryImplicitMultiplication()
+        {
+            string expression = "2(14+5)";
+            Formula formula = new Formula(expression);
+            formula.Evaluate(x => 0);
+        }
 
-        //[TestMethod]
-        //[ExpectedException(typeof(ArgumentNullException))]
-        //public void TryPassingNullString()
-        //{
-        //    string expression = null;
-        //    formula.Evaluate(expression, x => 0);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TryPassingNullString()
+        {
+            string expression = null;
+            Formula formula = new Formula(expression);
+            formula.Evaluate(x => 0);
+        }
 
-        //[TestMethod]
-        //public void NestedParenthesis()
-        //{
-        //    string expression = "(5 + ((((b4)))))";
-        //    int expected = 10;
-        //    Assert.AreEqual(expected, formula.Evaluate(expression, x => 5));
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void TryPassingEmptyString()
+        {
+            string expression = "";
+            Formula formula = new Formula(expression);
+            formula.Evaluate(x => 0);
+        }
 
-        //[TestMethod]
-        //[ExpectedException(typeof(ArgumentException))]
-        //public void EmptyParenthesis()
-        //{
-        //    string expression = "()";
-        //    formula.Evaluate(expression, x => 5);
-        //}
+        [TestMethod]
+        public void NestedParenthesis()
+        {
+            string expression = "(5 + ((((b4)))))";
+            double expected = 10;
+            Formula formula = new Formula(expression);
+            Assert.AreEqual(expected, formula.Evaluate(x => 5));
+        }
 
-        //[TestMethod]
-        //public void EveryOperandAndVariable()
-        //{
-        //    string expression = "(2 * b5) - 4 + 7 / 4";
-        //    int expected = 7;
-        //    Assert.AreEqual(expected, formula.Evaluate(expression, x => 5));
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void EmptyParenthesis()
+        {
+            string expression = "()";
+            Formula formula = new Formula(expression);
+            formula.Evaluate(x => 5);
+        }
 
-        //[TestMethod]
-        //public void EveryOperandAndVariableCrazyWWhiteSpace()
-        //{
-        //    string expression = "(2 + b5 * 3) - (4 + 7 / 4 -3+8-1* \t\t\t\n  zd56) / (b5)";
-        //    int expected = 6;
-        //    Assert.AreEqual(expected, formula.Evaluate(expression, x => x == "b5" ? 2 : 5));
-        //}
+        [TestMethod]
+        public void EveryOperandAndVariable()
+        {
+            string expression = "(2 * b5) - 4 + 7 / 4";
+            double expected = 7.75;
+            Formula formula = new Formula(expression);
+            
+            Assert.AreEqual(expected, formula.Evaluate( x => 5));
+        }
+
+        [TestMethod]
+        public void EveryOperandAndVariableCrazyWWhiteSpace()
+        {
+            string expression = "(2 + b5 * 3) - (4 + 7 / 4 -3+8-1* \t\t\t\n  zd56) / (b5)";
+            double expected = 5.125;
+            Formula formula = new Formula(expression);
+            Assert.AreEqual(expected, formula.Evaluate(x => x == "b5" ? 2 : 5));
+        }
     }
 }
