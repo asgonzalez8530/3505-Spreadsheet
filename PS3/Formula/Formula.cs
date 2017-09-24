@@ -508,6 +508,10 @@ namespace SpreadsheetUtilities
                     parenthesesCount++;
                     ParenthesesFollowRule(cleanedTokens, i);
                 }
+                else if (cleanedTokens[i].IsOperator())
+                {
+                    ParenthesesFollowRule(cleanedTokens, i);
+                }
                 else if(cleanedTokens[i] == ")")
                 {
                     RightParenthesesRule(--parenthesesCount);
