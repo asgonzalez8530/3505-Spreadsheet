@@ -202,21 +202,35 @@ namespace SS
         /// A helper for the GetCellsToRecalculate method.
         /// 
         ///   -- You should fully comment what is going on below --
+        ///   
+        /// Checks each direct and indirect dependent of  the named cell. 
+        /// If a circular dependency is detected, throws CircularException
+        /// else adds each dependency to changed. When the method is finally 
+        /// returned to caller changed will be in the order needed to 
+        /// recalculate dependents. 
         /// </summary>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
+            // the set of all previously visited cells
             visited.Add(name);
+            // looks through each of the direct dependents of the named cell
             foreach(String n in GetDirectDependents(name))
             {
+                // if we have a circularexception throw the exception, 
                 if(n.Equals(start))
                 {
                     throw new CircularException();
                 }
+                // if we have found a cell we haven't visited before 
                 else if(!visited.Contains(n))
                 {
+                    // recursive call, start, is maintained, will check all of the direct 
+                    // dependents of n, mark them as visited and check each of their dependents 
                     Visit(start, n, visited, changed);
                 }
             }
+            // cell name gets added to the beginning of linked list after direct dependents are visited
+            // if enumerated in order, this cell will be recalculated before its dependents
             changed.AddFirst(name);
         }
 

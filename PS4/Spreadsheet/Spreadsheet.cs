@@ -1,4 +1,5 @@
-﻿// Written by Aaron Bellis u0981638 for CS 3500 2017 Fall Semester.
+﻿// implementation by Aaron Bellis u0981638 for CS 3500 2017 Fall Semester.
+// Documentation copied from interface written by Joe Zachary for CS 3500, September 2013
 
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,54 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
+using System.Text.RegularExpressions;
 
 namespace SS
 {
+    /// <summary>
+    /// A Spreadsheet object inherits from and implements the AbstractSpreadsheet class which 
+    /// represents the state of a simple spreadsheet.  A spreadsheet consists of an infinite 
+    /// number of named cells.
+    /// 
+    /// A string is a valid cell name if and only if:
+    ///   (1) its first character is an underscore or a letter
+    ///   (2) its remaining characters (if any) are underscores and/or letters and/or digits
+    /// Note that this is the same as the definition of valid variable from the PS3 Formula class.
+    /// 
+    /// For example, "x", "_", "x2", "y_15", and "___" are all valid cell  names, but
+    /// "25", "2x", and "&" are not.  Cell names are case sensitive, so "x" and "X" are
+    /// different cell names.
+    /// 
+    /// A spreadsheet contains a cell corresponding to every possible cell name.  (This
+    /// means that a spreadsheet contains an infinite number of cells.)  In addition to 
+    /// a name, each cell has a contents and a value.  The distinction is important.
+    /// 
+    /// The contents of a cell can be (1) a string, (2) a double, or (3) a Formula.  If the
+    /// contents is an empty string, we say that the cell is empty.  (By analogy, the contents
+    /// of a cell in Excel is what is displayed on the editing line when the cell is selected.)
+    /// 
+    /// In a new spreadsheet, the contents of every cell is the empty string.
+    ///  
+    /// The value of a cell can be (1) a string, (2) a double, or (3) a FormulaError.  
+    /// (By analogy, the value of an Excel cell is what is displayed in that cell's position
+    /// in the grid.)
+    /// 
+    /// If a cell's contents is a string, its value is that string.
+    /// 
+    /// If a cell's contents is a double, its value is that double.
+    /// 
+    /// If a cell's contents is a Formula, its value is either a double or a FormulaError,
+    /// as reported by the Evaluate method of the Formula class.  The value of a Formula,
+    /// of course, can depend on the values of variables.  The value of a variable is the 
+    /// value of the spreadsheet cell it names (if that cell's value is a double) or 
+    /// is undefined (otherwise).
+    /// 
+    /// Spreadsheets are never allowed to contain a combination of Formulas that establish
+    /// a circular dependency.  A circular dependency exists when a cell depends on itself.
+    /// For example, suppose that A1 contains B1*2, B1 contains C1*2, and C1 contains A1*2.
+    /// A1 depends on B1, which depends on C1, which depends on A1.  That's a circular
+    /// dependency.
+    /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
         // a graph which keeps track of the contained in the formulas of each cell.
@@ -18,9 +64,14 @@ namespace SS
         // if a cell becomes empty, will be removed from the dictionary
         private Dictionary<string, Cell> cells;
 
+        /// <summary>
+        /// Creates a new spreadhseet. In a new spreadsheet, the contents of every cell is
+        /// the empty string.
+        /// </summary>
         public Spreadsheet()
         {
-            
+            dependencies = new DependencyGraph();
+            cells = new Dictionary<string, Cell>();
         }
 
         /// <summary>
@@ -31,7 +82,17 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
-            throw new NotImplementedException();
+            // make sure cell name is valid
+            CellNameValidator(name);
+
+            if (cells.ContainsKey(name))
+            {
+                return cells[name].GetCellContents();
+            }
+            else
+            {
+                return "";
+            }
         }
 
         /// <summary>
@@ -39,7 +100,9 @@ namespace SS
         /// </summary>
         public override IEnumerable<string> GetNamesOfAllNonemptyCells()
         {
-            throw new NotImplementedException();
+            // cast to list because documentation states keys refer back to the individual
+            // individual objects in Dictionary
+            return cells.Keys.ToList();
         }
 
         /// <summary>
@@ -54,8 +117,20 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            throw new NotImplementedException();
+            // validate the cell name
+            CellNameValidator(name);
+
+            // set the cell contents
+            Cell cell = new Cell(number);
+            AddCellToDictionary(name, cell);
+
+            // get all cells whose value depends on name
+            return new HashSet<string>(GetCellsToRecalculate(name));
         }
+
+       
+
+
 
         /// <summary>
         /// If text is null, throws an ArgumentNullException.
@@ -71,8 +146,25 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            throw new NotImplementedException();
+            // validate the cell name
+            CellNameValidator(name);
+
+            // special case, if text is empty string "", need to update all dependencies 
+            // and remove cell from list
+            if (text == "")
+            {
+                EmptyCell(name);
+                return new HashSet<string>(GetCellsToRecalculate(name));
+            }
+
+            Cell cell = new Cell(text);
+            AddCellToDictionary(name, cell);
+
+            // get all cells whose value depends on name
+            return new HashSet<string>(GetCellsToRecalculate(name));
         }
+
+        
 
         /// <summary>
         /// If the formula parameter is null, throws an ArgumentNullException.
@@ -91,8 +183,33 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            throw new NotImplementedException();
+            // make sure formula isn't null
+            if(formula == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            // validate the cell name
+            CellNameValidator(name);
+
+            // update dependencies and check circular exception
+            IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
+
+            // set the cell contents
+            if(cells.ContainsKey(name))
+            {
+                cells[name] = new Cell(formula);
+            }
+            else
+            {
+                cells.Add(name, new Cell(formula));
+            }
+
+            // get all cells whose value depends on name
+            return new HashSet<string>(dependencies);
         }
+
+        
 
         /// <summary>
         /// If name is null, throws an ArgumentNullException.
@@ -113,10 +230,95 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            throw new NotImplementedException();
+            if (name == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            CellNameValidator(name);
+
+            return dependencies.GetDependees(name);
+
         }
 
-        //------------------------------Helper Methods------------------------------------//
+        //------------------------------Private Methods------------------------------------//
+
+        /// <summary>
+        /// if name is null or invalid, throws an InvalidNameException
+        /// </summary>
+        private void CellNameValidator(string name)
+        {
+            // a pattern that matches valid string names
+            string pattern = @"^[A-Za-z_][A-Za-z0-9_]*$";
+            if (name == null || !Regex.IsMatch(name, pattern))
+            {              
+                throw new InvalidNameException();
+            }
+        }
+
+        /// <summary>
+        /// Updates dependencies then checks a cell for circular dependency. If There is 
+        /// a circular dependency ensures spreadsheet is not changed and old state of
+        /// dependencies is restored then throws CircularDependency. Else returns a
+        /// Set consisting of name plus the names of all other cells whose value depends,
+        /// directly or indirectly, on the named cell.
+        /// </summary>
+        private IEnumerable<string> CheckCircularGetDependency(string name, Formula formula)
+        {
+            // preserve state just in case
+            IEnumerable<string> oldDependencies = dependencies.GetDependents(name);
+
+            // update the dependency graph
+            dependencies.ReplaceDependents(name, formula.GetVariables());
+
+            // this should leave the unhandled exception that GetCellsToRecalculate throws
+            // yet still return the state of the dependency graph
+            try
+            {
+                return GetCellsToRecalculate(name);
+            }
+            catch (Exception)
+            {
+                dependencies.ReplaceDependents(name, oldDependencies);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Removes named cell's dependents from graph, then removes it from cells per
+        /// invariant
+        /// </summary>
+        private void EmptyCell(string name)
+        {
+            dependencies.ReplaceDependents(name, new List<string>());
+
+            if (cells.ContainsKey(name))
+            {
+                cells.Remove(name);
+            }
+
+        }
+        
+        /// <summary>
+        /// Takes a cell name and cell and adds it to the Dictionary. 
+        /// If the cell is replacing a cell which had a formula in it, 
+        /// removes cells dependents.
+        /// </summary>
+        private void AddCellToDictionary(string name, Cell cell)
+        {
+            if(cells.ContainsKey(name))
+            {
+                if(cells[name].Type == Cell.CellType.formulaType)
+                {
+                    dependencies.ReplaceDependents(name, new List<string>());
+                }
+                cells[name] = cell;
+            }
+            else
+            {
+                cells.Add(name, cell);
+            }
+        }
 
         //------------------------------Internal Classes----------------------------------//
 
@@ -160,27 +362,27 @@ namespace SS
             /// <summary>
             /// Constructor for the Cell class. Will set its contents and type attribute. 
             /// </summary>
-            private Cell(string contents)
+            public Cell(string contents)
             {
                 Type = CellType.stringType;
 
                 cellContents = contents;
             }
-            
+
             /// <summary>
             /// Constructor for the Cell class. Will set its contents and type attribute. 
             /// </summary>
-            private Cell(double contents)
+            public Cell(double contents)
             {
                 Type = CellType.doubleType;
 
                 cellContents = contents;
             }
-            
+
             /// <summary>
             /// Constructor for the Cell class. Will set its contents and type attribute. 
             /// </summary>
-            private Cell(Formula contents)
+            public Cell(Formula contents)
             {
                 Type = CellType.formulaType;
 
