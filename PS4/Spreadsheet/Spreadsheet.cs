@@ -85,7 +85,7 @@ namespace SS
             // make sure cell name is valid
             CellNameValidator(name);
 
-            if (cells.ContainsKey(name))
+            if(cells.ContainsKey(name))
             {
                 return cells[name].GetCellContents();
             }
@@ -128,7 +128,7 @@ namespace SS
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
-       
+
 
 
 
@@ -151,7 +151,7 @@ namespace SS
 
             // special case, if text is empty string "", need to update all dependencies 
             // and remove cell from list
-            if (text == "")
+            if(text == "")
             {
                 EmptyCell(name);
                 return new HashSet<string>(GetCellsToRecalculate(name));
@@ -164,7 +164,7 @@ namespace SS
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
-        
+
 
         /// <summary>
         /// If the formula parameter is null, throws an ArgumentNullException.
@@ -209,7 +209,7 @@ namespace SS
             return new HashSet<string>(dependencies);
         }
 
-        
+
 
         /// <summary>
         /// If name is null, throws an ArgumentNullException.
@@ -230,7 +230,7 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (name == null)
+            if(name == null)
             {
                 throw new ArgumentNullException();
             }
@@ -250,8 +250,8 @@ namespace SS
         {
             // a pattern that matches valid string names
             string pattern = @"^[A-Za-z_][A-Za-z0-9_]*$";
-            if (name == null || !Regex.IsMatch(name, pattern))
-            {              
+            if(name == null || !Regex.IsMatch(name, pattern))
+            {
                 throw new InvalidNameException();
             }
         }
@@ -277,7 +277,7 @@ namespace SS
             {
                 return GetCellsToRecalculate(name);
             }
-            catch (Exception)
+            catch(Exception)
             {
                 dependencies.ReplaceDependents(name, oldDependencies);
                 throw;
@@ -292,13 +292,13 @@ namespace SS
         {
             dependencies.ReplaceDependents(name, new List<string>());
 
-            if (cells.ContainsKey(name))
+            if(cells.ContainsKey(name))
             {
                 cells.Remove(name);
             }
 
         }
-        
+
         /// <summary>
         /// Takes a cell name and cell and adds it to the Dictionary. 
         /// If the cell is replacing a cell which had a formula in it, 
@@ -406,48 +406,8 @@ namespace SS
                 }
             }
 
-            /// <summary>
-            /// Gets the value of this cell. The value can be a string, double or a FormulaError.
-            /// If the CellType is a doubleType returns a double.
-            /// If the CellType is a stringType returns a string.
-            /// If the CellType is a formulaType returns the value returned by the Formula's Evaluate function 
-            /// and the provided lookup delegate. 
-            /// </summary>
-            public object GetCellValue(Func<string, double> lookup)
-            {
-                // may not have to do casting on this return will check in tests and create a branch that does not cast
-                switch(Type)
-                {
-                    case CellType.doubleType:
-                        return (double)cellContents;
-                    case CellType.stringType:
-                        return (string)cellContents;
-                    default:
-                        Formula formula = (Formula)cellContents;
-                        return formula.Evaluate(lookup);
-                }
-            }
 
-            /// <summary>
-            /// Gets the value of this cell. The value can be a string, double or a FormulaError.
-            /// If the CellType is a doubleType returns a double.
-            /// If the CellType is a stringType returns a string.
-            /// If the CellType is a formulaType returns the value returned by the Formula's Evaluate function 
-            /// using a lookup delegate that assigns all varaibles the value 0.
-            /// </summary>
-            public object GetCellValue()
-            {
-                return GetCellValue(x => 0);
-            }
         }
 
-    }
-
-    /// <summary>
-    /// Extension Methods for Spreadsheet Class
-    /// </summary>
-    internal static class ExtensionMethods
-    {
-        
     }
 }

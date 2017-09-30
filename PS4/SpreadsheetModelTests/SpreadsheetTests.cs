@@ -543,9 +543,255 @@ namespace SpreadsheetModelTests
             Assert.IsTrue(dependencySet.Contains("A1"));
             Assert.IsTrue(dependencySet.Contains("B1"));
             Assert.IsTrue(dependencySet.Contains("C1"));
+
+            sheet.SetCellContents("C1", 3);
+            
+            // check the state of spreadsheet after changing a cell value
+            List<string> nonEmpty = new List<string>(sheet.GetNamesOfAllNonemptyCells());
+            Assert.IsTrue(3 == nonEmpty.Count);
+            Assert.IsTrue(nonEmpty.Contains("A1"));
+            Assert.IsTrue(nonEmpty.Contains("B1"));
+            Assert.IsTrue(nonEmpty.Contains("C1"));
+
+            // make sure dependencies were changed correctly
+            dependencySet = sheet.SetCellContents("A1", 3.5);
+
+            Assert.AreEqual(2, dependencySet.Count);
+
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+
         }
 
+        /// <summary>
+        /// Check the proper exception is thrown when null name is passed to method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void SetCellContentsTextNullName()
+        {
+            Spreadsheet sheet = new Spreadsheet();
 
+            sheet.SetCellContents(null, "Hello World");
+        }
 
+        /// <summary>
+        /// Check the proper exception is thrown when invalid name is passed to method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void SetCellContentsTextInvalidName()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetCellContents("3x", "Hey!");
+        }
+
+        /// <summary>
+        /// Check the proper contents are in the cell
+        /// </summary>
+        [TestMethod]
+        public void SetCellContentsTextContents()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", "Hello World");
+
+            Assert.AreEqual("Hello World", (string)sheet.GetCellContents("A1"));
+        }
+
+        /// <summary>
+        /// Check the behavior of SetCellContents if setting the contents as 
+        /// text. Should still return a set of dependencies. Contents of the cell should be 
+        /// the set text.
+        /// </summary>
+        [TestMethod]
+        public void SetCellContentsTextDependencies()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("B1", new Formula("A1*2"));
+            sheet.SetCellContents("C1", new Formula("B1+A1"));
+
+            // get the set
+            ISet<string> dependencySet = sheet.SetCellContents("A1", "3");
+
+            // check its size
+            Assert.AreEqual(3, dependencySet.Count);
+
+            // check the list
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+            Assert.IsTrue(dependencySet.Contains("C1"));
+
+            // check contents fo the cell
+            Assert.IsTrue("3" == (string)sheet.GetCellContents("A1"));
+
+            // if we empty a cell, we should see that correctly reflected in a set of non-emtpy cells
+            sheet.SetCellContents("C1", "");
+
+            // check the state of spreadsheet after emptying a cell
+            List<string> nonEmpty = new List<string>(sheet.GetNamesOfAllNonemptyCells());
+            Assert.IsTrue(2 == nonEmpty.Count);
+            Assert.IsTrue(nonEmpty.Contains("A1"));
+            Assert.IsTrue(nonEmpty.Contains("B1"));
+
+            // make sure dependencies were changed correctly
+            dependencySet = sheet.SetCellContents("A1", "2");
+
+            Assert.AreEqual(2, dependencySet.Count);
+
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+
+        }
+
+        /// <summary>
+        /// Check the proper exception is thrown when null formula is passed to method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SetCellContentsNullFormula()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            Formula formula = null;
+            sheet.SetCellContents("A1", formula);
+        }
+
+        /// <summary>
+        /// Check the proper exception is thrown when null name is passed to method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void SetCellContentsFormulaNullName()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetCellContents(null, new Formula("A1*2"));
+        }
+
+        /// <summary>
+        /// Check the proper exception is thrown when invalid name is passed to method
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void SetCellContentsFormulaInvalidName()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetCellContents("3x", new Formula("A1*2"));
+        }
+
+        /// <summary>
+        /// Check the proper contents are in the cell
+        /// </summary>
+        [TestMethod]
+        public void SetCellContentsFormulaContents()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", new Formula("B1*2"));
+            Formula f = new Formula("B1*2");
+
+            Assert.IsTrue(f == (Formula)sheet.GetCellContents("A1"));
+        }
+
+        /// <summary>
+        /// Check the behavior of SetCellContents if setting the contents as 
+        /// text. Should still return a set of dependencies. Contents of the cell should be 
+        /// the set text.
+        /// </summary>
+        [TestMethod]
+        public void SetCellContentsFormulaDependencies()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("B1", new Formula("A1*2"));
+            sheet.SetCellContents("C1", new Formula("B1+A1"));
+
+            // get the set
+            ISet<string> dependencySet = sheet.SetCellContents("A1", new Formula("2 + 2"));
+
+            // check its size
+            Assert.AreEqual(3, dependencySet.Count);
+
+            // check the list
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+            Assert.IsTrue(dependencySet.Contains("C1"));
+
+            // check contents fo the cell
+            Formula f = new Formula("2+2");
+            Assert.IsTrue(f == (Formula)sheet.GetCellContents("A1"));
+
+            // if we change a cell, we should see that correctly reflected in a set of non-emtpy cells
+            sheet.SetCellContents("C1", new Formula ("2+4"));
+
+            // check the state of spreadsheet after emptying a cell
+            List<string> nonEmpty = new List<string>(sheet.GetNamesOfAllNonemptyCells());
+            Assert.IsTrue(3 == nonEmpty.Count);
+            Assert.IsTrue(nonEmpty.Contains("A1"));
+            Assert.IsTrue(nonEmpty.Contains("B1"));
+            Assert.IsTrue(nonEmpty.Contains("C1"));
+
+            // make sure dependencies were changed correctly
+            dependencySet = sheet.SetCellContents("A1", "2 + 1");
+
+            Assert.AreEqual(2, dependencySet.Count);
+
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+
+        }
+
+        /// <summary>
+        /// Check the proper exception is thrown when circular
+        /// dependency is created
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(CircularException))]
+        public void SetCellContentsCircularDependency()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("B1", new Formula("A1*2"));
+            sheet.SetCellContents("C1", new Formula("B1+A1"));
+
+            // create circular dependency
+            sheet.SetCellContents("A1", new Formula("2 + C1"));
+        }
+
+        /// <summary>
+        /// Check the state of the Spreadsheet after dependency 
+        /// </summary>
+        [TestMethod]
+        public void SetCellContentsCircularDependencyCheckSheetState()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("B1", new Formula("A1*2"));
+            sheet.SetCellContents("C1", new Formula("B1+A1"));
+
+            // create circular dependency
+            try
+            {
+                sheet.SetCellContents("A1", new Formula("2 + C1"));
+                // should not reach this statement
+                Assert.Fail();
+            }
+            catch (CircularException)
+            {
+
+            }
+
+            // check state of spreadsheet spreadsheet should not have changed
+            List<string> nonEmpty = new List<string>(sheet.GetNamesOfAllNonemptyCells());
+            Assert.IsTrue(2 == nonEmpty.Count);
+            Assert.IsTrue(nonEmpty.Contains("B1"));
+            Assert.IsTrue(nonEmpty.Contains("C1"));
+
+            // lets make sure dependencies are returning correctly
+            ISet<string> dependencySet = sheet.SetCellContents("A1", new Formula("2 + 2"));
+            Assert.AreEqual(3, dependencySet.Count);
+
+            // check the list
+            Assert.IsTrue(dependencySet.Contains("A1"));
+            Assert.IsTrue(dependencySet.Contains("B1"));
+            Assert.IsTrue(dependencySet.Contains("C1"));
+        }
     }
 }
