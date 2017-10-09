@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace SS
 {
@@ -16,14 +17,16 @@ namespace SS
     /// represents the state of a simple spreadsheet.  A spreadsheet consists of an infinite 
     /// number of named cells.
     /// 
-    /// A string is a valid cell name if and only if:
-    ///   (1) its first character is an underscore or a letter
-    ///   (2) its remaining characters (if any) are underscores and/or letters and/or digits
-    /// Note that this is the same as the definition of valid variable from the PS3 Formula class.
+    ///  A string is a cell name if and only if it consists of one or more letters,
+    /// followed by one or more digits AND it satisfies the predicate IsValid.
+    /// For example, "A15", "a15", "XY032", and "BC7" are cell names so long as they
+    /// satisfy IsValid.  On the other hand, "Z", "X_", and "hello" are not cell names,
+    /// regardless of IsValid.
     /// 
-    /// For example, "x", "_", "x2", "y_15", and "___" are all valid cell  names, but
-    /// "25", "2x", and "&" are not.  Cell names are case sensitive, so "x" and "X" are
-    /// different cell names.
+    /// Any valid incoming cell name, whether passed as a parameter or embedded in a formula,
+    /// must be normalized with the Normalize method before it is used by or saved in 
+    /// this spreadsheet.  For example, if Normalize is s => s.ToUpper(), then
+    /// the Formula "x3+a5" should be converted to "X3+A5" before use.
     /// 
     /// A spreadsheet contains a cell corresponding to every possible cell name.  (This
     /// means that a spreadsheet contains an infinite number of cells.)  In addition to 
@@ -65,14 +68,84 @@ namespace SS
         private Dictionary<string, Cell> cells;
 
         /// <summary>
+        /// True if this spreadsheet has been modified since it was created or saved                  
+        /// (whichever happened most recently); false otherwise.
+        /// </summary>
+        public override bool Changed { get; protected set; }
+
+        /// <summary>
         /// Creates a new spreadhseet. In a new spreadsheet, the contents of every cell is
-        /// the empty string.
+        /// the empty string. This constructor imposes no extra validity conditions, 
+        /// normalizes every cell name to itself, and has version "default".
         /// </summary>
         public Spreadsheet()
+            : this(x => true, x => x, "default")
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new spreadhseet. In a new spreadsheet, the contents of every cell is
+        /// the empty string. The provided isValid delegate is used to impose additional 
+        /// restrictions to the validity of cell names. The normalize delegate allows cell 
+        /// names to be stored in a standardized format prior to use. Version provided to
+        /// allow user to define versioning schema.
+        /// </summary>
+        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version)
+            : base(isValid, normalize, version)
         {
             dependencies = new DependencyGraph();
             cells = new Dictionary<string, Cell>();
+            Changed = false;
         }
+
+        /// <summary>
+        /// Reads the saved spreadsheet from the file stored at the provided filePath and 
+        /// uses it to construct a new spreadsheet The new spreadsheet will use the provided 
+        /// validity delegate, normalization delegate and version. 
+        /// 
+        /// If the version of the saved spreadsheet does not match thte version parameter 
+        /// proveded to the constructor, throws a SpreadsheetReadWriteException.
+        ///
+        /// If any other problems such as, invalid names, circular dependencies, problems
+        /// opening reading or closing the file occurs, thtrows a SpreadsheetReadWriteException
+        /// </summary>
+        public Spreadsheet(string filePath, Func<string, bool> isValid, Func<string, string> normalize, string version)
+            : this(isValid, normalize, version)
+        {
+            using(XmlReader reader = XmlReader.Create(filePath))
+            {
+                while(reader.Read())
+                {
+                    if(reader.IsStartElement())
+                    {
+                        switch(reader.Name)
+                        {
+                            case "spreadsheet":
+                                // first check that version is correct
+                                if(reader["version"] != version)
+                                {
+                                    string msg = "Spreadsheet version mismatch";
+                                    throw new SpreadsheetReadWriteException(msg);
+                                }
+
+                                break;
+
+                            case "cell":
+                                // read cell's contents and add it to this spreadsheet
+                                ReadCellFromXML(reader);
+                                break;
+                        }
+                    }
+                }
+
+                // we're done with the reader, time to close it
+                reader.Close();
+            }
+
+        }
+
+
 
         /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
@@ -96,11 +169,68 @@ namespace SS
         }
 
         /// <summary>
+        /// If content is null, throws an ArgumentNullException.
+        /// 
+        /// Otherwise, if name is null or invalid, throws an InvalidNameException.
+        /// 
+        /// Otherwise, if content parses as a double, the contents of the named
+        /// cell becomes that double.
+        /// 
+        /// Otherwise, if content begins with the character '=', an attempt is made
+        /// to parse the remainder of content into a Formula f using the Formula
+        /// constructor.  There are then three possibilities:
+        /// 
+        ///   (1) If the remainder of content cannot be parsed into a Formula, a 
+        ///       SpreadsheetUtilities.FormulaFormatException is thrown.
+        ///       
+        ///   (2) Otherwise, if changing the contents of the named cell to be f
+        ///       would cause a circular dependency, a CircularException is thrown.
+        ///       
+        ///   (3) Otherwise, the contents of the named cell becomes f.
+        /// 
+        /// Otherwise, the contents of the named cell becomes content.
+        /// 
+        /// If an exception is not thrown, the method returns a set consisting of
+        /// name plus the names of all other cells whose value depends, directly
+        /// or indirectly, on the named cell.
+        /// 
+        /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+        /// set {A1, B1, C1} is returned.
+        /// </summary>
+        public override ISet<string> SetContentsOfCell(string name, string content)
+        {
+            if(content == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            CellNameValidator(name);
+
+            // see if content parses as double
+            double d;
+            if(double.TryParse(content, out d))
+            {
+                return SetCellContents(name, d);
+            }
+
+            if(content.BeginsWith('='))
+            {
+                // set the formula string to the substring following '=', if there is nothing
+                // set to empty string
+                string formulaString = content.Length > 1 ? content.Substring(1) : "";
+                Formula formula = new Formula(formulaString, Normalize, IsValid);
+                return SetCellContents(name, formula);
+            }
+
+            return (SetCellContents(name, content));
+        }
+
+        /// <summary>
         /// Enumerates the names of all the non-empty cells in the spreadsheet.
         /// </summary>
         public override IEnumerable<string> GetNamesOfAllNonemptyCells()
         {
-            // cast to list because documentation states keys refer back to the individual
+            // cast to list because documentation states keys refer back to the 
             // individual objects in Dictionary
             return cells.Keys.ToList();
         }
@@ -115,7 +245,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public override ISet<string> SetCellContents(string name, double number)
+        protected override ISet<string> SetCellContents(string name, double number)
         {
             // validate the cell name
             CellNameValidator(name);
@@ -127,9 +257,6 @@ namespace SS
             // get all cells whose value depends on name
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
-
-
-
 
 
         /// <summary>
@@ -144,7 +271,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public override ISet<string> SetCellContents(string name, string text)
+        protected override ISet<string> SetCellContents(string name, string text)
         {
             // validate the cell name
             CellNameValidator(name);
@@ -165,7 +292,6 @@ namespace SS
         }
 
 
-
         /// <summary>
         /// If the formula parameter is null, throws an ArgumentNullException.
         /// 
@@ -181,7 +307,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public override ISet<string> SetCellContents(string name, Formula formula)
+        protected override ISet<string> SetCellContents(string name, Formula formula)
         {
             // make sure formula isn't null
             if(formula == null)
@@ -195,18 +321,45 @@ namespace SS
             // update dependencies and check circular exception
             IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
 
+            
+
             // set the cell contents
             if(cells.ContainsKey(name))
             {
-                cells[name] = new Cell(formula);
+                cells[name] = new Cell(formula, LookupCellValue);
             }
             else
             {
-                cells.Add(name, new Cell(formula));
+                cells.Add(name, new Cell(formula, LookupCellValue));
             }
 
             // get all cells whose value depends on name
             return new HashSet<string>(dependencies);
+        }
+
+        /// <summary>
+        /// A lookup function for evaluating functions contained in this spreadsheet. 
+        /// If the value of variable can mapped to a double, returns that double
+        /// else throws an argument exception. 
+        /// </summary>
+        private double LookupCellValue(string variable)
+        {
+            try
+            {
+                object value = GetCellValue(variable);
+                if (value.GetType() == typeof(double))
+                {
+                    return (double)value;
+                }
+                else
+                {
+                    throw new ArgumentException("Could not lookup the value of variable " + variable);
+                }
+            }
+            catch
+            {
+                throw new ArgumentException("Could not lookup the value of variable " + variable);
+            }
         }
 
 
@@ -242,6 +395,58 @@ namespace SS
         }
 
         //------------------------------Private Methods------------------------------------//
+
+        /// <summary>
+        /// Takes an xml reader currently at an opening element with the name "cell"
+        /// reads its child tags and adds the cells contents to this spreadsheet.
+        /// </summary>
+        private void ReadCellFromXML(XmlReader reader)
+        {
+
+            string name;
+            string content;
+
+            // get first child of cell element should be name
+            if(reader.ReadToDescendant("name"))
+            {
+                name = reader.ReadElementContentAsString();
+            }
+            else
+            {
+                string msg = "error reading cell name from saved spreadsheet";
+                throw new SpreadsheetReadWriteException(msg);
+            }
+
+            // get second child of cell element should be contents
+            if(reader.ReadToNextSibling("contents"))
+            {
+                content = reader.ReadElementContentAsString();
+            }
+            else
+            {
+                string msg = "error reading cell contents from saved spreadsheet";
+                throw new SpreadsheetReadWriteException(msg);
+            }
+
+            // Try to set the contents of the cell. If something goes wrong
+            // throw the proper exception
+            try
+            {
+                SetContentsOfCell(name, content);
+            }
+            catch(Exception e)
+            {
+                string msg = "Error reading cell from saved spreadsheet: ";
+                msg += e.Message;
+                throw new SpreadsheetReadWriteException(msg);
+            }
+        }
+
+        private bool DefaultIsValid(string name)
+        {
+            string validName = @"^[a-zA-Z]+\d+$";
+            return Regex.IsMatch(name, validName);
+        }
 
         /// <summary>
         /// if name is null or invalid, throws an InvalidNameException
@@ -320,6 +525,23 @@ namespace SS
             }
         }
 
+        public override string GetSavedVersion(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Save(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object GetCellValue(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
         //------------------------------Internal Classes----------------------------------//
 
         /// <summary>
@@ -342,7 +564,8 @@ namespace SS
         /// value of the spreadsheet cell it names (if that cell's value is a double) or 
         /// is undefined (otherwise).
         /// 
-        /// Cells are immutable. In order to change the contents of a cell, a new cell must be created.
+        /// Cells are contents are immutable. In order to change the contents of a cell, a new 
+        /// cell must be created.
         /// </summary>
         private class Cell
         {
@@ -350,14 +573,13 @@ namespace SS
             // the cell. Should only have to be set once. 
             public enum CellType { stringType, doubleType, formulaType }
 
-            // the cell's contents as apposed to its value
+            // the cell's contents as opposed to its value
             private object cellContents;
 
-            // Cell values will be calculated on request
+            private object cellValue;
 
             // the type of this Cell, Attribute is access only after cell created
             public CellType Type { get; private set; }
-
 
             /// <summary>
             /// Constructor for the Cell class. Will set its contents and type attribute. 
@@ -367,6 +589,7 @@ namespace SS
                 Type = CellType.stringType;
 
                 cellContents = contents;
+                cellValue = contents;
             }
 
             /// <summary>
@@ -377,16 +600,18 @@ namespace SS
                 Type = CellType.doubleType;
 
                 cellContents = contents;
+                cellValue = contents;
             }
 
             /// <summary>
             /// Constructor for the Cell class. Will set its contents and type attribute. 
             /// </summary>
-            public Cell(Formula contents)
+            public Cell(Formula contents, Func<string, double> lookup)
             {
                 Type = CellType.formulaType;
 
                 cellContents = contents;
+                cellValue = contents.Evaluate(lookup);
             }
 
             /// <summary>
@@ -406,8 +631,64 @@ namespace SS
                 }
             }
 
+            public object GetCellValue()
+            {
+                switch(Type)
+                {
+                    case CellType.doubleType:
+                        return (double)cellValue;
+                    case CellType.stringType:
+                        return (string)cellValue;
+                    default:
+                        // could possibly be an error, must check 
+                        if(cellValue.GetType() == typeof(FormulaError))
+                        {
+                            return (FormulaError)cellValue;
+                        }
+                        else
+                        {
+                            return (double)cellValue;
+                        }
+                }
+            }
+
+            /// <summary>
+            /// Recalculates the cell's value and returns it.
+            /// </summary>
+            public object RecalculateCellValue(Func<string, double> lookup)
+            {
+                if(Type == CellType.formulaType)
+                {
+                    Formula f = (Formula)cellContents;
+                    cellValue = f.Evaluate(lookup);
+                }
+
+                return GetCellValue();
+            }
+
 
         }
 
+    }
+
+    //------------------------------Extension Methods----------------------------------//
+
+    internal static class ExtensionMethods
+    {
+        /// <summary>
+        /// Takes a char c, and determins if it is the first character in this string.
+        /// </summary>
+        public static bool BeginsWith(this string s, char c)
+        {
+            // make sure this string instance is not null and is not empty
+            if(s != null && s.Length > 0)
+            {
+                return (s[0] == c);
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
