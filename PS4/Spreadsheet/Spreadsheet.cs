@@ -145,7 +145,80 @@ namespace SS
 
         }
 
+        /// <summary>
+        /// Returns the version information of the spreadsheet saved in the named file.
+        /// If there are any problems opening, reading, or closing the file, the method
+        /// should throw a SpreadsheetReadWriteException with an explanatory message.
+        /// </summary>
+        public override string GetSavedVersion(string filename)
+        {
+            try
+            {
+                string version = "";
+                using(XmlReader reader = XmlReader.Create(filename))
+                {
+                    
+                    if(reader.ReadToFollowing("spreadsheet"))
+                    {
+                        version = reader["version"];
+                    }
+                    else
+                    {
+                        throw new SpreadsheetReadWriteException("Unable to read Spreadsheet Version from file");
+                    }
 
+                    reader.Close();
+                }
+
+                return version;
+            }
+            catch(Exception)
+            {
+                throw new SpreadsheetReadWriteException("Error reading file: " + filename);
+            }
+
+        }
+
+        /// <summary>
+        /// Writes the contents of this spreadsheet to the named file using an XML format.
+        /// The XML elements should be structured as follows:
+        /// 
+        /// <spreadsheet version="version information goes here">
+        /// 
+        /// <cell>
+        /// <name>
+        /// cell name goes here
+        /// </name>
+        /// <contents>
+        /// cell contents goes here
+        /// </contents>    
+        /// </cell>
+        /// 
+        /// </spreadsheet>
+        /// 
+        /// There should be one cell element for each non-empty cell in the spreadsheet.  
+        /// If the cell contains a string, it should be written as the contents.  
+        /// If the cell contains a double d, d.ToString() should be written as the contents.  
+        /// If the cell contains a Formula f, f.ToString() with "=" prepended should be written as the contents.
+        /// 
+        /// If there are any problems opening, writing, or closing the file, the method should throw a
+        /// SpreadsheetReadWriteException with an explanatory message.
+        /// </summary>
+        public override void Save(string filename)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.WriteEndDocumentOnClose = true;
+            settings.Indent = true;
+            settings.IndentChars = "   ";
+
+
+            using(XmlWriter writer = XmlWriter.Create(filename, settings))
+            {
+                writer.WriteStartDocument();
+                
+            }
+                throw new NotImplementedException();
+        }
 
         /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
@@ -337,30 +410,7 @@ namespace SS
             return new HashSet<string>(dependencies);
         }
 
-        /// <summary>
-        /// A lookup function for evaluating functions contained in this spreadsheet. 
-        /// If the value of variable can mapped to a double, returns that double
-        /// else throws an argument exception. 
-        /// </summary>
-        private double LookupCellValue(string variable)
-        {
-            try
-            {
-                object value = GetCellValue(variable);
-                if (value.GetType() == typeof(double))
-                {
-                    return (double)value;
-                }
-                else
-                {
-                    throw new ArgumentException("Could not lookup the value of variable " + variable);
-                }
-            }
-            catch
-            {
-                throw new ArgumentException("Could not lookup the value of variable " + variable);
-            }
-        }
+        
 
 
 
@@ -392,6 +442,15 @@ namespace SS
 
             return dependencies.GetDependees(name);
 
+        }
+
+        
+
+        
+
+        public override object GetCellValue(string name)
+        {
+            throw new NotImplementedException();
         }
 
         //------------------------------Private Methods------------------------------------//
@@ -525,22 +584,30 @@ namespace SS
             }
         }
 
-        public override string GetSavedVersion(string filename)
+        /// <summary>
+        /// A lookup function for evaluating functions contained in this spreadsheet. 
+        /// If the value of variable can mapped to a double, returns that double
+        /// else throws an argument exception. 
+        /// </summary>
+        private double LookupCellValue(string variable)
         {
-            throw new NotImplementedException();
+            try
+            {
+                object value = GetCellValue(variable);
+                if(value.GetType() == typeof(double))
+                {
+                    return (double)value;
+                }
+                else
+                {
+                    throw new ArgumentException("Could not lookup the value of variable " + variable);
+                }
+            }
+            catch
+            {
+                throw new ArgumentException("Could not lookup the value of variable " + variable);
+            }
         }
-
-        public override void Save(string filename)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override object GetCellValue(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         //------------------------------Internal Classes----------------------------------//
 
