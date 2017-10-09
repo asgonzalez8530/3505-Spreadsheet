@@ -157,7 +157,7 @@ namespace SS
                 string version = "";
                 using(XmlReader reader = XmlReader.Create(filename))
                 {
-                    
+
                     if(reader.ReadToFollowing("spreadsheet"))
                     {
                         version = reader["version"];
@@ -211,13 +211,51 @@ namespace SS
             settings.Indent = true;
             settings.IndentChars = "   ";
 
-
-            using(XmlWriter writer = XmlWriter.Create(filename, settings))
+            try
             {
-                writer.WriteStartDocument();
-                
+                using(XmlWriter writer = XmlWriter.Create(filename, settings))
+                {
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("spreadsheet");
+                    writer.WriteAttributeString("version", Version);
+
+                    foreach(string cell in cells.Keys)
+                    {
+                        writer.WriteStartElement(cell);
+                        writer.WriteElementString("name", cell);
+                        writer.WriteElementString("contents", GetCellContentsString(cell));
+                        writer.WriteEndElement();
+                    }
+
+                    writer.WriteEndElement();
+                    writer.Close();
+                }
             }
-                throw new NotImplementedException();
+            catch(Exception)
+            {
+                string msg = "Error writing spreadsheet to file";
+                throw new SpreadsheetReadWriteException(msg);
+            }
+        }
+
+        /// <summary>
+        /// If name is null or invalid, throws an InvalidNameException.
+        /// 
+        /// Otherwise, returns the value (as opposed to the contents) of the named cell.  The return
+        /// value should be either a string, a double, or a SpreadsheetUtilities.FormulaError.
+        /// </summary>
+        public override object GetCellValue(string name)
+        {
+            CellNameValidator(name);
+
+            if (!cells.ContainsKey(name))
+            {
+                return "";
+            }
+            else
+            {
+                return cells[name].GetCellValue();
+            }
         }
 
         /// <summary>
@@ -394,7 +432,7 @@ namespace SS
             // update dependencies and check circular exception
             IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
 
-            
+
 
             // set the cell contents
             if(cells.ContainsKey(name))
@@ -410,7 +448,7 @@ namespace SS
             return new HashSet<string>(dependencies);
         }
 
-        
+
 
 
 
@@ -444,16 +482,35 @@ namespace SS
 
         }
 
-        
+
+
+
 
         
-
-        public override object GetCellValue(string name)
-        {
-            throw new NotImplementedException();
-        }
 
         //------------------------------Private Methods------------------------------------//
+
+        /// <summary>
+        /// Gets a cell's contents and returns a string version of its contents. 
+        /// If its contents is a double d, returns d.ToString().
+        /// If its contents is a string s, returns s.
+        /// If its contents is a Formula f, returns "=" prepended to f.ToString()
+        /// </summary>
+        private string GetCellContentsString(string name)
+        {
+            Cell c = cells[name];
+            switch(c.Type)
+            {
+                case Cell.CellType.doubleType:
+                    double d = (double)cells[name].GetCellContents();
+                    return d.ToString();
+                case Cell.CellType.stringType:
+                    return (string)cells[name].GetCellContents();
+                default:
+                    Formula f = (Formula)cells[name].GetCellContents();
+                    return "=" + f.ToString();
+            }
+        }
 
         /// <summary>
         /// Takes an xml reader currently at an opening element with the name "cell"
