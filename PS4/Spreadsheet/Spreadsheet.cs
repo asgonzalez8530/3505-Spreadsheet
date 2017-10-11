@@ -210,6 +210,7 @@ namespace SS
             settings.WriteEndDocumentOnClose = true;
             settings.Indent = true;
             settings.IndentChars = "   ";
+            settings.NewLineChars = "\n";
 
             try
             {
@@ -218,15 +219,18 @@ namespace SS
                     writer.WriteStartDocument();
                     writer.WriteStartElement("spreadsheet");
                     writer.WriteAttributeString("version", Version);
+                    writer.WriteWhitespace("\n");
 
                     foreach(string cell in cells.Keys)
                     {
+                        
                         writer.WriteStartElement(cell);
                         writer.WriteElementString("name", cell);
                         writer.WriteElementString("contents", GetCellContentsString(cell));
                         writer.WriteEndElement();
                     }
 
+                    writer.WriteWhitespace("\n");
                     writer.WriteEndElement();
                     writer.Close();
                 }
@@ -236,6 +240,8 @@ namespace SS
                 string msg = "Error writing spreadsheet to file";
                 throw new SpreadsheetReadWriteException(msg);
             }
+
+            Changed = false;
         }
 
         /// <summary>
@@ -246,6 +252,7 @@ namespace SS
         /// </summary>
         public override object GetCellValue(string name)
         {
+            name = SafelyNormalize(name);
             CellNameValidator(name);
 
             if (!cells.ContainsKey(name))
@@ -259,6 +266,23 @@ namespace SS
         }
 
         /// <summary>
+        /// If name is null, returns null. Else returns Normalize(name)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string SafelyNormalize(string name)
+        {
+            if (name == null)
+            {
+                return null;
+            }
+            else
+            {
+                return Normalize(name);
+            }
+        }
+
+        /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
         /// 
         /// Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
@@ -266,6 +290,7 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
+            name = SafelyNormalize(name);
             // make sure cell name is valid
             CellNameValidator(name);
 
@@ -315,21 +340,23 @@ namespace SS
                 throw new ArgumentNullException();
             }
 
+            name = SafelyNormalize(name);
             CellNameValidator(name);
 
             // see if content parses as double
             double d;
             if(double.TryParse(content, out d))
             {
+
                 return SetCellContents(name, d);
             }
 
-            if(content.BeginsWith('='))
+            if(content.BeginsWithChar('='))
             {
                 // set the formula string to the substring following '=', if there is nothing
                 // set to empty string
                 string formulaString = content.Length > 1 ? content.Substring(1) : "";
-                Formula formula = new Formula(formulaString, Normalize, IsValid);
+                Formula formula = new Formula(formulaString, Normalize, Validator);
                 return SetCellContents(name, formula);
             }
 
@@ -358,12 +385,15 @@ namespace SS
         /// </summary>
         protected override ISet<string> SetCellContents(string name, double number)
         {
+            
             // validate the cell name
             CellNameValidator(name);
 
             // set the cell contents
             Cell cell = new Cell(number);
             AddCellToDictionary(name, cell);
+
+            Changed = true;
 
             // get all cells whose value depends on name
             return new HashSet<string>(GetCellsToRecalculate(name));
@@ -386,6 +416,8 @@ namespace SS
         {
             // validate the cell name
             CellNameValidator(name);
+
+            Changed = true;
 
             // special case, if text is empty string "", need to update all dependencies 
             // and remove cell from list
@@ -432,7 +464,7 @@ namespace SS
             // update dependencies and check circular exception
             IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
 
-
+            Changed = true;
 
             // set the cell contents
             if(cells.ContainsKey(name))
@@ -476,6 +508,7 @@ namespace SS
                 throw new ArgumentNullException();
             }
 
+            name = SafelyNormalize(name);
             CellNameValidator(name);
 
             return dependencies.GetDependees(name);
@@ -558,23 +591,35 @@ namespace SS
             }
         }
 
-        private bool DefaultIsValid(string name)
+
+        /// <summary>
+        /// A function which returns true if name is a valid string name IsValid is true
+        /// else, returns false. Used to pass to Formulas to validate their variable names.
+        /// </summary>
+        private bool Validator(string name)
         {
-            string validName = @"^[a-zA-Z]+\d+$";
-            return Regex.IsMatch(name, validName);
+            string pattern = @"^[a-zA-Z]+\d+$";
+            if(name != null || Regex.IsMatch(name, pattern) || IsValid(name))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
-        /// if name is null or invalid, throws an InvalidNameException
+        /// if name is null or invalid, throws an InvalidNameException, used to validate
+        /// cell names passed to spreadsheet
         /// </summary>
         private void CellNameValidator(string name)
-        {
-            // a pattern that matches valid string names
-            string pattern = @"^[A-Za-z_][A-Za-z0-9_]*$";
-            if(name == null || !Regex.IsMatch(name, pattern))
+        {            
+            if(!Validator(name))
             {
                 throw new InvalidNameException();
             }
+
         }
 
         /// <summary>
@@ -802,7 +847,7 @@ namespace SS
         /// <summary>
         /// Takes a char c, and determins if it is the first character in this string.
         /// </summary>
-        public static bool BeginsWith(this string s, char c)
+        public static bool BeginsWithChar(this string s, char c)
         {
             // make sure this string instance is not null and is not empty
             if(s != null && s.Length > 0)
