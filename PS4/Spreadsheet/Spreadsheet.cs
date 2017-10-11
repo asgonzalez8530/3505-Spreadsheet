@@ -265,22 +265,7 @@ namespace SS
             }
         }
 
-        /// <summary>
-        /// If name is null, returns null. Else returns Normalize(name)
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        private string SafelyNormalize(string name)
-        {
-            if (name == null)
-            {
-                return null;
-            }
-            else
-            {
-                return Normalize(name);
-            }
-        }
+        
 
         /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
@@ -515,12 +500,6 @@ namespace SS
 
         }
 
-
-
-
-
-        
-
         //------------------------------Private Methods------------------------------------//
 
         /// <summary>
@@ -591,6 +570,20 @@ namespace SS
             }
         }
 
+        /// <summary>
+        /// If name is null, returns null. Else returns Normalize(name)
+        /// </summary>
+        private string SafelyNormalize(string name)
+        {
+            if(name == null)
+            {
+                return null;
+            }
+            else
+            {
+                return Normalize(name);
+            }
+        }
 
         /// <summary>
         /// A function which returns true if name is a valid string name IsValid is true
