@@ -623,15 +623,13 @@ namespace SS
         /// </summary>
         private bool Validator(string name)
         {
-            string pattern = @"^[a-zA-Z]+\d+$";
-            if (name != null || Regex.IsMatch(name, pattern) || IsValid(name))
-            {
-                return true;
-            }
-            else
+            if (name == null)
             {
                 return false;
             }
+
+            string pattern = @"^[a-zA-Z]+\d+$";
+            return (Regex.IsMatch(name, pattern) && IsValid(name));
         }
 
         /// <summary>

@@ -317,142 +317,442 @@ namespace SpreadsheetModelTests
             actualValue = (double)sheet.GetCellValue("c1");
             Assert.AreEqual(expectedValue, actualValue);
         }
+
+        /// <summary>
+        /// GetCellContents(string name) should throw InvalidNameException if name is 
+        /// null or invalid
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void GetCellContentsNull()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            Formula actualContents = (Formula)sheet.GetCellContents(null);
+        }
+
+        /// <summary>
+        /// GetCellContents(string name) should throw InvalidNameException if name is 
+        /// null or invalid
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void GetCellContentsInvalidName()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            Formula actualContents = (Formula)sheet.GetCellContents("2x");
+        }
+
+        /// <summary>
+        /// GetCellContents(string name) should throw InvalidNameException if name is 
+        /// null or invalid
+        /// </summary>
+        [TestMethod]
+        public void GetCellContentsOverwriteCells()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            // set some cell contents
+            sheet.SetContentsOfCell("x1", "=1/2 + 1/2");
+            sheet.SetContentsOfCell("y1", "3.5");
+            sheet.SetContentsOfCell("z1", "String Content");
+
+            // check cell Contents
+            string actualContentsString = (string)sheet.GetCellContents("z1");
+            Formula actualContentsFormula = (Formula)sheet.GetCellContents("x1");
+            double actualContentsDouble = (double)sheet.GetCellContents("y1");
+
+            Assert.AreEqual("String Content", actualContentsString);
+            Assert.IsTrue(new Formula("1/2 + 1/2") == actualContentsFormula);
+            Assert.AreEqual(3.5, actualContentsDouble);
+
+
+            // overwrite some cells
+            sheet.SetContentsOfCell("x1", "Bleep Bloop Warble");
+            sheet.SetContentsOfCell("y1", "=2+3");
+            sheet.SetContentsOfCell("z1", "4.5");
+
+            // check the overwritten contents
+            actualContentsString = (string)sheet.GetCellContents("x1");
+            actualContentsFormula = (Formula)sheet.GetCellContents("y1");
+            actualContentsDouble = (double)sheet.GetCellContents("z1");
+
+            // check that overwritten values have changed
+            Assert.AreEqual("Bleep Bloop Warble", actualContentsString);
+            Assert.IsTrue(new Formula("2+3") == actualContentsFormula);
+            Assert.AreEqual(4.5, actualContentsDouble);
+        }
+
+        /// <summary>
+        /// GetCellContents(string name) should throw InvalidNameException if name is 
+        /// null or invalid
+        /// </summary>
+        [TestMethod]
+        public void GetCellValueOverwriteCells()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            // set some cell contents
+            sheet.SetContentsOfCell("x1", "=1/2 + 1/2");
+            sheet.SetContentsOfCell("y1", "3.5");
+            sheet.SetContentsOfCell("z1", "String Content");
+
+            // check cell values
+            string actualValueString = (string)sheet.GetCellValue("z1");
+            double actualValueFormula = (double)sheet.GetCellValue("x1");
+            double actualValueDouble = (double)sheet.GetCellValue("y1");
+
+            Assert.AreEqual("String Content", actualValueString);
+            Assert.IsTrue(1.0 == actualValueFormula);
+            Assert.AreEqual(3.5, actualValueDouble);
+
+
+            // overwrite some cells
+            sheet.SetContentsOfCell("x1", "Bleep Bloop Warble");
+            sheet.SetContentsOfCell("y1", "=2+3");
+            sheet.SetContentsOfCell("z1", "4.5");
+
+            // check cell values
+            actualValueString = (string)sheet.GetCellValue("x1");
+            actualValueFormula = (double)sheet.GetCellValue("y1");
+            actualValueDouble = (double)sheet.GetCellValue("z1");
+
+            Assert.AreEqual("Bleep Bloop Warble", actualValueString);
+            Assert.IsTrue(5.0 == actualValueFormula);
+            Assert.AreEqual(4.5, actualValueDouble);
+        }
+
+        /// <summary>
+        /// Put the GetCellContents() tests together to see if they work outside of isolation
+        /// </summary>
+        [TestMethod]
+        public void GetCellContentsAllTogether()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            // some strings
+            //set content
+            string expectedContentsString = "Hello World";
+            sheet.SetContentsOfCell("x1", "Hello World");
+            // get and check content
+            string actualContentsString = (string)sheet.GetCellContents("x1");
+            Assert.AreEqual(expectedContentsString, actualContentsString);
+            
+
+            //set content
+            expectedContentsString = "Don't Bite Me";
+            sheet.SetContentsOfCell("znb45", "Don't Bite Me");
+            //get and check content
+            actualContentsString = (string)sheet.GetCellContents("znb45");
+            Assert.AreEqual(expectedContentsString, actualContentsString);
+            
+
+            // some doubles
+            // set content
+            double expectedContentsDouble = 3.1415;
+            sheet.SetContentsOfCell("x2", "3.1415");
+            // get and check content
+            double actualContentsDouble = (double)sheet.GetCellContents("x2");
+            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
+           
+
+            // set contents
+            expectedContentsDouble = 2;
+            sheet.SetContentsOfCell("y15", "2");
+            // get and check content
+            actualContentsDouble = (double)sheet.GetCellContents("y15");
+            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
+            
+
+            // some formulas
+            // set content
+            Formula expectedContentsFormula = new Formula("2.5 + 2.5");
+            sheet.SetContentsOfCell("beautiful10", "=2.5 + 2.5");
+            // get and check content
+            Formula actualContentsFormula = (Formula)sheet.GetCellContents("beautiful10");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            
+
+            // set content
+            expectedContentsFormula = new Formula("4 - 2");
+            sheet.SetContentsOfCell("xXyYzZ24816","=4 - 2");
+            // get and check content
+            actualContentsFormula = (Formula)sheet.GetCellContents("xXyYzZ24816");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            
+
+            // set content
+            expectedContentsFormula = new Formula("4 - c16");
+            sheet.SetContentsOfCell("c1", "=4 - c16");
+            // check content
+            actualContentsFormula = (Formula)sheet.GetCellContents("c1");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            
+
+
+            // overwrite some cells
+            sheet.SetContentsOfCell("xXyYzZ24816", "Bleep Bloop Warble");
+            sheet.SetContentsOfCell("y15", "=2+3");
+            sheet.SetContentsOfCell("x1", "3.5");
+
+            // check the overwritten contents
+            actualContentsString = (string)sheet.GetCellContents("xXyYzZ24816");
+            actualContentsFormula = (Formula)sheet.GetCellContents("y15");
+            actualContentsDouble = (double)sheet.GetCellContents("x1");
+
+            // check that overwritten contents have changed
+            Assert.AreEqual("Bleep Bloop Warble", actualContentsString);
+            Assert.IsTrue(new Formula("2+3") == actualContentsFormula);
+            Assert.AreEqual(3.5, actualContentsDouble);
+
+            // check that we can still get empty cells
+            Assert.AreEqual("", (string)sheet.GetCellContents("x23"));
+            Assert.AreEqual("", (string)sheet.GetCellContents("xmen1"));
+        }
+
+        /// <summary>
+        /// Put the GetCellContents() tests together to see if they work outside of isolation
+        /// </summary>
+        [TestMethod]
+        public void GetCellValueAllTogether()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            // some strings
+            //set content
+            string expectedContentsString = "Hello World";
+            sheet.SetContentsOfCell("x1", "Hello World");
+            
+            // get and check value
+            string actualValueString = (string)sheet.GetCellValue("x1");
+            Assert.AreEqual(expectedContentsString, actualValueString);
+
+            //set content
+            expectedContentsString = "Don't Bite Me";
+            sheet.SetContentsOfCell("znb45", "Don't Bite Me");
+            
+            // get and check value
+            actualValueString = (string)sheet.GetCellValue("znb45");
+            Assert.AreEqual(expectedContentsString, actualValueString);
+
+            // some doubles
+            // set content
+            double expectedContentsDouble = 3.1415;
+            sheet.SetContentsOfCell("x2", "3.1415");
+            
+            // get and check value
+            double actualValueDouble = (double)sheet.GetCellValue("x2");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set contents
+            expectedContentsDouble = 2;
+            sheet.SetContentsOfCell("y15", "2");
+            
+            // get and check value
+            actualValueDouble = (double)sheet.GetCellValue("y15");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // some formulas
+            // set content
+            Formula expectedContentsFormula = new Formula("2.5 + 2.5");
+            sheet.SetContentsOfCell("beautiful10", "=2.5 + 2.5");
+            
+            // get and check value
+            expectedContentsDouble = 5.0;
+            actualValueDouble = (double)sheet.GetCellValue("beautiful10");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set content
+            expectedContentsFormula = new Formula("4 - 2");
+            sheet.SetContentsOfCell("xXyYzZ24816", "=4 - 2");
+            
+            // get and check value
+            expectedContentsDouble = 2.0;
+            actualValueDouble = (double)sheet.GetCellValue("xXyYzZ24816");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set content
+            expectedContentsFormula = new Formula("4 - c16");
+            sheet.SetContentsOfCell("c1", "=4 - c16");
+            
+            // check value
+            object actualValueObject = sheet.GetCellValue("c1");
+            Assert.IsTrue(actualValueObject.GetType() == typeof(FormulaError));
+
+
+            // overwrite some cells
+            sheet.SetContentsOfCell("xXyYzZ24816", "Bleep Bloop Warble");
+            sheet.SetContentsOfCell("y15", "=2+3");
+            sheet.SetContentsOfCell("x1", "3.5");
+
+           
+
+            // check that overwritten values have changed
+            // check the overwritten contents
+            actualValueString = (string)sheet.GetCellValue("xXyYzZ24816");
+            double actualValueFormula = (double)sheet.GetCellValue("y15");
+            actualValueDouble = (double)sheet.GetCellValue("x1");
+
+            Assert.AreEqual("Bleep Bloop Warble", actualValueString);
+            Assert.IsTrue(5.0 == actualValueFormula);
+            Assert.AreEqual(3.5, actualValueDouble);
+
+            // udate cell value, cell c1 depends on the value of this cell
+            sheet.SetContentsOfCell("c16", "2");
+            actualValueDouble = (double)sheet.GetCellValue("c1");
+            Assert.AreEqual(2.0, actualValueDouble);
+
+            // change cell value again
+            sheet.SetContentsOfCell("c16", "3");
+            actualValueDouble = (double)sheet.GetCellValue("c1");
+            Assert.AreEqual(1.0, actualValueDouble);
+
+            // check that we can still get empty cells
+            Assert.AreEqual("", (string)sheet.GetCellValue("x23"));
+            Assert.AreEqual("", (string)sheet.GetCellValue("xmen1"));
+        }
+
+        /// <summary>
+        /// Put the GetCellContents() tests together to see if they work outside of isolation
+        /// </summary>
+        [TestMethod]
+        public void GetCellValueAndCellContentsAllTogether()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            // some strings
+            //set content
+            string expectedContentsString = "Hello World";
+            sheet.SetContentsOfCell("x1", "Hello World");
+            // get and check content
+            string actualContentsString = (string)sheet.GetCellContents("x1");
+            Assert.AreEqual(expectedContentsString, actualContentsString);
+            // get and check value
+            string actualValueString = (string)sheet.GetCellValue("x1");
+            Assert.AreEqual(expectedContentsString, actualValueString);
+
+            //set content
+            expectedContentsString = "Don't Bite Me";
+            sheet.SetContentsOfCell("znb45", "Don't Bite Me");
+            //get and check content
+            actualContentsString = (string)sheet.GetCellContents("znb45");
+            Assert.AreEqual(expectedContentsString, actualContentsString);
+            // get and check value
+            actualValueString = (string)sheet.GetCellValue("znb45");
+            Assert.AreEqual(expectedContentsString, actualValueString);
+
+            // some doubles
+            // set content
+            double expectedContentsDouble = 3.1415;
+            sheet.SetContentsOfCell("x2", "3.1415");
+            // get and check content
+            double actualContentsDouble = (double)sheet.GetCellContents("x2");
+            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
+            // get and check value
+            double actualValueDouble = (double)sheet.GetCellValue("x2");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set contents
+            expectedContentsDouble = 2;
+            sheet.SetContentsOfCell("y15", "2");
+            // get and check content
+            actualContentsDouble = (double)sheet.GetCellContents("y15");
+            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
+            // get and check value
+            actualValueDouble = (double)sheet.GetCellValue("y15");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // some formulas
+            // set content
+            Formula expectedContentsFormula = new Formula("2.5 + 2.5");
+            sheet.SetContentsOfCell("beautiful10", "=2.5 + 2.5");
+            // get and check content
+            Formula actualContentsFormula = (Formula)sheet.GetCellContents("beautiful10");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            // get and check value
+            expectedContentsDouble = 5.0;
+            actualValueDouble = (double)sheet.GetCellValue("beautiful10");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set content
+            expectedContentsFormula = new Formula("4 - 2");
+            sheet.SetContentsOfCell("xXyYzZ24816", "=4 - 2");
+            // get and check content
+            actualContentsFormula = (Formula)sheet.GetCellContents("xXyYzZ24816");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            // get and check value
+            expectedContentsDouble = 2.0;
+            actualValueDouble = (double)sheet.GetCellValue("xXyYzZ24816");
+            Assert.AreEqual(expectedContentsDouble, actualValueDouble);
+
+            // set content
+            expectedContentsFormula = new Formula("4 - c16");
+            sheet.SetContentsOfCell("c1", "=4 - c16");
+            // check content
+            actualContentsFormula = (Formula)sheet.GetCellContents("c1");
+            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
+            // check value
+            object actualValueObject = sheet.GetCellValue("c1");
+            Assert.IsTrue(actualValueObject.GetType() == typeof(FormulaError));
+
+
+            // overwrite some cells
+            sheet.SetContentsOfCell("xXyYzZ24816", "Bleep Bloop Warble");
+            sheet.SetContentsOfCell("y15", "=2+3");
+            sheet.SetContentsOfCell("x1", "3.5");
+
+            // check the overwritten contents
+            actualContentsString = (string)sheet.GetCellContents("xXyYzZ24816");
+            actualContentsFormula = (Formula)sheet.GetCellContents("y15");
+            actualContentsDouble = (double)sheet.GetCellContents("x1");
+
+            // check that overwritten contents have changed
+            Assert.AreEqual("Bleep Bloop Warble", actualContentsString);
+            Assert.IsTrue(new Formula("2+3") == actualContentsFormula);
+            Assert.AreEqual(3.5, actualContentsDouble);
+
+            // check that overwritten values have changed
+            // check the overwritten contents
+            actualValueString = (string)sheet.GetCellValue("xXyYzZ24816");
+            double actualValueFormula = (double)sheet.GetCellValue("y15");
+            actualValueDouble = (double)sheet.GetCellValue("x1");
+
+            Assert.AreEqual("Bleep Bloop Warble", actualValueString);
+            Assert.IsTrue(5.0 == actualValueFormula);
+            Assert.AreEqual(3.5, actualValueDouble);
+
+            // udate cell content, cell c1 depends on the value of this cell
+            sheet.SetContentsOfCell("c16", "2");
+            actualValueDouble = (double)sheet.GetCellValue("c1");
+            Assert.AreEqual(2.0, actualValueDouble);
+
+            // change cell content again
+            sheet.SetContentsOfCell("c16", "3");
+            actualValueDouble = (double)sheet.GetCellValue("c1");
+            Assert.AreEqual(1.0, actualValueDouble);
+
+            // check that we can still get empty cells
+            Assert.AreEqual("", (string)sheet.GetCellContents("x23"));
+            Assert.AreEqual("", (string)sheet.GetCellContents("xmen1"));
+
+            // check that we can still get empty cells
+            Assert.AreEqual("", (string)sheet.GetCellValue("x23"));
+            Assert.AreEqual("", (string)sheet.GetCellValue("xmen1"));
+        }
+
     }
 }
 
 
 
-//        /// <summary>
-//        /// GetCellContents(string name) should throw InvalidNameException if name is 
-//        /// null or invalid
-//        /// </summary>
-//        [TestMethod]
-//        [ExpectedException(typeof(InvalidNameException))]
-//        public void GetCellContentsNull()
-//        {
-//            Spreadsheet sheet = new Spreadsheet();
-
-//            Formula actualContents = (Formula)sheet.GetCellContents(null);
-//        }
-
-//        /// <summary>
-//        /// GetCellContents(string name) should throw InvalidNameException if name is 
-//        /// null or invalid
-//        /// </summary>
-//        [TestMethod]
-//        [ExpectedException(typeof(InvalidNameException))]
-//        public void GetCellContentsInvalidName()
-//        {
-//            Spreadsheet sheet = new Spreadsheet();
-
-//            Formula actualContents = (Formula)sheet.GetCellContents("2x");
-//        }
-
-//        /// <summary>
-//        /// GetCellContents(string name) should throw InvalidNameException if name is 
-//        /// null or invalid
-//        /// </summary>
-//        [TestMethod]
-//        public void GetCellContentsOverwriteCells()
-//        {
-//            Spreadsheet sheet = new Spreadsheet();
-
-//            // set some cell contents
-//            sheet.SetCellContents("x", new Formula("1/2 + 1/2"));
-//            sheet.SetCellContents("y", 3.5);
-//            sheet.SetCellContents("z", "String Content");
-
-//            // check cell values
-//            string actualContentsString = (string)sheet.GetCellContents("z");
-//            Formula actualContentsFormula = (Formula)sheet.GetCellContents("x");
-//            double actualContentsDouble = (double)sheet.GetCellContents("y");
-
-//            Assert.AreEqual("String Content", actualContentsString);
-//            Assert.IsTrue(new Formula("1/2 + 1/2") == actualContentsFormula);
-//            Assert.AreEqual(3.5, actualContentsDouble);
 
 
-//            // overwrite some cells
-//            sheet.SetCellContents("x", "Bleep Bloop Warble");
-//            sheet.SetCellContents("y", new Formula("2+3"));
-//            sheet.SetCellContents("z", 4.5);
 
-//            // check the overwritten values
-//            actualContentsString = (string)sheet.GetCellContents("x");
-//            actualContentsFormula = (Formula)sheet.GetCellContents("y");
-//            actualContentsDouble = (double)sheet.GetCellContents("z");
 
-//            // check that overwritten values have changed
-//            Assert.AreEqual("Bleep Bloop Warble", actualContentsString);
-//            Assert.IsTrue(new Formula("2+3") == actualContentsFormula);
-//            Assert.AreEqual(4.5, actualContentsDouble);
-//        }
 
-//        /// <summary>
-//        /// Put the GetCellContents() tests together to see if they work outside of isolation
-//        /// </summary>
-//        [TestMethod]
-//        public void GetCellContentsAllTogether()
-//        {
-//            Spreadsheet sheet = new Spreadsheet();
 
-//            // some strings
-//            string expectedContentsString = "Hello World";
-//            sheet.SetCellContents("x", "Hello World");
-//            string actualContentsString = (string)sheet.GetCellContents("x");
-//            Assert.AreEqual(expectedContentsString, actualContentsString);
 
-//            expectedContentsString = "Don't Bite Me";
-//            sheet.SetCellContents("_", "Don't Bite Me");
-//            actualContentsString = (string)sheet.GetCellContents("_");
-//            Assert.AreEqual(expectedContentsString, actualContentsString);
-
-//            // some doubles
-//            double expectedContentsDouble = 3.1415;
-//            sheet.SetCellContents("x2", 3.1415);
-//            double actualContentsDouble = (double)sheet.GetCellContents("x2");
-//            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
-
-//            expectedContentsDouble = 2;
-//            sheet.SetCellContents("y_15", 2);
-//            actualContentsDouble = (double)sheet.GetCellContents("y_15");
-//            Assert.AreEqual(expectedContentsDouble, actualContentsDouble);
-
-//            // some formulas
-//            Formula expectedContentsFormula = new Formula("2.5 + 2.5");
-//            sheet.SetCellContents("___", new Formula("2.5 + 2.5"));
-//            Formula actualContentsFormula = (Formula)sheet.GetCellContents("___");
-//            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
-
-//            expectedContentsFormula = new Formula("4 - 2");
-//            sheet.SetCellContents("xXyYzZ_2_4_8_16_BleepBloopRobot", new Formula("4 - 2"));
-//            actualContentsFormula = (Formula)sheet.GetCellContents("xXyYzZ_2_4_8_16_BleepBloopRobot");
-//            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
-
-//            expectedContentsFormula = new Formula("4 - c16");
-//            sheet.SetCellContents("c1", new Formula("4 - c16"));
-//            actualContentsFormula = (Formula)sheet.GetCellContents("c1");
-//            Assert.IsTrue(expectedContentsFormula == actualContentsFormula);
-
-//            // overwrite some cells
-//            sheet.SetCellContents("xXyYzZ_2_4_8_16_BleepBloopRobot", "Bleep Bloop Warble");
-//            sheet.SetCellContents("y_15", new Formula("2+3"));
-//            sheet.SetCellContents("x", 3.5);
-
-//            // check the overwritten values
-//            actualContentsString = (string)sheet.GetCellContents("xXyYzZ_2_4_8_16_BleepBloopRobot");
-//            actualContentsFormula = (Formula)sheet.GetCellContents("y_15");
-//            actualContentsDouble = (double)sheet.GetCellContents("x");
-
-//            // check that overwritten values have changed
-//            Assert.AreEqual("Bleep Bloop Warble", actualContentsString);
-//            Assert.IsTrue(new Formula("2+3") == actualContentsFormula);
-//            Assert.AreEqual(3.5, actualContentsDouble);
-
-//            // check that we can still get empty cells
-//            Assert.AreEqual("", (string)sheet.GetCellContents("_x23"));
-//            Assert.AreEqual("", (string)sheet.GetCellContents("_xmen"));
-//        }
 
 //        /// <summary>
 //        /// Creates an empty spreadsheet. If spreasheet is empty the number of all 
