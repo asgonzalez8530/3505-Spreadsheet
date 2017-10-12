@@ -113,17 +113,17 @@ namespace SS
         public Spreadsheet(string filePath, Func<string, bool> isValid, Func<string, string> normalize, string version)
             : this(isValid, normalize, version)
         {
-            using(XmlReader reader = XmlReader.Create(filePath))
+            using (XmlReader reader = XmlReader.Create(filePath))
             {
-                while(reader.Read())
+                while (reader.Read())
                 {
-                    if(reader.IsStartElement())
+                    if (reader.IsStartElement())
                     {
-                        switch(reader.Name)
+                        switch (reader.Name)
                         {
                             case "spreadsheet":
                                 // first check that version is correct
-                                if(reader["version"] != version)
+                                if (reader["version"] != version)
                                 {
                                     string msg = "Spreadsheet version mismatch";
                                     throw new SpreadsheetReadWriteException(msg);
@@ -155,10 +155,10 @@ namespace SS
             try
             {
                 string version = "";
-                using(XmlReader reader = XmlReader.Create(filename))
+                using (XmlReader reader = XmlReader.Create(filename))
                 {
 
-                    if(reader.ReadToFollowing("spreadsheet"))
+                    if (reader.ReadToFollowing("spreadsheet"))
                     {
                         version = reader["version"];
                     }
@@ -172,7 +172,7 @@ namespace SS
 
                 return version;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw new SpreadsheetReadWriteException("Error reading file: " + filename);
             }
@@ -214,16 +214,16 @@ namespace SS
 
             try
             {
-                using(XmlWriter writer = XmlWriter.Create(filename, settings))
+                using (XmlWriter writer = XmlWriter.Create(filename, settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("spreadsheet");
                     writer.WriteAttributeString("version", Version);
                     writer.WriteWhitespace("\n");
 
-                    foreach(string cell in cells.Keys)
+                    foreach (string cell in cells.Keys)
                     {
-                        
+
                         writer.WriteStartElement(cell);
                         writer.WriteElementString("name", cell);
                         writer.WriteElementString("contents", GetCellContentsString(cell));
@@ -235,7 +235,7 @@ namespace SS
                     writer.Close();
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 string msg = "Error writing spreadsheet to file";
                 throw new SpreadsheetReadWriteException(msg);
@@ -265,7 +265,7 @@ namespace SS
             }
         }
 
-        
+
 
         /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
@@ -279,7 +279,7 @@ namespace SS
             // make sure cell name is valid
             CellNameValidator(name);
 
-            if(cells.ContainsKey(name))
+            if (cells.ContainsKey(name))
             {
                 return cells[name].GetCellContents();
             }
@@ -320,7 +320,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetContentsOfCell(string name, string content)
         {
-            if(content == null)
+            if (content == null)
             {
                 throw new ArgumentNullException();
             }
@@ -330,13 +330,13 @@ namespace SS
 
             // see if content parses as double
             double d;
-            if(double.TryParse(content, out d))
+            if (double.TryParse(content, out d))
             {
 
                 return SetCellContents(name, d);
             }
 
-            if(content.BeginsWithChar('='))
+            if (content.BeginsWithChar('='))
             {
                 // set the formula string to the substring following '=', if there is nothing
                 // set to empty string
@@ -345,8 +345,12 @@ namespace SS
                 return SetCellContents(name, formula);
             }
 
-            return (SetCellContents(name, content));
+            return SetCellContents(name, content);
         }
+
+
+
+
 
         /// <summary>
         /// Enumerates the names of all the non-empty cells in the spreadsheet.
@@ -370,7 +374,7 @@ namespace SS
         /// </summary>
         protected override ISet<string> SetCellContents(string name, double number)
         {
-            
+
             // validate the cell name
             CellNameValidator(name);
 
@@ -380,8 +384,12 @@ namespace SS
 
             Changed = true;
 
+            // we need to update the value of cells whos value depends on this cell
+            IEnumerable<string> recalcCells = GetCellsToRecalculate(name);
+            RecalculateCells(recalcCells);
+
             // get all cells whose value depends on name
-            return new HashSet<string>(GetCellsToRecalculate(name));
+            return new HashSet<string>(recalcCells);
         }
 
 
@@ -406,7 +414,7 @@ namespace SS
 
             // special case, if text is empty string "", need to update all dependencies 
             // and remove cell from list
-            if(text == "")
+            if (text == "")
             {
                 EmptyCell(name);
                 return new HashSet<string>(GetCellsToRecalculate(name));
@@ -415,8 +423,12 @@ namespace SS
             Cell cell = new Cell(text);
             AddCellToDictionary(name, cell);
 
+            // we need to update the value of cells whos value depends on this cell
+            IEnumerable<string> recalcCells = GetCellsToRecalculate(name);
+            RecalculateCells(recalcCells);
+
             // get all cells whose value depends on name
-            return new HashSet<string>(GetCellsToRecalculate(name));
+            return new HashSet<string>(recalcCells);
         }
 
 
@@ -438,7 +450,7 @@ namespace SS
         protected override ISet<string> SetCellContents(string name, Formula formula)
         {
             // make sure formula isn't null
-            if(formula == null)
+            if (formula == null)
             {
                 throw new ArgumentNullException();
             }
@@ -452,7 +464,7 @@ namespace SS
             Changed = true;
 
             // set the cell contents
-            if(cells.ContainsKey(name))
+            if (cells.ContainsKey(name))
             {
                 cells[name] = new Cell(formula, LookupCellValue);
             }
@@ -461,8 +473,12 @@ namespace SS
                 cells.Add(name, new Cell(formula, LookupCellValue));
             }
 
+            // we need to update the value of cells whos value depends on this cell
+            IEnumerable<string> recalcCells = GetCellsToRecalculate(name);
+            RecalculateCells(recalcCells);
+
             // get all cells whose value depends on name
-            return new HashSet<string>(dependencies);
+            return new HashSet<string>(recalcCells);
         }
 
 
@@ -488,7 +504,7 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if(name == null)
+            if (name == null)
             {
                 throw new ArgumentNullException();
             }
@@ -503,6 +519,22 @@ namespace SS
         //------------------------------Private Methods------------------------------------//
 
         /// <summary>
+        /// Takes in a list of cells, in the order which they must be calculated, and 
+        /// recalculates value of each one. 
+        /// </summary>
+        private void RecalculateCells(IEnumerable<string> recalcCells)
+        {
+            foreach (string cell in recalcCells)
+            {
+                if (cells.ContainsKey(cell))
+                {
+                    cells[cell].RecalculateCellValue(LookupCellValue);
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Gets a cell's contents and returns a string version of its contents. 
         /// If its contents is a double d, returns d.ToString().
         /// If its contents is a string s, returns s.
@@ -511,7 +543,7 @@ namespace SS
         private string GetCellContentsString(string name)
         {
             Cell c = cells[name];
-            switch(c.Type)
+            switch (c.Type)
             {
                 case Cell.CellType.doubleType:
                     double d = (double)cells[name].GetCellContents();
@@ -535,7 +567,7 @@ namespace SS
             string content;
 
             // get first child of cell element should be name
-            if(reader.ReadToDescendant("name"))
+            if (reader.ReadToDescendant("name"))
             {
                 name = reader.ReadElementContentAsString();
             }
@@ -546,7 +578,7 @@ namespace SS
             }
 
             // get second child of cell element should be contents
-            if(reader.ReadToNextSibling("contents"))
+            if (reader.ReadToNextSibling("contents"))
             {
                 content = reader.ReadElementContentAsString();
             }
@@ -562,7 +594,7 @@ namespace SS
             {
                 SetContentsOfCell(name, content);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 string msg = "Error reading cell from saved spreadsheet: ";
                 msg += e.Message;
@@ -575,7 +607,7 @@ namespace SS
         /// </summary>
         private string SafelyNormalize(string name)
         {
-            if(name == null)
+            if (name == null)
             {
                 return null;
             }
@@ -592,7 +624,7 @@ namespace SS
         private bool Validator(string name)
         {
             string pattern = @"^[a-zA-Z]+\d+$";
-            if(name != null || Regex.IsMatch(name, pattern) || IsValid(name))
+            if (name != null || Regex.IsMatch(name, pattern) || IsValid(name))
             {
                 return true;
             }
@@ -607,8 +639,8 @@ namespace SS
         /// cell names passed to spreadsheet
         /// </summary>
         private void CellNameValidator(string name)
-        {            
-            if(!Validator(name))
+        {
+            if (!Validator(name))
             {
                 throw new InvalidNameException();
             }
@@ -636,7 +668,7 @@ namespace SS
             {
                 return GetCellsToRecalculate(name);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 dependencies.ReplaceDependents(name, oldDependencies);
                 throw;
@@ -651,7 +683,7 @@ namespace SS
         {
             dependencies.ReplaceDependents(name, new List<string>());
 
-            if(cells.ContainsKey(name))
+            if (cells.ContainsKey(name))
             {
                 cells.Remove(name);
             }
@@ -665,9 +697,9 @@ namespace SS
         /// </summary>
         private void AddCellToDictionary(string name, Cell cell)
         {
-            if(cells.ContainsKey(name))
+            if (cells.ContainsKey(name))
             {
-                if(cells[name].Type == Cell.CellType.formulaType)
+                if (cells[name].Type == Cell.CellType.formulaType)
                 {
                     dependencies.ReplaceDependents(name, new List<string>());
                 }
@@ -689,7 +721,7 @@ namespace SS
             try
             {
                 object value = GetCellValue(variable);
-                if(value.GetType() == typeof(double))
+                if (value.GetType() == typeof(double))
                 {
                     return (double)value;
                 }
@@ -782,7 +814,7 @@ namespace SS
             public object GetCellContents()
             {
                 // may not have to do casting on this return will check in tests and create a branch that does not cast
-                switch(Type)
+                switch (Type)
                 {
                     case CellType.doubleType:
                         return (double)cellContents;
@@ -795,7 +827,7 @@ namespace SS
 
             public object GetCellValue()
             {
-                switch(Type)
+                switch (Type)
                 {
                     case CellType.doubleType:
                         return (double)cellValue;
@@ -803,7 +835,7 @@ namespace SS
                         return (string)cellValue;
                     default:
                         // could possibly be an error, must check 
-                        if(cellValue.GetType() == typeof(FormulaError))
+                        if (cellValue.GetType() == typeof(FormulaError))
                         {
                             return (FormulaError)cellValue;
                         }
@@ -819,7 +851,7 @@ namespace SS
             /// </summary>
             public object RecalculateCellValue(Func<string, double> lookup)
             {
-                if(Type == CellType.formulaType)
+                if (Type == CellType.formulaType)
                 {
                     Formula f = (Formula)cellContents;
                     cellValue = f.Evaluate(lookup);
@@ -843,7 +875,7 @@ namespace SS
         public static bool BeginsWithChar(this string s, char c)
         {
             // make sure this string instance is not null and is not empty
-            if(s != null && s.Length > 0)
+            if (s != null && s.Length > 0)
             {
                 return (s[0] == c);
             }
