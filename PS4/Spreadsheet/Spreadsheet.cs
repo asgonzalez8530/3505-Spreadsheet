@@ -847,9 +847,9 @@ namespace SS
             }
 
             /// <summary>
-            /// Recalculates the cell's value and returns it.
+            /// Recalculates the cell's value.
             /// </summary>
-            public object RecalculateCellValue(Func<string, double> lookup)
+            public void RecalculateCellValue(Func<string, double> lookup)
             {
                 if (Type == CellType.formulaType)
                 {
@@ -857,7 +857,6 @@ namespace SS
                     cellValue = f.Evaluate(lookup);
                 }
 
-                return GetCellValue();
             }
 
 
