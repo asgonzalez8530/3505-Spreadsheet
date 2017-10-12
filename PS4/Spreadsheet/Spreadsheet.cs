@@ -143,6 +143,8 @@ namespace SS
                 reader.Close();
             }
 
+            Changed = false;
+
         }
 
         /// <summary>
@@ -170,7 +172,14 @@ namespace SS
                     reader.Close();
                 }
 
-                return version;
+                if (version == null)
+                {
+                    throw new SpreadsheetReadWriteException("Unable to read Spreadsheet Version from file");
+                }
+                else
+                {
+                    return version;
+                }
             }
             catch (Exception)
             {
@@ -207,31 +216,37 @@ namespace SS
         public override void Save(string filename)
         {
             XmlWriterSettings settings = new XmlWriterSettings();
-            settings.WriteEndDocumentOnClose = true;
             settings.Indent = true;
-            settings.IndentChars = "   ";
+            settings.IndentChars = "    ";
             settings.NewLineChars = "\n";
+            
+            
 
             try
             {
                 using (XmlWriter writer = XmlWriter.Create(filename, settings))
                 {
+                    
                     writer.WriteStartDocument();
                     writer.WriteStartElement("spreadsheet");
                     writer.WriteAttributeString("version", Version);
-                    writer.WriteWhitespace("\n");
+                    writer.WriteWhitespace("\n\n");
+                    
 
                     foreach (string cell in cells.Keys)
                     {
 
-                        writer.WriteStartElement(cell);
+                        writer.WriteStartElement("cell");
                         writer.WriteElementString("name", cell);
                         writer.WriteElementString("contents", GetCellContentsString(cell));
                         writer.WriteEndElement();
+                        writer.WriteWhitespace("\n");
+
                     }
 
                     writer.WriteWhitespace("\n");
                     writer.WriteEndElement();
+                    writer.WriteEndDocument();
                     writer.Close();
                 }
             }
@@ -563,30 +578,28 @@ namespace SS
         private void ReadCellFromXML(XmlReader reader)
         {
 
-            string name;
-            string content;
+            string name = null;
+            string content = null;
 
             // get first child of cell element should be name
-            if (reader.ReadToDescendant("name"))
+            while (reader.Read() && (content == null || name == null))
             {
-                name = reader.ReadElementContentAsString();
-            }
-            else
-            {
-                string msg = "error reading cell name from saved spreadsheet";
-                throw new SpreadsheetReadWriteException(msg);
-            }
+                if (reader.IsStartElement())
+                {
+                    if (reader.Name == "name")
+                    {
+                        name = reader.ReadElementContentAsString();
+                    }
 
-            // get second child of cell element should be contents
-            if (reader.ReadToNextSibling("contents"))
-            {
-                content = reader.ReadElementContentAsString();
+                    if (reader.Name == "contents")
+                    {
+                        content = reader.ReadElementContentAsString();
+                    }
+                    
+                }
+                
             }
-            else
-            {
-                string msg = "error reading cell contents from saved spreadsheet";
-                throw new SpreadsheetReadWriteException(msg);
-            }
+            
 
             // Try to set the contents of the cell. If something goes wrong
             // throw the proper exception
@@ -601,6 +614,8 @@ namespace SS
                 throw new SpreadsheetReadWriteException(msg);
             }
         }
+
+
 
         /// <summary>
         /// If name is null, returns null. Else returns Normalize(name)

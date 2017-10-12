@@ -1301,12 +1301,209 @@ namespace SpreadsheetModelTests
             Assert.IsTrue(dependencySet.Contains("B1"));
             Assert.IsTrue(dependencySet.Contains("C1"));
         }
+
+        /// <summary>
+        /// Check the state of the Spreadsheet after dependency 
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SetContentsOfCellNullContent()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetContentsOfCell("B1", null);
+            
+        }
+
+        /// <summary>
+        /// Check that Changed is false after new Spreadsheet is created
+        /// </summary>
+        [TestMethod]
+        public void ChangedNewSpreadsheet()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            Assert.IsFalse(sheet.Changed);
+            
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is changed
+        /// </summary>
+        [TestMethod]
+        public void ChangedSpreadsheet()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetContentsOfCell("a1", "=2.0");
+            Assert.IsTrue(sheet.Changed);
+
+        }
+
+        /// <summary>
+        /// Check that Changed is false after new Spreadsheet is saved
+        /// </summary>
+        [TestMethod]
+        public void ChangedSavedSpreadsheet()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetContentsOfCell("a1", "=2.0");
+            sheet.SetContentsOfCell("a2", "2.0");
+            sheet.SetContentsOfCell("a3", "Hello World");
+            string saveLocation = "test1.xml";
+            sheet.Save(saveLocation);
+            Assert.IsFalse(sheet.Changed);
+
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        public void ChangedSavedSpreadsheetChangeAfterSave()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetContentsOfCell("a1", "=2.0");
+            string saveLocation = "test1.xml";
+            sheet.Save(saveLocation);
+            sheet.SetContentsOfCell("a1", "Hello World");
+            Assert.IsTrue(sheet.Changed);
+
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        public void GetSavedVersionTest()
+        {
+            string version = "Hello World";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+            sheet.SetContentsOfCell("a1", "=2.0");
+            string saveLocation = "test1.xml";
+            sheet.Save(saveLocation);
+            string savedVersion = sheet.GetSavedVersion(saveLocation);
+
+            Assert.AreEqual(version, savedVersion);
+
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void GetSavedVersionTestInvalidSaveLocation()
+        {
+            string version = "Hello World";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+            sheet.SetContentsOfCell("a1", "=2.0");
+            string saveLocation = "test1.xml";
+            sheet.Save(saveLocation);
+            string savedVersion = sheet.GetSavedVersion("doesntexist.xml");
+
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void GetSavedVersionTestInvalidXml()
+        {
+            string version = "Hello World";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+            
+            string savedVersion = sheet.GetSavedVersion("invalidVersion.xml");
+            
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void GetSavedVersionTestInvalidXml2()
+        {
+            string version = "Hello World";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+
+            string savedVersion = sheet.GetSavedVersion("invalidVersion1.xml");
+
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void GetSavedSpreadsheet()
+        {
+            string version = "1.0";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+            sheet.SetContentsOfCell("a1", "Hello World");
+            sheet.SetContentsOfCell("b1", "25");
+            sheet.SetContentsOfCell("c1", "=b1 + 5");
+
+            string saveLocation = "test1.xml";
+            sheet.Save(saveLocation);
+
+            sheet = new Spreadsheet(saveLocation, x => true, x => x.ToUpper(), "2.0");
+        }
+
+        /// <summary>
+        /// Check that Changed is true after new Spreadsheet is saved,
+        /// then modified
+        /// </summary>
+        [TestMethod]
+        public void GetSavedSpreadsheetNoError()
+        {
+            // create a spreadsheet
+            string version = "1.0";
+            Spreadsheet sheet = new Spreadsheet(x => true, x => x.ToUpper(), version);
+
+            sheet.SetContentsOfCell("a1", "Hello World");
+            sheet.SetContentsOfCell("b1", "25");
+            sheet.SetContentsOfCell("c1", "=b1 + 5");
+            // save spreadsheet
+            string saveLocation = "test1.xml";
+            Assert.IsTrue(sheet.Changed);
+            sheet.Save(saveLocation);
+
+            // read spreasheet
+            sheet = new Spreadsheet(saveLocation, x => true, x => x.ToUpper(), version);
+            Assert.IsFalse(sheet.Changed);
+
+            // check spreadsheet contents
+            string a1Contents = (string)sheet.GetCellContents("a1");
+            double b1Contents = (double)sheet.GetCellContents("b1");
+            Formula c1Contents = (Formula)sheet.GetCellContents("c1");
+
+            Assert.AreEqual("Hello World", a1Contents);
+            Assert.AreEqual(25.0, b1Contents);
+            Assert.IsTrue(c1Contents == new Formula("B1 + 5"));
+
+            // check spreadsheet values
+            string a1Value = (string)sheet.GetCellValue("a1");
+            double b1Value = (double)sheet.GetCellValue("b1");
+            double c1Value = (double)sheet.GetCellValue("c1");
+
+            Assert.AreEqual("Hello World", a1Value);
+            Assert.AreEqual(25.0, b1Value);
+            Assert.AreEqual(30.0, c1Value);
+
+
+        }
     }
 }
-
-
-
-
-
-//    }
-//}
