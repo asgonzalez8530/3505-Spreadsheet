@@ -113,36 +113,43 @@ namespace SS
         public Spreadsheet(string filePath, Func<string, bool> isValid, Func<string, string> normalize, string version)
             : this(isValid, normalize, version)
         {
-            using (XmlReader reader = XmlReader.Create(filePath))
-            {
-                while (reader.Read())
+            try {
+                using (XmlReader reader = XmlReader.Create(filePath))
                 {
-                    if (reader.IsStartElement())
+                    while (reader.Read())
                     {
-                        switch (reader.Name)
+                        if (reader.IsStartElement())
                         {
-                            case "spreadsheet":
-                                // first check that version is correct
-                                if (reader["version"] != version)
-                                {
-                                    string msg = "Spreadsheet version mismatch";
-                                    throw new SpreadsheetReadWriteException(msg);
-                                }
+                            switch (reader.Name)
+                            {
+                                case "spreadsheet":
+                                    // first check that version is correct
+                                    if (reader["version"] != version)
+                                    {
+                                        string msg = "Spreadsheet version mismatch";
+                                        throw new SpreadsheetReadWriteException(msg);
+                                    }
 
-                                break;
+                                    break;
 
-                            case "cell":
-                                // read cell's contents and add it to this spreadsheet
-                                ReadCellFromXML(reader);
-                                break;
+                                case "cell":
+                                    // read cell's contents and add it to this spreadsheet
+                                    ReadCellFromXML(reader);
+                                    break;
+                            }
                         }
                     }
+                    // we're done with the reader, time to close it
+                    reader.Close();
                 }
 
-                // we're done with the reader, time to close it
-                reader.Close();
+                
             }
-
+            catch (Exception e)
+            {
+                throw new SpreadsheetReadWriteException(e.Message);
+            }
+            
             Changed = false;
 
         }
@@ -582,7 +589,7 @@ namespace SS
             string content = null;
 
             // get first child of cell element should be name
-            while (reader.Read() && (content == null || name == null))
+            while ((content == null || name == null) && reader.Read())
             {
                 if (reader.IsStartElement())
                 {
