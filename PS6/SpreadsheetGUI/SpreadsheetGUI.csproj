@@ -41,6 +41,9 @@
     <Reference Include="Spreadsheet">
       <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
     </Reference>
+    <Reference Include="SpreadsheetPanel">
+      <HintPath>..\Resources\Libraries\SpreadsheetPanel.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -62,6 +65,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
