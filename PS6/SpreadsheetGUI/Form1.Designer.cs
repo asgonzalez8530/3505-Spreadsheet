@@ -38,12 +38,12 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CellProperties = new System.Windows.Forms.GroupBox();
-            this.Contents_Text = new System.Windows.Forms.TextBox();
-            this.Contents_Label = new System.Windows.Forms.Label();
-            this.Value_Text = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.Contents_Text = new System.Windows.Forms.TextBox();
             this.CurrentCell_Label = new System.Windows.Forms.Label();
+            this.Contents_Label = new System.Windows.Forms.Label();
             this.CurrentCell_Text = new System.Windows.Forms.TextBox();
+            this.Value_Text = new System.Windows.Forms.TextBox();
             this.Value_Label = new System.Windows.Forms.Label();
             this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.menuStrip1.SuspendLayout();
@@ -79,25 +79,25 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(140, 30);
             this.newToolStripMenuItem.Text = "New";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(140, 30);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(140, 30);
             this.openToolStripMenuItem.Text = "Open";
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(140, 30);
             this.closeToolStripMenuItem.Text = "Close";
             // 
             // helpToolStripMenuItem
@@ -132,35 +132,6 @@
             this.CellProperties.TabStop = false;
             this.CellProperties.Text = "Cell Properties";
             // 
-            // Contents_Text
-            // 
-            this.tableLayoutPanel2.SetColumnSpan(this.Contents_Text, 3);
-            this.Contents_Text.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Contents_Text.Location = new System.Drawing.Point(101, 45);
-            this.Contents_Text.Name = "Contents_Text";
-            this.Contents_Text.Size = new System.Drawing.Size(1250, 26);
-            this.Contents_Text.TabIndex = 5;
-            this.Contents_Text.TextChanged += new System.EventHandler(this.Contents_Text_TextChanged);
-            // 
-            // Contents_Label
-            // 
-            this.Contents_Label.AutoSize = true;
-            this.Contents_Label.Dock = System.Windows.Forms.DockStyle.Right;
-            this.Contents_Label.Location = new System.Drawing.Point(21, 42);
-            this.Contents_Label.Name = "Contents_Label";
-            this.Contents_Label.Size = new System.Drawing.Size(74, 42);
-            this.Contents_Label.TabIndex = 4;
-            this.Contents_Label.Text = "Contents";
-            this.Contents_Label.Click += new System.EventHandler(this.label1_Click);
-            // 
-            // Value_Text
-            // 
-            this.Value_Text.Enabled = false;
-            this.Value_Text.Location = new System.Drawing.Point(263, 3);
-            this.Value_Text.Name = "Value_Text";
-            this.Value_Text.Size = new System.Drawing.Size(100, 26);
-            this.Value_Text.TabIndex = 3;
-            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 4;
@@ -183,6 +154,16 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(1354, 84);
             this.tableLayoutPanel2.TabIndex = 5;
             // 
+            // Contents_Text
+            // 
+            this.tableLayoutPanel2.SetColumnSpan(this.Contents_Text, 3);
+            this.Contents_Text.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Contents_Text.Location = new System.Drawing.Point(101, 45);
+            this.Contents_Text.Name = "Contents_Text";
+            this.Contents_Text.Size = new System.Drawing.Size(1250, 26);
+            this.Contents_Text.TabIndex = 5;
+            this.Contents_Text.TextChanged += new System.EventHandler(this.Contents_Text_TextChanged);
+            // 
             // CurrentCell_Label
             // 
             this.CurrentCell_Label.AutoSize = true;
@@ -193,6 +174,17 @@
             this.CurrentCell_Label.TabIndex = 1;
             this.CurrentCell_Label.Text = "Current Cell";
             // 
+            // Contents_Label
+            // 
+            this.Contents_Label.AutoSize = true;
+            this.Contents_Label.Dock = System.Windows.Forms.DockStyle.Right;
+            this.Contents_Label.Location = new System.Drawing.Point(21, 42);
+            this.Contents_Label.Name = "Contents_Label";
+            this.Contents_Label.Size = new System.Drawing.Size(74, 42);
+            this.Contents_Label.TabIndex = 4;
+            this.Contents_Label.Text = "Contents";
+            this.Contents_Label.Click += new System.EventHandler(this.label1_Click);
+            // 
             // CurrentCell_Text
             // 
             this.CurrentCell_Text.Enabled = false;
@@ -200,6 +192,14 @@
             this.CurrentCell_Text.Name = "CurrentCell_Text";
             this.CurrentCell_Text.Size = new System.Drawing.Size(100, 26);
             this.CurrentCell_Text.TabIndex = 2;
+            // 
+            // Value_Text
+            // 
+            this.Value_Text.Enabled = false;
+            this.Value_Text.Location = new System.Drawing.Point(263, 3);
+            this.Value_Text.Name = "Value_Text";
+            this.Value_Text.Size = new System.Drawing.Size(100, 26);
+            this.Value_Text.TabIndex = 3;
             // 
             // Value_Label
             // 
