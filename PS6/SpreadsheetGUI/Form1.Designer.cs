@@ -1,6 +1,6 @@
 ﻿namespace SpreadsheetGUI
 {
-    partial class Form1
+    partial class Spreadsheet
     {
         /// <summary>
         /// Required designer variable.
@@ -37,15 +37,18 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.CellProperties = new System.Windows.Forms.GroupBox();
+            this.Contents_Text = new System.Windows.Forms.TextBox();
+            this.Contents_Label = new System.Windows.Forms.Label();
+            this.Value_Text = new System.Windows.Forms.TextBox();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.CurrentCell_Label = new System.Windows.Forms.Label();
             this.CurrentCell_Text = new System.Windows.Forms.TextBox();
             this.Value_Label = new System.Windows.Forms.Label();
-            this.Value_Text = new System.Windows.Forms.TextBox();
-            this.Contents_Label = new System.Windows.Forms.Label();
-            this.Contents_Text = new System.Windows.Forms.TextBox();
+            this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.menuStrip1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.CellProperties.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -109,98 +112,130 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(189, 30);
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // howToUseToolStripMenuItem
             // 
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
-            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(189, 30);
             this.howToUseToolStripMenuItem.Text = "How to Use";
             // 
-            // groupBox1
+            // CellProperties
             // 
-            this.groupBox1.Controls.Add(this.Contents_Text);
-            this.groupBox1.Controls.Add(this.Contents_Label);
-            this.groupBox1.Controls.Add(this.Value_Text);
-            this.groupBox1.Controls.Add(this.Value_Label);
-            this.groupBox1.Controls.Add(this.CurrentCell_Text);
-            this.groupBox1.Controls.Add(this.CurrentCell_Label);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox1.Location = new System.Drawing.Point(0, 668);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(865, 62);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Cell Properties";
+            this.CellProperties.Controls.Add(this.tableLayoutPanel2);
+            this.CellProperties.Dock = System.Windows.Forms.DockStyle.Top;
+            this.CellProperties.Location = new System.Drawing.Point(0, 33);
+            this.CellProperties.Name = "CellProperties";
+            this.CellProperties.Size = new System.Drawing.Size(865, 109);
+            this.CellProperties.TabIndex = 4;
+            this.CellProperties.TabStop = false;
+            this.CellProperties.Text = "Cell Properties";
+            // 
+            // Contents_Text
+            // 
+            this.tableLayoutPanel2.SetColumnSpan(this.Contents_Text, 3);
+            this.Contents_Text.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Contents_Text.Location = new System.Drawing.Point(101, 45);
+            this.Contents_Text.Name = "Contents_Text";
+            this.Contents_Text.Size = new System.Drawing.Size(755, 26);
+            this.Contents_Text.TabIndex = 5;
+            this.Contents_Text.TextChanged += new System.EventHandler(this.Contents_Text_TextChanged);
+            // 
+            // Contents_Label
+            // 
+            this.Contents_Label.AutoSize = true;
+            this.Contents_Label.Dock = System.Windows.Forms.DockStyle.Right;
+            this.Contents_Label.Location = new System.Drawing.Point(21, 42);
+            this.Contents_Label.Name = "Contents_Label";
+            this.Contents_Label.Size = new System.Drawing.Size(74, 42);
+            this.Contents_Label.TabIndex = 4;
+            this.Contents_Label.Text = "Contents";
+            this.Contents_Label.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // Value_Text
+            // 
+            this.Value_Text.Enabled = false;
+            this.Value_Text.Location = new System.Drawing.Point(263, 3);
+            this.Value_Text.Name = "Value_Text";
+            this.Value_Text.Size = new System.Drawing.Size(100, 26);
+            this.Value_Text.TabIndex = 3;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 4;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.Controls.Add(this.Contents_Text, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.CurrentCell_Label, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.Contents_Label, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.CurrentCell_Text, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.Value_Text, 3, 0);
+            this.tableLayoutPanel2.Controls.Add(this.Value_Label, 2, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 22);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(859, 84);
+            this.tableLayoutPanel2.TabIndex = 5;
             // 
             // CurrentCell_Label
             // 
             this.CurrentCell_Label.AutoSize = true;
-            this.CurrentCell_Label.Location = new System.Drawing.Point(6, 25);
+            this.CurrentCell_Label.Dock = System.Windows.Forms.DockStyle.Right;
+            this.CurrentCell_Label.Location = new System.Drawing.Point(3, 0);
             this.CurrentCell_Label.Name = "CurrentCell_Label";
-            this.CurrentCell_Label.Size = new System.Drawing.Size(92, 20);
-            this.CurrentCell_Label.TabIndex = 0;
+            this.CurrentCell_Label.Size = new System.Drawing.Size(92, 42);
+            this.CurrentCell_Label.TabIndex = 1;
             this.CurrentCell_Label.Text = "Current Cell";
             // 
             // CurrentCell_Text
             // 
             this.CurrentCell_Text.Enabled = false;
-            this.CurrentCell_Text.Location = new System.Drawing.Point(104, 22);
+            this.CurrentCell_Text.Location = new System.Drawing.Point(101, 3);
             this.CurrentCell_Text.Name = "CurrentCell_Text";
             this.CurrentCell_Text.Size = new System.Drawing.Size(100, 26);
-            this.CurrentCell_Text.TabIndex = 1;
+            this.CurrentCell_Text.TabIndex = 2;
             // 
             // Value_Label
             // 
             this.Value_Label.AutoSize = true;
-            this.Value_Label.Location = new System.Drawing.Point(210, 25);
+            this.Value_Label.Dock = System.Windows.Forms.DockStyle.Right;
+            this.Value_Label.Location = new System.Drawing.Point(207, 0);
             this.Value_Label.Name = "Value_Label";
-            this.Value_Label.Size = new System.Drawing.Size(50, 20);
+            this.Value_Label.Size = new System.Drawing.Size(50, 42);
             this.Value_Label.TabIndex = 2;
             this.Value_Label.Text = "Value";
             // 
-            // Value_Text
+            // spreadsheetPanel1
             // 
-            this.Value_Text.Enabled = false;
-            this.Value_Text.Location = new System.Drawing.Point(266, 22);
-            this.Value_Text.Name = "Value_Text";
-            this.Value_Text.Size = new System.Drawing.Size(100, 26);
-            this.Value_Text.TabIndex = 3;
+            this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 142);
+            this.spreadsheetPanel1.Name = "spreadsheetPanel1";
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(865, 588);
+            this.spreadsheetPanel1.TabIndex = 5;
             // 
-            // Contents_Label
-            // 
-            this.Contents_Label.AutoSize = true;
-            this.Contents_Label.Location = new System.Drawing.Point(372, 25);
-            this.Contents_Label.Name = "Contents_Label";
-            this.Contents_Label.Size = new System.Drawing.Size(74, 20);
-            this.Contents_Label.TabIndex = 4;
-            this.Contents_Label.Text = "Contents";
-            this.Contents_Label.Click += new System.EventHandler(this.label1_Click);
-            // 
-            // Contents_Text
-            // 
-            this.Contents_Text.Dock = System.Windows.Forms.DockStyle.Right;
-            this.Contents_Text.Location = new System.Drawing.Point(452, 22);
-            this.Contents_Text.Name = "Contents_Text";
-            this.Contents_Text.Size = new System.Drawing.Size(410, 26);
-            this.Contents_Text.TabIndex = 5;
-            // 
-            // Form1
+            // Spreadsheet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(865, 730);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.spreadsheetPanel1);
+            this.Controls.Add(this.CellProperties);
             this.Controls.Add(this.menuStrip1);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "Form1";
+            this.Name = "Spreadsheet";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.CellProperties.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -216,13 +251,15 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem howToUseToolStripMenuItem;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label Value_Label;
-        private System.Windows.Forms.TextBox CurrentCell_Text;
-        private System.Windows.Forms.Label CurrentCell_Label;
+        private System.Windows.Forms.GroupBox CellProperties;
         private System.Windows.Forms.Label Contents_Label;
         private System.Windows.Forms.TextBox Value_Text;
         private System.Windows.Forms.TextBox Contents_Text;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Label CurrentCell_Label;
+        private System.Windows.Forms.TextBox CurrentCell_Text;
+        private System.Windows.Forms.Label Value_Label;
+        private SS.SpreadsheetPanel spreadsheetPanel1;
     }
 }
 
