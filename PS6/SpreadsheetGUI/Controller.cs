@@ -30,6 +30,7 @@ namespace SpreadsheetGUI
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             panel.SelectionChanged += DisplayCurrentCellName;
+            window.NewSheetAction += OpenNewSheet;
 
             // set defaults location
             panel.SetSelection(0,0);
@@ -37,6 +38,8 @@ namespace SpreadsheetGUI
         }
 
         
+
+
 
 
         //******************************** Private Methods **************************//
@@ -71,7 +74,7 @@ namespace SpreadsheetGUI
         {
             int row, col;
             ss.GetSelection(out col, out row);
-            window.SetCurrentCellText(ConvertCellName(row, col));
+            window.CurrentCellText = ConvertCellName(row, col);
 
         }
 
@@ -86,6 +89,14 @@ namespace SpreadsheetGUI
             colName += 'A';
 
             return "" + colName + "" + rowName;
+        }
+
+        /// <summary>
+        /// creates a new sheet
+        /// </summary>
+        private void OpenNewSheet()
+        {
+            window.CreateNew();
         }
     }
 }

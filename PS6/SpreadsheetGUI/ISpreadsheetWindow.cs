@@ -13,8 +13,13 @@ namespace SpreadsheetGUI
     /// </summary>
     public interface ISpreadsheetWindow
     {
+        event Action NewSheetAction;
+
         SpreadsheetPanel GetSpreadsheetPanel();
 
-        void SetCurrentCellText(string text);
+        string CurrentCellText { set; }
+
+        void CreateNew();
+
     }
 }

@@ -13,12 +13,15 @@ namespace SpreadsheetGUI
 {
     public partial class Spreadsheet : Form, ISpreadsheetWindow
     {
+        
+
         public Spreadsheet()
         {
             InitializeComponent();
         }
 
-        
+        public event Action NewSheetAction;
+
         private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -75,10 +78,22 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Sets the text field of the CurrentCell_Text component
         /// </summary>
-        /// <param name="text"></param>
-        public void SetCurrentCellText(string text)
+        public string CurrentCellText
         {
-            CurrentCell_Text.Text = text;
+            set { CurrentCell_Text.Text = value; }
+        }
+
+        private void FileMenuNew_Click(object sender, EventArgs e)
+        {
+            if (NewSheetAction != null)
+            {
+                NewSheetAction();
+            }
+        }
+
+        public void CreateNew()
+        {
+            DemoApplicationContext.getAppContext().RunForm(new Spreadsheet());
         }
     }
 }
