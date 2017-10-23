@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SS;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,10 @@ namespace SpreadsheetGUI
     /// <summary>
     /// Controllable interface for the Spreadsheet GUI
     /// </summary>
-    interface ISpreadsheetWindow
+    public interface ISpreadsheetWindow
     {
+        SpreadsheetPanel GetSpreadsheetPanel();
+
+        void SetCurrentCellText(string text);
     }
 }

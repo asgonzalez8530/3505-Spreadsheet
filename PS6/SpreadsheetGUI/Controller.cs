@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SS;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,19 +17,29 @@ namespace SpreadsheetGUI
 
         private ISpreadsheetWindow window;
 
-        protected Controller(ISpreadsheetWindow spreadsheetWindow)
+        public Controller(ISpreadsheetWindow spreadsheetWindow)
         {
             // get the reference of the gui
             window = spreadsheetWindow;
+            
 
             // create a new model
             string version = "PS6";
             sheet = new SS.Spreadsheet(CellValidator, CellNormalizer, version);
+
+            // register methods with events
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            panel.SelectionChanged += DisplayCurrentCellName;
+
+            // set defaults location
+            panel.SetSelection(0,0);
+            DisplayCurrentCellName(panel);
         }
 
+        
 
 
-        //******************************** Private Methods *********************//
+        //******************************** Private Methods **************************//
 
         /// <summary>
         /// Default Cell Validator for the spreadsheet GUI. Takes in a cellName and 
@@ -51,5 +62,30 @@ namespace SpreadsheetGUI
             return cellName.ToUpper();
         }
 
+        /// <summary>
+        /// Gets the currently selected cell's zero indexed row and column and sets
+        /// the CurrentCell_Text to the normalized cell name. 
+        /// </summary>
+        /// <param name="ss"></param>
+        private void DisplayCurrentCellName(SpreadsheetPanel ss)
+        {
+            int row, col;
+            ss.GetSelection(out col, out row);
+            window.SetCurrentCellText(ConvertCellName(row, col));
+
+        }
+
+        /// <summary>
+        /// Takes in the zero indexed row and col and converts it to the string
+        /// representation of a cell name
+        /// </summary>
+        private string ConvertCellName(int row, int col)
+        {
+            int rowName = row + 1;
+            char colName = (char)col;
+            colName += 'A';
+
+            return "" + colName + "" + rowName;
+        }
     }
 }
