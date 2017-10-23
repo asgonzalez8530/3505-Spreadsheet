@@ -59,7 +59,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(865, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1360, 33);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -127,7 +127,7 @@
             this.CellProperties.Dock = System.Windows.Forms.DockStyle.Top;
             this.CellProperties.Location = new System.Drawing.Point(0, 33);
             this.CellProperties.Name = "CellProperties";
-            this.CellProperties.Size = new System.Drawing.Size(865, 109);
+            this.CellProperties.Size = new System.Drawing.Size(1360, 109);
             this.CellProperties.TabIndex = 4;
             this.CellProperties.TabStop = false;
             this.CellProperties.Text = "Cell Properties";
@@ -138,7 +138,7 @@
             this.Contents_Text.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Contents_Text.Location = new System.Drawing.Point(101, 45);
             this.Contents_Text.Name = "Contents_Text";
-            this.Contents_Text.Size = new System.Drawing.Size(755, 26);
+            this.Contents_Text.Size = new System.Drawing.Size(1250, 26);
             this.Contents_Text.TabIndex = 5;
             this.Contents_Text.TextChanged += new System.EventHandler(this.Contents_Text_TextChanged);
             // 
@@ -180,7 +180,7 @@
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(859, 84);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1354, 84);
             this.tableLayoutPanel2.TabIndex = 5;
             // 
             // CurrentCell_Label
@@ -216,14 +216,14 @@
             this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 142);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(865, 588);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1360, 923);
             this.spreadsheetPanel1.TabIndex = 5;
             // 
             // Spreadsheet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(865, 730);
+            this.ClientSize = new System.Drawing.Size(1360, 1065);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.CellProperties);
             this.Controls.Add(this.menuStrip1);
