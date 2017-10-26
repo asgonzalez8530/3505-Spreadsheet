@@ -196,7 +196,7 @@ namespace SpreadsheetGUI
             // get the location of the currently selected cell
             window.GetCellSelection(out int row, out int col);
 
-            // convert row, and columnt to a cell name
+            // convert row and column to cell name
             string cellName = ConvertRowColToCellName(row, col);
 
             try
