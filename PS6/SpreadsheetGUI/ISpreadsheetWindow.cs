@@ -34,7 +34,9 @@ namespace SpreadsheetGUI
         void GetCellSelection(out int row, out int col);
 
         void CloseWindow();
+
         void SetDefaultAcceptButton();
+
         void SetFocusToContentBox();
     }
 }
