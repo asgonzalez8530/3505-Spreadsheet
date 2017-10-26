@@ -1,12 +1,5 @@
 ﻿using SS;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SpreadsheetGUI
@@ -20,7 +13,9 @@ namespace SpreadsheetGUI
             InitializeComponent();
         }
 
+
         public event Action NewSheetAction;
+        public event Action EnterContentsAction;
 
         private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -83,17 +78,85 @@ namespace SpreadsheetGUI
             set { CurrentCell_Text.Text = value; }
         }
 
+        public string ValueBoxText { set { Value_Text.Text = value; } }
+
+        public string ContentsBoxText { get => Contents_Text.Text; set { Contents_Text.Text = value; } }
+
+        /// <summary>
+        /// Method evoked when the File -> new is clicked
+        /// </summary>
         private void FileMenuNew_Click(object sender, EventArgs e)
         {
+            // fire off event if listeners are registered.
             if (NewSheetAction != null)
             {
                 NewSheetAction();
             }
+
         }
 
+        /// <summary>
+        /// Creates a new window containing an empty spreadsheet.
+        /// </summary>
         public void CreateNew()
         {
             DemoApplicationContext.getAppContext().RunForm(new Spreadsheet());
+        }
+
+        /// <summary>
+        /// Shows an error message box with the coresponding message
+        /// </summary>
+        /// <param name="message"></param>
+        public void ShowErrorMessageBox(string message)
+        {
+            MessageBox.Show(message);
+        }
+
+        /// <summary>
+        /// Sets the cell in the SpreadsheetPanel located at row, col to the string text
+        /// </summary>
+        public void SetCellText(int row, int col, string text)
+        {
+            spreadsheetPanel1.SetValue(col, row, text);
+        }
+
+        /// <summary>
+        /// Gets the currently selected cell location
+        /// </summary>
+        public void GetCellSelection(out int row, out int col)
+        {
+            spreadsheetPanel1.GetSelection(out col, out row);
+        }
+
+        /// <summary>
+        /// Notify controller when contents_button has been clicked
+        /// </summary>
+        private void contents_button_Click(object sender, EventArgs e)
+        {
+            EnterContentsAction();
+        }
+
+        /// <summary>
+        /// Allows controller to close this window
+        /// </summary>
+        public void CloseWindow()
+        {
+            Close();
+        }
+
+        public void SetDefaultAcceptButton()
+        {
+            this.AcceptButton = contents_button;
+        }
+
+        private void ToolStripClose(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        public void SetFocusToContentBox()
+        {
+            Contents_Text.Focus();
         }
     }
 }

@@ -15,11 +15,26 @@ namespace SpreadsheetGUI
     {
         event Action NewSheetAction;
 
+        event Action EnterContentsAction;
+
         SpreadsheetPanel GetSpreadsheetPanel();
 
         string CurrentCellText { set; }
 
+        string ValueBoxText { set; }
+
+        string ContentsBoxText { get; set; }
+
         void CreateNew();
 
+        void ShowErrorMessageBox(string message);
+
+        void SetCellText(int row, int col, string v);
+
+        void GetCellSelection(out int row, out int col);
+
+        void CloseWindow();
+        void SetDefaultAcceptButton();
+        void SetFocusToContentBox();
     }
 }

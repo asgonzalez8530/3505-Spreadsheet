@@ -21,23 +21,49 @@ namespace SpreadsheetGUI
         {
             // get the reference of the gui
             window = spreadsheetWindow;
-            
+
 
             // create a new model
-            string version = "PS6";
+            string version = "ps6";
             sheet = new SS.Spreadsheet(CellValidator, CellNormalizer, version);
 
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             panel.SelectionChanged += DisplayCurrentCellName;
+            panel.SelectionChanged += SetCellValueBox;
+            panel.SelectionChanged += SetCellContentsBox;
+            
             window.NewSheetAction += OpenNewSheet;
+            window.EnterContentsAction += SetCellContentsFromContentsBox;
+            window.SetDefaultAcceptButton();
 
             // set defaults location
-            panel.SetSelection(0,0);
-            DisplayCurrentCellName(panel);
+            panel.SetSelection(0, 0);
+            UpdateCurrentCellBoxes();
         }
 
-        
+        /// <summary>
+        /// Creates a new controller which references a Spreadsheet model which is created from the file
+        /// represented by FileLocation.
+        /// </summary>
+        public Controller(ISpreadsheetWindow spreadsheetWindow, string FileLocation)
+            : this(spreadsheetWindow)
+        {
+            try
+            {
+                sheet = new SS.Spreadsheet(FileLocation, CellValidator, CellNormalizer, "ps6");
+            }
+            catch (Exception e)
+            {
+                window.ShowErrorMessageBox(e.Message);
+                window.CloseWindow();
+            }
+
+            SetSpreadsheetPanelValues(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            UpdateCurrentCellBoxes();
+        }
+
+
 
 
 
@@ -74,7 +100,7 @@ namespace SpreadsheetGUI
         {
             int row, col;
             ss.GetSelection(out col, out row);
-            window.CurrentCellText = ConvertCellName(row, col);
+            window.CurrentCellText = ConvertRowColToCellName(row, col);
 
         }
 
@@ -82,7 +108,7 @@ namespace SpreadsheetGUI
         /// Takes in the zero indexed row and col and converts it to the string
         /// representation of a cell name
         /// </summary>
-        private string ConvertCellName(int row, int col)
+        private string ConvertRowColToCellName(int row, int col)
         {
             int rowName = row + 1;
             char colName = (char)col;
@@ -97,6 +123,144 @@ namespace SpreadsheetGUI
         private void OpenNewSheet()
         {
             window.CreateNew();
+        }
+
+        /// <summary>
+        /// Takes in a valid cell name and replaces the out values with the equivalent zero indexed
+        /// row and column values
+        /// </summary>
+        private void ConvertCellNameToRowCol(string cellName, out int row, out int col)
+        {
+            col = cellName[0] - 'A';
+
+            int.TryParse(cellName.Substring(1), out row);
+            row = row - 1;
+            
+        }
+
+        /// <summary>
+        /// Replaces the current value text box to the lookedup value of the cell
+        /// </summary>
+        private void SetCellValueBox(SpreadsheetPanel panel)
+        {
+            //located the current cell in the grid and convert to a variable
+            panel.GetSelection(out int col, out int row);
+            string cellName = ConvertRowColToCellName(row, col);
+
+            //set the "value" object to the value of the variable
+            object value = sheet.GetCellValue(cellName);
+
+            //if value is a string or double then convert the object to a string
+            if (value is string || value is double)
+            {
+                window.ValueBoxText = value.ToString();
+            }
+            //else text box value will be set to FormulaError
+            else
+            {
+                window.ValueBoxText = "FormulaError";
+            }
+        }
+
+        /// <summary>
+        /// Gets the contents of a given cell from the model and places it in the current cell contents box
+        /// for updating
+        /// </summary>
+        private void SetCellContentsBox(SpreadsheetPanel panel)
+        {
+            //locate the current cell in the grid and convert to a variable
+            panel.GetSelection(out int col, out int row);
+            string cellName = ConvertRowColToCellName(row, col);
+
+            //set the contents text to the current contents of the cell
+            object contents = sheet.GetCellContents(cellName);
+            
+            if (contents is string || contents is double)
+            {
+                window.ContentsBoxText = contents.ToString();
+            }
+            else
+            {
+                window.ContentsBoxText = "=" + contents.ToString();
+            }
+        }
+
+        /// <summary>
+        /// gets the current text in the current cell contents box, sets it to the model's cell contents and
+        /// updates the views cell value. If an error occurs, creates a message box with the a message that 
+        /// an error occured.
+        /// </summary>
+        private void SetCellContentsFromContentsBox()
+        {
+
+            // get the location of the currently selected cell
+            window.GetCellSelection(out int row, out int col);
+
+            // convert row, and columnt to a cell name
+            string cellName = ConvertRowColToCellName(row, col);
+
+            try
+            {
+
+                ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
+                SetSpreadsheetPanelValues(cellsToUpdate);
+                UpdateCurrentCellBoxes();
+                
+            }
+            catch (CircularException e)
+            {
+                window.ShowErrorMessageBox("Circular dependency detected");
+            }
+            catch (Exception e)
+            {
+                window.ShowErrorMessageBox(e.Message);
+            }
+
+            window.SetFocusToContentBox();
+        }
+
+        /// <summary>
+        /// Updates text boxes at the top of a spreadsheet window
+        /// </summary>
+        private void UpdateCurrentCellBoxes()
+        {
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            DisplayCurrentCellName(panel);
+            SetCellValueBox(panel);
+            SetCellContentsBox(panel);
+        }
+
+        /// <summary>
+        /// takes a set of cell names, looks up their values then sets the SpreadsheetPanel 
+        /// text for those cell to that value;
+        /// </summary>
+        private void SetSpreadsheetPanelValues(ISet<string> cellsToUpdate)
+        {
+            foreach (string cell in cellsToUpdate)
+            {
+                SetSpreadsheetPanelValue(cell);
+            }
+        }
+
+        /// <summary>
+        /// takes in a cell name, looks up its value and sets the value corresponding cell in the view
+        /// </summary>
+        private void SetSpreadsheetPanelValue(string cell)
+        {
+            object value = sheet.GetCellValue(cell);
+            ConvertCellNameToRowCol(cell, out int row, out int col);
+
+            //if value is a string or double then convert the object to a string
+            if (value is string || value is double)
+            {
+                window.SetCellText(row, col, value.ToString());
+            }
+            //else text box value will be set to FormulaError
+            else
+            {
+                window.SetCellText(row, col, "FormulaError");
+            }
+
         }
     }
 }
