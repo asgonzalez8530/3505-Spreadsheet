@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,6 +25,8 @@ namespace SpreadsheetGUI
             // get the reference of the gui
             window = spreadsheetWindow;
 
+            
+            window.WindowText = "untitled.sprd";
 
             // create a new model
             string version = "ps6";
@@ -39,9 +42,14 @@ namespace SpreadsheetGUI
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
+            window.SaveFileAction += Save;
+            window.OpenFileAction += Open;
+
             // set defaults location
             panel.SetSelection(0, 0);
             UpdateCurrentCellBoxes();
+
+
         }
 
         /// <summary>
@@ -270,11 +278,26 @@ namespace SpreadsheetGUI
             try
             {
                 //open file explorer
-                Process.Start(@"c:\Desktop");
+                SaveFileDialog saveFile = new SaveFileDialog
+                {
+                    Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
+                    Title = "Save " + window.WindowText,
+                    OverwritePrompt = true,
+                    FileName = window.WindowText
+                    
+                };
 
-                //extract and save filename
-                string filename = "";
-                sheet.Save(filename);
+                if (saveFile.ShowDialog() == DialogResult.OK)
+                {
+                    if (saveFile.FileName != "")
+                    {
+                        saveFile.FileName = Path.GetFullPath(saveFile.FileName);
+                        window.WindowText = Path.GetFileName(saveFile.FileName);
+
+                        //extract and save filename
+                        sheet.Save(saveFile.FileName);
+                    }
+                }
             }
             catch (SpreadsheetReadWriteException)
             {
@@ -284,19 +307,61 @@ namespace SpreadsheetGUI
 
         private void Open()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                NewSpreadSheetFromFile(openFileDialog.FileName, openFileDialog.SafeFileName);
+
+                OpenFileDialog openFile = new OpenFileDialog
+                {
+                    Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
+                    Title = "Save Spreadsheet",
+                    RestoreDirectory = true
+                };
+
+
+                if (openFile.ShowDialog() == DialogResult.OK)
+                {
+                    if (openFile.FileName != "")
+                    {
+                        openFile.FileName = Path.GetFullPath(openFile.FileName);
+                        window.WindowText = Path.GetFileName(openFile.FileName);
+
+                        
+                        //extract and save filename
+                        sheet = new SS.Spreadsheet(openFile.FileName, CellValidator, CellNormalizer, "ps6");
+                        
+
+                        HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
+                        SetSpreadsheetPanelValues(nonEmpty);
+                        
+                        UpdateCurrentCellBoxes();
+                    }
+                }
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                window.ShowErrorMessageBox("Problem occured while opening file");
             }
         }
 
-        private void NewSpreadSheetFromFile(string fileName, string safeFileName)
-        {
-            DemoApplicationContext appContext = DemoApplicationContext.getAppContext();
+        
 
-            appContext.RunForm(new Spreadsheet(fileName, safeFileName));
+        private void ModifiedSpreadsheetDiologueBox()
+        {
+            if (sheet.Changed)
+            {
+                //prompt to save
+                string message = "Unsaved changes detected in current spreadsheet " + window.WindowText;
+                message += "\nSave changes?";
+                string caption = "Save Changes?";
+                bool save = window.ShowOkayCancelMessageBox(message, caption);
+
+                if (save)
+                {
+                    Save();
+                }
+
+            }
+
         }
     }
 }

@@ -6,9 +6,16 @@ namespace SpreadsheetGUI
 {
     public partial class Spreadsheet : Form, ISpreadsheetWindow
     {
-        
+
+        public Spreadsheet()
+        {
+            InitializeComponent();
+
+            //TODO: make a spreadsheet that has a data path
+        }
 
         public Spreadsheet(string filePath, string fileName)
+            : this()
         {
             InitializeComponent();
 
@@ -18,6 +25,8 @@ namespace SpreadsheetGUI
 
         public event Action NewSheetAction;
         public event Action EnterContentsAction;
+        public event Action SaveFileAction;
+        public event Action OpenFileAction;
 
         private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -84,6 +93,8 @@ namespace SpreadsheetGUI
 
         public string ContentsBoxText { get => Contents_Text.Text; set { Contents_Text.Text = value; } }
 
+        public string WindowText { get => Text; set => Text = value; }
+
         /// <summary>
         /// Method evoked when the File -> new is clicked
         /// </summary>
@@ -146,19 +157,57 @@ namespace SpreadsheetGUI
             Close();
         }
 
+        /// <summary>
+        /// Sets the default accept button as contents_button
+        /// </summary>
         public void SetDefaultAcceptButton()
         {
             this.AcceptButton = contents_button;
         }
+
 
         private void ToolStripClose(object sender, EventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// Sets focus to the contents_text box
+        /// </summary>
         public void SetFocusToContentBox()
         {
             Contents_Text.Focus();
+        }
+
+        private void SaveFile_Click(object sender, EventArgs e)
+        {
+            SaveFileAction();
+        }
+
+        public bool ShowOkayCancelMessageBox(string message, string caption)
+        {
+            string messageBoxText = message;
+            string cap = caption;
+            MessageBoxButtons button = MessageBoxButtons.OKCancel;
+
+            // Display message box
+            DialogResult result = MessageBox.Show(messageBoxText, caption, button);
+
+            // Process message box results
+            switch (result)
+            {
+                case DialogResult.OK:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        
+
+        private void OpenFile_Click(object sender, EventArgs e)
+        {
+            OpenFileAction();
         }
     }
 }

@@ -17,6 +17,10 @@ namespace SpreadsheetGUI
 
         event Action EnterContentsAction;
 
+        event Action SaveFileAction;
+
+        event Action OpenFileAction;
+
         SpreadsheetPanel GetSpreadsheetPanel();
 
         string CurrentCellText { set; }
@@ -25,9 +29,13 @@ namespace SpreadsheetGUI
 
         string ContentsBoxText { get; set; }
 
+        string WindowText { get; set; }
+
         void CreateNew();
 
         void ShowErrorMessageBox(string message);
+
+        bool ShowOkayCancelMessageBox(string message, string caption);
 
         void SetCellText(int row, int col, string v);
 
@@ -38,5 +46,6 @@ namespace SpreadsheetGUI
         void SetDefaultAcceptButton();
 
         void SetFocusToContentBox();
+
     }
 }
