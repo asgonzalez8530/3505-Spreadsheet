@@ -56,20 +56,18 @@ namespace SpreadsheetGUI
         /// Creates a new controller which references a Spreadsheet model which is created from the file
         /// represented by FileLocation.
         /// </summary>
-        public Controller(ISpreadsheetWindow spreadsheetWindow, string FileLocation)
+        public Controller(ISpreadsheetWindow spreadsheetWindow, string fileLocation)
             : this(spreadsheetWindow)
         {
-            try
-            {
-                sheet = new SS.Spreadsheet(FileLocation, CellValidator, CellNormalizer, "ps6");
-            }
-            catch (Exception e)
-            {
-                window.ShowErrorMessageBox(e.Message);
-                window.CloseWindow();
-            }
+            window.WindowText = Path.GetFileName(fileLocation);
 
-            SetSpreadsheetPanelValues(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            //extract and save filename
+            sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
+
+
+            HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
+            SetSpreadsheetPanelValues(nonEmpty);
+
             UpdateCurrentCellBoxes();
         }
 
@@ -307,13 +305,16 @@ namespace SpreadsheetGUI
 
         private void Open()
         {
+
+            ModifiedSpreadsheetDiologueBox();
+
             try
             {
 
                 OpenFileDialog openFile = new OpenFileDialog
                 {
                     Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
-                    Title = "Save Spreadsheet",
+                    Title = "Open Spreadsheet",
                     RestoreDirectory = true
                 };
 
@@ -326,14 +327,13 @@ namespace SpreadsheetGUI
                         window.WindowText = Path.GetFileName(openFile.FileName);
 
                         
-                        //extract and save filename
-                        sheet = new SS.Spreadsheet(openFile.FileName, CellValidator, CellNormalizer, "ps6");
-                        
 
-                        HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
-                        SetSpreadsheetPanelValues(nonEmpty);
+                        // open new window instance
+                        window.CreateNew(openFile.FileName);
+
+                        // close window
+                        window.CloseWindow();
                         
-                        UpdateCurrentCellBoxes();
                     }
                 }
             }
@@ -350,8 +350,8 @@ namespace SpreadsheetGUI
             if (sheet.Changed)
             {
                 //prompt to save
-                string message = "Unsaved changes detected in current spreadsheet " + window.WindowText;
-                message += "\nSave changes?";
+                string message = "Unsaved changes detected in current spreadsheet: " + window.WindowText;
+                message += "\n\nSave changes?";
                 string caption = "Save Changes?";
                 bool save = window.ShowOkayCancelMessageBox(message, caption);
 

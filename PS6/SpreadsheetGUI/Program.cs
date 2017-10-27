@@ -53,6 +53,22 @@ namespace SpreadsheetGUI
             form.Show();
         }
 
+        /// <summary>
+        /// Runs the form, with a spreadsheet created from the file at fileName
+        /// </summary>
+        public void RunForm(Form form, string fileName)
+        {
+            new Controller((ISpreadsheetWindow)form, fileName);
+            // One more form is running
+            formCount++;
+
+            // When this form closes, we want to find out
+            form.FormClosed += (o, e) => { if (--formCount <= 0) ExitThread(); };
+
+            // Run the form
+            form.Show();
+        }
+
     }
 
 

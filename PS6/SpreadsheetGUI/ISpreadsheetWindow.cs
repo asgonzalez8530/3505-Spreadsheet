@@ -33,6 +33,8 @@ namespace SpreadsheetGUI
 
         void CreateNew();
 
+        void CreateNew(string fileName);
+
         void ShowErrorMessageBox(string message);
 
         bool ShowOkayCancelMessageBox(string message, string caption);

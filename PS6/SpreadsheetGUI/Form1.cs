@@ -117,6 +117,14 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
+        /// Creates a new window containing an empty spreadsheet.
+        /// </summary>
+        public void CreateNew(string fileName)
+        {
+            DemoApplicationContext.getAppContext().RunForm(new Spreadsheet(), fileName);
+        }
+
+        /// <summary>
         /// Shows an error message box with the coresponding message
         /// </summary>
         /// <param name="message"></param>
