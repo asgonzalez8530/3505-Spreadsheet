@@ -207,7 +207,7 @@ namespace SpreadsheetGUI
                 UpdateCurrentCellBoxes();
                 
             }
-            catch (CircularException e)
+            catch (CircularException)
             {
                 window.ShowErrorMessageBox("Circular dependency detected");
             }
@@ -261,6 +261,22 @@ namespace SpreadsheetGUI
                 window.SetCellText(row, col, "FormulaError");
             }
 
+        }
+
+        private void Save()
+        {
+            try
+            {
+                //open file explorer
+                //extract and save filename
+
+                string filename = "";
+                sheet.Save(filename);
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                window.ShowErrorMessageBox("Problem occurred while saving the file");
+            }
         }
     }
 }
