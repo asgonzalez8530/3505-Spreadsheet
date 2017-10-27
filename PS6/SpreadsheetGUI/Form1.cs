@@ -8,9 +8,11 @@ namespace SpreadsheetGUI
     {
         
 
-        public Spreadsheet()
+        public Spreadsheet(string filePath, string fileName)
         {
             InitializeComponent();
+
+            //TODO: make a spreadsheet that has a data path
         }
 
 

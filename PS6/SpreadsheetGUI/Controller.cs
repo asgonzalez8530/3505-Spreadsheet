@@ -1,10 +1,12 @@
 ﻿using SS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SpreadsheetGUI
 {
@@ -268,8 +270,9 @@ namespace SpreadsheetGUI
             try
             {
                 //open file explorer
-                //extract and save filename
+                Process.Start(@"c:\Desktop");
 
+                //extract and save filename
                 string filename = "";
                 sheet.Save(filename);
             }
@@ -277,6 +280,23 @@ namespace SpreadsheetGUI
             {
                 window.ShowErrorMessageBox("Problem occurred while saving the file");
             }
+        }
+
+        private void Open()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                NewSpreadSheetFromFile(openFileDialog.FileName, openFileDialog.SafeFileName);
+            }
+        }
+
+        private void NewSpreadSheetFromFile(string fileName, string safeFileName)
+        {
+            DemoApplicationContext appContext = DemoApplicationContext.getAppContext();
+
+            appContext.RunForm(new Spreadsheet(fileName, safeFileName));
         }
     }
 }
