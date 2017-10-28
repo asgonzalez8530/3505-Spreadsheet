@@ -21,7 +21,10 @@ namespace SpreadsheetGUI
 
         event Action OpenFileAction;
 
-        
+        event Action AboutText;
+
+        event Action HowToUseText;
+
 
         SpreadsheetPanel GetSpreadsheetPanel();
 
@@ -35,7 +38,6 @@ namespace SpreadsheetGUI
 
         void CreateNew();
 
-        void CreateNew(string fileName);
 
         void ShowErrorMessageBox(string message);
 
@@ -52,6 +54,7 @@ namespace SpreadsheetGUI
         void SetFocusToContentBox();
 
         void AddFormClosingAction(Action FormClosingAction);
-        
+
+        void SetCellSelectionToDefault();
     }
 }

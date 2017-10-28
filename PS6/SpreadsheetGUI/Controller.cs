@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace SpreadsheetGUI
 {
     /// <summary>
@@ -20,12 +21,16 @@ namespace SpreadsheetGUI
 
         private ISpreadsheetWindow window;
 
+        /// <summary>
+        /// Creates a new controller which controlls an ISpreadsheetWindow and contains a reference to 
+        /// a spreadsheet model.
+        /// </summary>
         public Controller(ISpreadsheetWindow spreadsheetWindow)
         {
             // get the reference of the gui
             window = spreadsheetWindow;
 
-            
+
             window.WindowText = "untitled.sprd";
 
             // create a new model
@@ -37,14 +42,16 @@ namespace SpreadsheetGUI
             panel.SelectionChanged += DisplayCurrentCellName;
             panel.SelectionChanged += SetCellValueBox;
             panel.SelectionChanged += SetCellContentsBox;
-            
+
             window.NewSheetAction += OpenNewSheet;
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
             window.SaveFileAction += Save;
             window.OpenFileAction += Open;
-            window.AddFormClosingAction(ModifiedSpreadsheetDiologueBox);
+            window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            window.AboutText += OpenAbout;
+            window.HowToUseText += OpenHowToUse;
 
             // set defaults location
             panel.SetSelection(0, 0);
@@ -52,29 +59,6 @@ namespace SpreadsheetGUI
 
 
         }
-
-        /// <summary>
-        /// Creates a new controller which references a Spreadsheet model which is created from the file
-        /// represented by FileLocation.
-        /// </summary>
-        public Controller(ISpreadsheetWindow spreadsheetWindow, string fileLocation)
-            : this(spreadsheetWindow)
-        {
-            window.WindowText = Path.GetFileName(fileLocation);
-
-            //extract and save filename
-            sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
-
-
-            HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
-            SetSpreadsheetPanelValues(nonEmpty);
-
-            UpdateCurrentCellBoxes();
-        }
-
-
-
-
 
 
         //******************************** Private Methods **************************//
@@ -144,11 +128,11 @@ namespace SpreadsheetGUI
 
             int.TryParse(cellName.Substring(1), out row);
             row = row - 1;
-            
+
         }
 
         /// <summary>
-        /// Replaces the current value text box to the lookedup value of the cell
+        /// Replaces the current value text box to the looked-up value of the cell
         /// </summary>
         private void SetCellValueBox(SpreadsheetPanel panel)
         {
@@ -183,7 +167,7 @@ namespace SpreadsheetGUI
 
             //set the contents text to the current contents of the cell
             object contents = sheet.GetCellContents(cellName);
-            
+
             if (contents is string || contents is double)
             {
                 window.ContentsBoxText = contents.ToString();
@@ -214,7 +198,7 @@ namespace SpreadsheetGUI
                 ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
                 SetSpreadsheetPanelValues(cellsToUpdate);
                 UpdateCurrentCellBoxes();
-                
+
             }
             catch (CircularException)
             {
@@ -272,6 +256,9 @@ namespace SpreadsheetGUI
 
         }
 
+        /// <summary>
+        /// Opens a save file dialogue and saves the model to a file
+        /// </summary>
         private void Save()
         {
             try
@@ -283,7 +270,7 @@ namespace SpreadsheetGUI
                     Title = "Save " + window.WindowText,
                     OverwritePrompt = true,
                     FileName = window.WindowText
-                    
+
                 };
 
                 if (saveFile.ShowDialog() == DialogResult.OK)
@@ -304,11 +291,15 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Opens an Open File dialogue box and opens the chosen file in this window. 
+        /// If information will be changed, prompts user to save.
+        /// </summary>
         private void Open()
         {
 
-            ModifiedSpreadsheetDiologueBox();
-            
+            ModifiedSpreadsheetDialogueBox();
+
             try
             {
 
@@ -327,14 +318,12 @@ namespace SpreadsheetGUI
                         openFile.FileName = Path.GetFullPath(openFile.FileName);
                         window.WindowText = Path.GetFileName(openFile.FileName);
 
-                        
 
-                        // open new window instance
-                        window.CreateNew(openFile.FileName);
 
-                        // close window
-                        window.CloseWindow();
-                        
+                        // open new spreadsheet
+                        OpenSpreadsheetFromFile(openFile.FileName);
+
+
                     }
                 }
             }
@@ -344,16 +333,68 @@ namespace SpreadsheetGUI
             }
         }
 
-        ///// <summary>
-        ///// Safely closes this window, prompting user to save if information will be lost.
-        ///// </summary>
-        //private void Close()
-        //{
-        //    ModifiedSpreadsheetDiologueBox();
-        //    window.CloseWindow();
-        //}
+        /// <summary>
+        /// Helper method for OpenSpreadsheetFromFile. Empties the contents of the spreadsheet pane.
+        /// </summary>
+        /// <param name="cellsToEmpty"></param>
+        private void EmptyAllCells(ISet<string> cellsToEmpty)
+        {
+            foreach (string cell in cellsToEmpty)
+            {
+                ConvertCellNameToRowCol(cell, out int row, out int col);
+                window.SetCellText(row, col, "");
+            }
+        }
 
-        private void ModifiedSpreadsheetDiologueBox()
+        /// <summary>
+        /// Empties the spreadsheet pane and sets its contents to the new spreadsheet model at fileLocation
+        /// </summary>
+        private void OpenSpreadsheetFromFile(string fileLocation)
+        {
+            // empty the current spreadsheetpane
+            EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
+            // window text is now the name of the new file
+            window.WindowText = Path.GetFileName(fileLocation);
+
+            // open the spreadsheet
+            sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
+
+            // set the contents of the spreadsheet pane
+            HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
+            SetSpreadsheetPanelValues(nonEmpty);
+
+            // update the current window selection
+            window.SetCellSelectionToDefault();
+            UpdateCurrentCellBoxes();
+
+        }
+
+        /// <summary>
+        /// Opens the about file in the default text editor.
+        /// </summary>
+        private void OpenAbout()
+        {
+            string file = "";
+            Process.Start(file);
+        }
+
+        /// <summary>
+        /// Opens the about file in the default text editor.
+        /// </summary>
+        private void OpenHowToUse()
+        {
+            string file = "";
+            Process.Start(file);
+        }
+
+
+
+
+        /// <summary>
+        /// Dialogue box that prompts the user to save this spreadsheet
+        /// </summary>
+        private void ModifiedSpreadsheetDialogueBox()
         {
             if (sheet.Changed)
             {
@@ -370,6 +411,11 @@ namespace SpreadsheetGUI
 
             }
 
+
+
         }
+
+
+
     }
 }

@@ -124,12 +124,14 @@
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(189, 30);
             this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutMenuItem_Click);
             // 
             // howToUseToolStripMenuItem
             // 
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
             this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(189, 30);
             this.howToUseToolStripMenuItem.Text = "How to Use";
+            this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.HowToUseMenuItem_Click);
             // 
             // CellProperties
             // 
@@ -194,7 +196,8 @@
             // 
             this.CurrentCell_Label.AutoSize = true;
             this.CurrentCell_Label.Dock = System.Windows.Forms.DockStyle.Right;
-            this.CurrentCell_Label.Location = new System.Drawing.Point(3, 0);
+            this.CurrentCell_Label.Location = new System.Drawing.Point(2, 0);
+            this.CurrentCell_Label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.CurrentCell_Label.Name = "CurrentCell_Label";
             this.CurrentCell_Label.Size = new System.Drawing.Size(92, 69);
             this.CurrentCell_Label.TabIndex = 1;
