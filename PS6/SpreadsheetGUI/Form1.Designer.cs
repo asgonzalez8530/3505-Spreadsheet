@@ -126,7 +126,7 @@
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
             this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.howToUseToolStripMenuItem.Text = "How to Use";
-            this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.howToUseToolStripMenuItem_Click);
+            this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.HowToUseMenuItem_Click);
             // 
             // CellProperties
             // 
