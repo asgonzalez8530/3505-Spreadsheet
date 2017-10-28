@@ -19,7 +19,9 @@ namespace SpreadsheetGUI
         public event Action EnterContentsAction;
         public event Action SaveFileAction;
         public event Action OpenFileAction;
-        
+        public event Action AboutText;
+        public event Action HowToUseText;
+
 
         private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -240,5 +242,17 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetSelection(0,0);
         }
 
+        /// <summary>
+        /// Fired when about menu item is clicked
+        /// </summary>
+        private void AboutMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutText();
+        }
+
+        private void HowToUseMenuItem_Click(object sender, EventArgs e)
+        {
+            HowToUseText();
+        }
     }
 }

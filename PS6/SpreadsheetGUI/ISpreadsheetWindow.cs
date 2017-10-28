@@ -21,7 +21,10 @@ namespace SpreadsheetGUI
 
         event Action OpenFileAction;
 
-        
+        event Action AboutText;
+
+        event Action HowToUseText;
+
 
         SpreadsheetPanel GetSpreadsheetPanel();
 

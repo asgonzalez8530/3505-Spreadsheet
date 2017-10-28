@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace SpreadsheetGUI
 {
     /// <summary>
@@ -29,7 +30,7 @@ namespace SpreadsheetGUI
             // get the reference of the gui
             window = spreadsheetWindow;
 
-            
+
             window.WindowText = "untitled.sprd";
 
             // create a new model
@@ -41,7 +42,7 @@ namespace SpreadsheetGUI
             panel.SelectionChanged += DisplayCurrentCellName;
             panel.SelectionChanged += SetCellValueBox;
             panel.SelectionChanged += SetCellContentsBox;
-            
+
             window.NewSheetAction += OpenNewSheet;
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
@@ -49,6 +50,8 @@ namespace SpreadsheetGUI
             window.SaveFileAction += Save;
             window.OpenFileAction += Open;
             window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            window.AboutText += OpenAbout;
+            window.HowToUseText += OpenHowToUse;
 
             // set defaults location
             panel.SetSelection(0, 0);
@@ -125,7 +128,7 @@ namespace SpreadsheetGUI
 
             int.TryParse(cellName.Substring(1), out row);
             row = row - 1;
-            
+
         }
 
         /// <summary>
@@ -164,7 +167,7 @@ namespace SpreadsheetGUI
 
             //set the contents text to the current contents of the cell
             object contents = sheet.GetCellContents(cellName);
-            
+
             if (contents is string || contents is double)
             {
                 window.ContentsBoxText = contents.ToString();
@@ -195,7 +198,7 @@ namespace SpreadsheetGUI
                 ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
                 SetSpreadsheetPanelValues(cellsToUpdate);
                 UpdateCurrentCellBoxes();
-                
+
             }
             catch (CircularException)
             {
@@ -267,7 +270,7 @@ namespace SpreadsheetGUI
                     Title = "Save " + window.WindowText,
                     OverwritePrompt = true,
                     FileName = window.WindowText
-                    
+
                 };
 
                 if (saveFile.ShowDialog() == DialogResult.OK)
@@ -296,7 +299,7 @@ namespace SpreadsheetGUI
         {
 
             ModifiedSpreadsheetDialogueBox();
-            
+
             try
             {
 
@@ -315,12 +318,12 @@ namespace SpreadsheetGUI
                         openFile.FileName = Path.GetFullPath(openFile.FileName);
                         window.WindowText = Path.GetFileName(openFile.FileName);
 
-                        
+
 
                         // open new spreadsheet
                         OpenSpreadsheetFromFile(openFile.FileName);
 
-                        
+
                     }
                 }
             }
@@ -339,7 +342,7 @@ namespace SpreadsheetGUI
             foreach (string cell in cellsToEmpty)
             {
                 ConvertCellNameToRowCol(cell, out int row, out int col);
-                window.SetCellText(row, col, "");   
+                window.SetCellText(row, col, "");
             }
         }
 
@@ -353,7 +356,7 @@ namespace SpreadsheetGUI
 
             // window text is now the name of the new file
             window.WindowText = Path.GetFileName(fileLocation);
-            
+
             // open the spreadsheet
             sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
 
@@ -364,8 +367,29 @@ namespace SpreadsheetGUI
             // update the current window selection
             window.SetCellSelectionToDefault();
             UpdateCurrentCellBoxes();
-           
+
         }
+
+        /// <summary>
+        /// Opens the about file in the default text editor.
+        /// </summary>
+        private void OpenAbout()
+        {
+            string file = "";
+            Process.Start(file);
+        }
+
+        /// <summary>
+        /// Opens the about file in the default text editor.
+        /// </summary>
+        private void OpenHowToUse()
+        {
+            string file = "";
+            Process.Start(file);
+        }
+
+
+
 
         /// <summary>
         /// Dialogue box that prompts the user to save this spreadsheet
@@ -387,6 +411,11 @@ namespace SpreadsheetGUI
 
             }
 
+
+
         }
+
+
+
     }
 }
