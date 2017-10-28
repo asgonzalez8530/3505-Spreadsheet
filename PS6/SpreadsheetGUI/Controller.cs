@@ -17,9 +17,8 @@ namespace SpreadsheetGUI
     /// </summary>
     class Controller
     {
-        private SS.Spreadsheet sheet;
-
-        private ISpreadsheetWindow window;
+        private SS.Spreadsheet sheet; // reference to the model code that will deal with the back end code
+        private ISpreadsheetWindow window; // reference to the GUI (view)
 
         /// <summary>
         /// Creates a new controller which controlls an ISpreadsheetWindow and contains a reference to 
@@ -30,7 +29,7 @@ namespace SpreadsheetGUI
             // get the reference of the gui
             window = spreadsheetWindow;
 
-
+            // sets the windows name at the top of the form 
             window.WindowText = "untitled.sprd";
 
             // create a new model
@@ -56,8 +55,6 @@ namespace SpreadsheetGUI
             // set defaults location
             panel.SetSelection(0, 0);
             UpdateCurrentCellBoxes();
-
-
         }
 
 
@@ -185,7 +182,6 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCellContentsFromContentsBox()
         {
-
             // get the location of the currently selected cell
             window.GetCellSelection(out int row, out int col);
 
@@ -194,7 +190,7 @@ namespace SpreadsheetGUI
 
             try
             {
-
+                // reset the contents of the cell and recalculate dependent cells
                 ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
                 SetSpreadsheetPanelValues(cellsToUpdate);
                 UpdateCurrentCellBoxes();
@@ -225,7 +221,7 @@ namespace SpreadsheetGUI
 
         /// <summary>
         /// takes a set of cell names, looks up their values then sets the SpreadsheetPanel 
-        /// text for those cell to that value;
+        /// text for those cell to that value
         /// </summary>
         private void SetSpreadsheetPanelValues(ISet<string> cellsToUpdate)
         {
@@ -263,7 +259,7 @@ namespace SpreadsheetGUI
         {
             try
             {
-                //open file explorer
+                // open file explorer
                 SaveFileDialog saveFile = new SaveFileDialog
                 {
                     Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
@@ -273,14 +269,16 @@ namespace SpreadsheetGUI
 
                 };
 
+                // when ok is pressed and the file name is not empty
                 if (saveFile.ShowDialog() == DialogResult.OK)
                 {
                     if (saveFile.FileName != "")
                     {
+                        // get the file name and the file's absolute path
                         saveFile.FileName = Path.GetFullPath(saveFile.FileName);
                         window.WindowText = Path.GetFileName(saveFile.FileName);
 
-                        //extract and save filename
+                        // save file using the absolute path
                         sheet.Save(saveFile.FileName);
                     }
                 }
@@ -292,17 +290,17 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Opens an Open File dialogue box and opens the chosen file in this window. 
+        /// Opens a file dialogue box and opens the chosen file in this window. 
         /// If information will be changed, prompts user to save.
         /// </summary>
         private void Open()
         {
-
+            // if there exists any unsaved changes then promt user to save
             ModifiedSpreadsheetDialogueBox();
 
             try
             {
-
+                // open file explorer
                 OpenFileDialog openFile = new OpenFileDialog
                 {
                     Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
@@ -310,16 +308,15 @@ namespace SpreadsheetGUI
                     RestoreDirectory = true
                 };
 
-
+                // when ok is pressed and a file is selected
                 if (openFile.ShowDialog() == DialogResult.OK)
                 {
                     if (openFile.FileName != "")
                     {
+                        // get filename and files absolute path
                         openFile.FileName = Path.GetFullPath(openFile.FileName);
                         window.WindowText = Path.GetFileName(openFile.FileName);
-
-
-
+                        
                         // open new spreadsheet
                         OpenSpreadsheetFromFile(openFile.FileName);
 
@@ -334,7 +331,8 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Helper method for OpenSpreadsheetFromFile. Empties the contents of the spreadsheet pane.
+        /// Helper method for OpenSpreadsheetFromFile. 
+        /// Empties the contents of the spreadsheet pane.
         /// </summary>
         /// <param name="cellsToEmpty"></param>
         private void EmptyAllCells(ISet<string> cellsToEmpty)
@@ -390,11 +388,8 @@ namespace SpreadsheetGUI
             Process.Start(path);
         }
 
-
-
-
         /// <summary>
-        /// Dialogue box that prompts the user to save this spreadsheet
+        /// Dialogue box that prompts the user to save current spreadsheet
         /// </summary>
         private void ModifiedSpreadsheetDialogueBox()
         {
@@ -406,18 +401,12 @@ namespace SpreadsheetGUI
                 string caption = "Save Changes?";
                 bool save = window.ShowOkayCancelMessageBox(message, caption);
 
+                // if user clicks on save then save the changes
                 if (save)
                 {
                     Save();
                 }
-
             }
-
-
-
         }
-
-
-
     }
 }

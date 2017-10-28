@@ -6,15 +6,13 @@ namespace SpreadsheetGUI
 {
     public partial class Spreadsheet : Form, ISpreadsheetWindow
     {
-
+        // Constructor
         public Spreadsheet()
         {
             InitializeComponent();
-
-            
-            //TODO: make a spreadsheet that has a data path
         }
 
+        // Action listeners
         public event Action NewSheetAction;
         public event Action EnterContentsAction;
         public event Action SaveFileAction;
@@ -23,50 +21,13 @@ namespace SpreadsheetGUI
         public event Action HowToUseText;
 
 
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            
-        }
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e) { }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
+        private void Form1_Load(object sender, EventArgs e) { }
 
-        }
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
 
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void CurrentCell_Label_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void Contents_Text_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        private void label1_Click(object sender, EventArgs e) { }
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -123,7 +84,6 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Shows an error message box with the coresponding message
         /// </summary>
-        /// <param name="message"></param>
         public void ShowErrorMessageBox(string message)
         {
             MessageBox.Show(message);
@@ -166,7 +126,7 @@ namespace SpreadsheetGUI
         /// </summary>
         public void SetDefaultAcceptButton()
         {
-            this.AcceptButton = contents_button;
+            AcceptButton = contents_button;
         }
 
 
@@ -250,6 +210,11 @@ namespace SpreadsheetGUI
             AboutText();
         }
 
+        /// <summary>
+        /// Fired when the how to use menu item is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HowToUseMenuItem_Click(object sender, EventArgs e)
         {
             HowToUseText();
