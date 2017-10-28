@@ -21,6 +21,8 @@ namespace SpreadsheetGUI
 
         event Action OpenFileAction;
 
+        
+
         SpreadsheetPanel GetSpreadsheetPanel();
 
         string CurrentCellText { set; }
@@ -49,5 +51,6 @@ namespace SpreadsheetGUI
 
         void SetFocusToContentBox();
 
+        void AddFormClosingAction(Action FormClosingAction);
     }
 }
