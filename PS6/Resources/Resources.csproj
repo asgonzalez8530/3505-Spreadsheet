@@ -35,6 +35,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="About.txt" />
+    <Content Include="HowToUse.txt" />
     <Content Include="Libraries\DependencyGraph.dll" />
     <Content Include="Libraries\DependencyGraph.xml" />
     <Content Include="Libraries\Formula.dll" />
