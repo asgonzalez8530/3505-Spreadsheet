@@ -35,7 +35,6 @@ namespace SpreadsheetGUI
 
         void CreateNew();
 
-        void CreateNew(string fileName);
 
         void ShowErrorMessageBox(string message);
 
@@ -53,6 +52,6 @@ namespace SpreadsheetGUI
 
         void AddFormClosingAction(Action FormClosingAction);
 
-        
+        void SetCellSelectionToDefault();
     }
 }

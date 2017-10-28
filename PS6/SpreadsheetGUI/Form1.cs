@@ -82,10 +82,19 @@ namespace SpreadsheetGUI
             set { CurrentCell_Text.Text = value; }
         }
 
+        /// <summary>
+        /// Sets the Value_Text.Text
+        /// </summary>
         public string ValueBoxText { set { Value_Text.Text = value; } }
 
+        /// <summary>
+        /// Sets the Contents_Text.Text
+        /// </summary>
         public string ContentsBoxText { get => Contents_Text.Text; set { Contents_Text.Text = value; } }
 
+        /// <summary>
+        /// Sets the text of this window
+        /// </summary>
         public string WindowText { get => Text; set => Text = value; }
 
         /// <summary>
@@ -107,14 +116,6 @@ namespace SpreadsheetGUI
         public void CreateNew()
         {
             DemoApplicationContext.getAppContext().RunForm(new Spreadsheet());
-        }
-
-        /// <summary>
-        /// Creates a new window containing an empty spreadsheet.
-        /// </summary>
-        public void CreateNew(string fileName)
-        {
-            DemoApplicationContext.getAppContext().RunForm(new Spreadsheet(), fileName);
         }
 
         /// <summary>
@@ -168,7 +169,7 @@ namespace SpreadsheetGUI
 
 
         /// <summary>
-        /// 
+        /// Fired when the Close menu item is clicked
         /// </summary>
         private void Close_click(object sender, EventArgs e)
         {
@@ -183,11 +184,17 @@ namespace SpreadsheetGUI
             Contents_Text.Focus();
         }
 
+        /// <summary>
+        /// Fired with the Save menu item is clicked
+        /// </summary>
         private void SaveFile_Click(object sender, EventArgs e)
         {
             SaveFileAction();
         }
 
+        /// <summary>
+        /// Shows a message box which can be canceled with a coresponding message and caption
+        /// </summary>
         public bool ShowOkayCancelMessageBox(string message, string caption)
         {
             string messageBoxText = message;
@@ -207,8 +214,11 @@ namespace SpreadsheetGUI
             }
         }
 
-        
 
+
+        /// <summary>
+        /// Fired when The Open menu item is clicked
+        /// </summary>
         private void OpenFile_Click(object sender, EventArgs e)
         {
             OpenFileAction();
@@ -222,6 +232,13 @@ namespace SpreadsheetGUI
             FormClosing += (x, y) => FormClosingAction();
         }
 
-       
+        /// <summary>
+        /// sets the default cell as selected in the spreadsheet panel
+        /// </summary>
+        public void SetCellSelectionToDefault()
+        {
+            spreadsheetPanel1.SetSelection(0,0);
+        }
+
     }
 }
