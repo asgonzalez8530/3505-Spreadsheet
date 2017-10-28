@@ -11,22 +11,15 @@ namespace SpreadsheetGUI
         {
             InitializeComponent();
 
+            
             //TODO: make a spreadsheet that has a data path
         }
-
-        public Spreadsheet(string filePath, string fileName)
-            : this()
-        {
-            InitializeComponent();
-
-            //TODO: make a spreadsheet that has a data path
-        }
-
 
         public event Action NewSheetAction;
         public event Action EnterContentsAction;
         public event Action SaveFileAction;
         public event Action OpenFileAction;
+        
 
         private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -174,7 +167,10 @@ namespace SpreadsheetGUI
         }
 
 
-        private void ToolStripClose(object sender, EventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        private void Close_click(object sender, EventArgs e)
         {
             Close();
         }
@@ -216,6 +212,14 @@ namespace SpreadsheetGUI
         private void OpenFile_Click(object sender, EventArgs e)
         {
             OpenFileAction();
+        }
+
+        /// <summary>
+        /// Allows controller to add an action to the FormClosing event
+        /// </summary>
+        public void AddFormClosingAction(Action FormClosingAction)
+        {
+            FormClosing += (x, y) => FormClosingAction();
         }
     }
 }

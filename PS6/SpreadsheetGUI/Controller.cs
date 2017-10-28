@@ -44,6 +44,7 @@ namespace SpreadsheetGUI
 
             window.SaveFileAction += Save;
             window.OpenFileAction += Open;
+            window.AddFormClosingAction(ModifiedSpreadsheetDiologueBox);
 
             // set defaults location
             panel.SetSelection(0, 0);
@@ -343,7 +344,14 @@ namespace SpreadsheetGUI
             }
         }
 
-        
+        ///// <summary>
+        ///// Safely closes this window, prompting user to save if information will be lost.
+        ///// </summary>
+        //private void Close()
+        //{
+        //    ModifiedSpreadsheetDiologueBox();
+        //    window.CloseWindow();
+        //}
 
         private void ModifiedSpreadsheetDiologueBox()
         {
