@@ -21,9 +21,9 @@ namespace SpreadsheetGUI
         public event Action OpenFileAction;
         
 
-        private void fIelToolStripMenuItem_Click(object sender, EventArgs e)
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
