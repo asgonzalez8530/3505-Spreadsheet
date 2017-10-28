@@ -13,23 +13,23 @@ using System.Windows.Forms;
 namespace SpreadsheetGUI
 {
     /// <summary>
-    /// Controller for the SpreadsheetGui Contains reference to view and model
+    /// Controller for the Spreadsheet GUI. Contains reference to view and model
     /// </summary>
     class Controller
     {
-        private SS.Spreadsheet sheet; // reference to the model code that will deal with the back end code
+        private SS.Spreadsheet sheet; // reference to the model 
         private ISpreadsheetWindow window; // reference to the GUI (view)
 
         /// <summary>
-        /// Creates a new controller which controlls an ISpreadsheetWindow and contains a reference to 
+        /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
         /// a spreadsheet model.
         /// </summary>
         public Controller(ISpreadsheetWindow spreadsheetWindow)
         {
-            // get the reference of the gui
+            // get the reference of the GUI
             window = spreadsheetWindow;
 
-            // sets the windows name at the top of the form 
+            // set the window name at the top of the form 
             window.WindowText = "untitled.sprd";
 
             // create a new model
@@ -52,7 +52,7 @@ namespace SpreadsheetGUI
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
 
-            // set defaults location
+            // set default locations
             panel.SetSelection(0, 0);
             UpdateCurrentCellBoxes();
         }
@@ -62,7 +62,7 @@ namespace SpreadsheetGUI
 
         /// <summary>
         /// Default Cell Validator for the spreadsheet GUI. Takes in a cellName and 
-        /// returns True if the cell name is within range column a-z and cell row 1-99 
+        /// returns True if the cell name is within the range of column a-z and row 1-99 
         /// </summary>
         private bool CellValidator(string cellName)
         {
@@ -71,7 +71,7 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Default normalizer for spreadsheet gui. Takes in a cell name and returns 
+        /// Default normalizer for spreadsheet GUI. Takes in a cell name and returns 
         /// cellname.ToUpper()
         /// 
         /// Method kept seperate to clean up constructor call. 
@@ -83,9 +83,8 @@ namespace SpreadsheetGUI
 
         /// <summary>
         /// Gets the currently selected cell's zero indexed row and column and sets
-        /// the CurrentCell_Text to the normalized cell name. 
+        /// the CurrentCellText to the normalized cell name. 
         /// </summary>
-        /// <param name="ss"></param>
         private void DisplayCurrentCellName(SpreadsheetPanel ss)
         {
             int row, col;
@@ -133,19 +132,19 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCellValueBox(SpreadsheetPanel panel)
         {
-            //located the current cell in the grid and convert to a variable
+            // locates the current cell in the grid and converts it to a variable
             panel.GetSelection(out int col, out int row);
             string cellName = ConvertRowColToCellName(row, col);
 
-            //set the "value" object to the value of the variable
+            // set the "value" object to the value of the variable
             object value = sheet.GetCellValue(cellName);
 
-            //if value is a string or double then convert the object to a string
+            // if value is a string or double then convert the object to a string
             if (value is string || value is double)
             {
                 window.ValueBoxText = value.ToString();
             }
-            //else text box value will be set to FormulaError
+            // else text box value will be set to FormulaError
             else
             {
                 window.ValueBoxText = "FormulaError";
@@ -158,11 +157,11 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCellContentsBox(SpreadsheetPanel panel)
         {
-            //locate the current cell in the grid and convert to a variable
+            // locate the current cell in the grid and convert to a variable
             panel.GetSelection(out int col, out int row);
             string cellName = ConvertRowColToCellName(row, col);
 
-            //set the contents text to the current contents of the cell
+            // set the contents text to the current contents of the cell
             object contents = sheet.GetCellContents(cellName);
 
             if (contents is string || contents is double)
@@ -221,7 +220,7 @@ namespace SpreadsheetGUI
 
         /// <summary>
         /// takes a set of cell names, looks up their values then sets the SpreadsheetPanel 
-        /// text for those cell to that value
+        /// text for those cells to that value
         /// </summary>
         private void SetSpreadsheetPanelValues(ISet<string> cellsToUpdate)
         {
@@ -232,19 +231,19 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// takes in a cell name, looks up its value and sets the value corresponding cell in the view
+        /// takes in a cell name, looks up its value and sets the value to the corresponding cell in the view
         /// </summary>
         private void SetSpreadsheetPanelValue(string cell)
         {
             object value = sheet.GetCellValue(cell);
             ConvertCellNameToRowCol(cell, out int row, out int col);
 
-            //if value is a string or double then convert the object to a string
+            // if value is a string or double then convert the object to a string
             if (value is string || value is double)
             {
                 window.SetCellText(row, col, value.ToString());
             }
-            //else text box value will be set to FormulaError
+            // else text box value will be set to FormulaError
             else
             {
                 window.SetCellText(row, col, "FormulaError");
