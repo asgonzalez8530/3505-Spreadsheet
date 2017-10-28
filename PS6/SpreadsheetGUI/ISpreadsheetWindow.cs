@@ -52,5 +52,7 @@ namespace SpreadsheetGUI
         void SetFocusToContentBox();
 
         void AddFormClosingAction(Action FormClosingAction);
+
+        
     }
 }

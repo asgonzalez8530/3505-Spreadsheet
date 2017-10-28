@@ -221,5 +221,7 @@ namespace SpreadsheetGUI
         {
             FormClosing += (x, y) => FormClosingAction();
         }
+
+       
     }
 }
