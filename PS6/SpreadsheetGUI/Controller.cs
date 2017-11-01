@@ -372,7 +372,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void OpenAbout()
         {
-            string fileName = "About.txt";
+            string fileName = @"..\..\..\Resources\About.txt";
             string path = Path.Combine(Environment.CurrentDirectory, fileName);
             Process.Start(path);
         }
@@ -382,7 +382,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void OpenHowToUse()
         {
-            string fileName = "HowToUse.txt";
+            string fileName = @"..\..\..\Resources\HowToUse.txt";
             string path = Path.Combine(Environment.CurrentDirectory, fileName);
             Process.Start(path);
         }
