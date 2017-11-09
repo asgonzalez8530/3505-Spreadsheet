@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Reso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller\Controller.csproj", "{6F22DF11-C18D-4A50-A7D0-8E653BAF250B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkController", "NetworkController\NetworkController.csproj", "{64D77279-ED61-41EB-883B-EA2A7EF17211}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{6F22DF11-C18D-4A50-A7D0-8E653BAF250B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F22DF11-C18D-4A50-A7D0-8E653BAF250B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F22DF11-C18D-4A50-A7D0-8E653BAF250B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64D77279-ED61-41EB-883B-EA2A7EF17211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64D77279-ED61-41EB-883B-EA2A7EF17211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64D77279-ED61-41EB-883B-EA2A7EF17211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64D77279-ED61-41EB-883B-EA2A7EF17211}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
