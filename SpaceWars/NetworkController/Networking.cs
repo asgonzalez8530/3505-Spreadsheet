@@ -155,15 +155,30 @@ namespace Communication
 
         }
 
+        //TODO: comment
         public static void GetData(SocketState state)
         {
-            //TODO: Write method comment
-            throw new NotImplementedException();
+            state.GetSocket().BeginReceive(state.GetMessageBuffer(), 0, state.GetMessageBuffer().Length, SocketFlags.None, ReceiveCallback, state);
         }
 
+        //TODO: comment
         public static void ReceiveCallback(IAsyncResult stateAsArObject)
         {
-            //TODO: write method comment
+            SocketState state = (SocketState)stateAsArObject.AsyncState;
+
+            int bytesRead = state.GetSocket().EndReceive(stateAsArObject);
+
+            // If the socket is still open
+            if (bytesRead > 0)
+            {
+                string theMessage = Encoding.UTF8.GetString(state.GetMessageBuffer(), 0, bytesRead);
+                // Append the received data to the growable buffer.
+                // It may be an incomplete message, so we need to start building it up piece by piece
+                state.GetStringBuilder().Append(theMessage);
+
+                // Instead, just invoke the client's delegate, so it can take whatever action it desires.
+                state.InvokeNetworkAction(state);
+            }
         }
 
         public static void Send(Socket socket, String data)
@@ -236,7 +251,7 @@ namespace Communication
             }
         }
 
-        // TODO: May go in one of the provided methods
+        // TODO: May go in one of the provided methods (i think this goes under sendcallback)
         /// <summary>
         /// This function is "called" by the operating system when the remote site acknowledges connect request
         /// </summary>
@@ -256,6 +271,8 @@ namespace Communication
                 System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
                 return;
             }
+
+            state.InvokeNetworkAction(state);
         }
     }
 }
