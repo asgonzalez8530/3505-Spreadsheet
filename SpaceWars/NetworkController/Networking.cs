@@ -147,21 +147,27 @@ namespace Communication
             return state.GetSocket();
         }
 
-
+        /// <summary>
+        /// Called by the OS when the socket connects to the server. 
+        /// </summary>
         public static void ConnectedToServer(IAsyncResult stateAsArObject)
         {
-            //TODO: Write method comment
-            throw new NotImplementedException();
-
+            SocketState state = (SocketState)stateAsArObject;
+            state.InvokeNetworkAction(state);
         }
 
-        //TODO: comment
+        /// <summary>
+        /// Takes in a SocketState object, state, and loads the buffer with data coming from the socket.
+        /// </summary>
         public static void GetData(SocketState state)
         {
             state.GetSocket().BeginReceive(state.GetMessageBuffer(), 0, state.GetMessageBuffer().Length, SocketFlags.None, ReceiveCallback, state);
         }
 
-        //TODO: comment
+        /// <summary>
+        /// Called by the OS when new data arrives. If the connection is closed does nothing, else
+        /// gets the SocketState and calls the callback function provided by the SocketState.
+        /// </summary>
         public static void ReceiveCallback(IAsyncResult stateAsArObject)
         {
             SocketState state = (SocketState)stateAsArObject.AsyncState;
@@ -181,16 +187,26 @@ namespace Communication
             }
         }
 
+        /// <summary>
+        /// Takes in a Socket, socket, and a String, data. Appends a new line character to data then sends it
+        /// on the socket.
+        /// </summary>
         public static void Send(Socket socket, String data)
-        {
-            //TODO: write method comment
-            throw new NotImplementedException();
+        {            
+            // Append a newline, since that is our protocol's terminating character for a message.
+            byte[] messageBytes = Encoding.UTF8.GetBytes(data + "\n");
+            
+            socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
         }
 
+        /// <summary>
+        /// A callback invoked when a send operation completes
+        /// </summary>
         public static void SendCallback(IAsyncResult ar)
         {
-            //TODO: write method comment
-            throw new NotImplementedException();
+            Socket s = (Socket)ar.AsyncState;
+            // end the feedback loop for the current socket. 
+            s.EndSend(ar);
         }
 
         /// <summary>
@@ -251,7 +267,6 @@ namespace Communication
             }
         }
 
-        // TODO: May go in one of the provided methods (i think this goes under sendcallback)
         /// <summary>
         /// This function is "called" by the operating system when the remote site acknowledges connect request
         /// </summary>
