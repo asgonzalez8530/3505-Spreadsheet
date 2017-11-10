@@ -47,14 +47,15 @@ namespace Communication
             return messageBuffer;
         }
 
-        /// <summary>
-        /// Takes a byte array, message, and sets it to this sockets buffer
-        /// </summary>
-        public void SetMessageBuffer(byte[] message)
-        {
-            //TODO: may need to remove if this method is not used
-            messageBuffer = message;
-        }
+        //TODO: may need to remove if this method is not used
+        ///// <summary>
+        ///// Takes a byte array, message, and sets it to this sockets buffer
+        ///// </summary>
+        //public void SetMessageBuffer(byte[] message)
+        //{
+        //    
+        //    messageBuffer = message;
+        //}
 
         /// <summary>
         /// Returns the StringBuilder used as a dynamic buffer used by this socket.
@@ -64,14 +65,15 @@ namespace Communication
             return sb;
         }
 
-        /// <summary>
-        /// Takes a string, message, and creates a new StringBuilder with message and sets it 
-        /// to the StringBuilder used as a dynamic buffer used by this socket.
-        /// </summary>
-        public void SetStringBuilder(string message)
-        {
-            sb = new StringBuilder(message);
-        }
+        //TODO: may need to remove if this method is not used
+        ///// <summary>
+        ///// Takes a string, message, and creates a new StringBuilder with message and sets it 
+        ///// to the StringBuilder used as a dynamic buffer used by this socket.
+        ///// </summary>
+        //public void SetStringBuilder(string message)
+        //{
+        //    sb = new StringBuilder(message);
+        //}
 
         /// <summary>
         /// Takes a NetworkAction delegate, a, and sets it to this sockets action.
@@ -106,13 +108,14 @@ namespace Communication
             return theSocket;
         }
 
-        /// <summary>
-        /// Sets the socket passed in, s, to the current sockets state
-        /// </summary>
-        public void SetSocket(Socket s)
-        {
-            theSocket = s;
-        }
+        //TODO: may need to remove if this method is not used
+        ///// <summary>
+        ///// Sets the socket passed in, s, to the current sockets state
+        ///// </summary>
+        //public void SetSocket(Socket s)
+        //{
+        //    theSocket = s;
+        //}
     }
 
     public static class Network
