@@ -34,5 +34,75 @@ namespace SpaceWars
 
         [JsonProperty]
         private int score;
+
+        public int GetID()
+        {
+            return ID;
+        }
+
+        public void SetID(int id)
+        {
+            ID = id;
+        }
+
+        public Vector2D GetLocation()
+        {
+            return loc;
+        }
+
+        public void SetLocation(Vector2D location)
+        {
+            loc = location;
+        }
+
+        public Vector2D GetDirection()
+        {
+            return dir;
+        }
+
+        public void SetDirection(Vector2D direction)
+        {
+            dir = direction;
+        }
+
+        public bool IsThrust()
+        {
+            return thrust;
+        }
+
+        public void SetThrust(bool thrust)
+        {
+            this.thrust = thrust;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
+
+        public int GetHP()
+        {
+            return hp;
+        }
+
+        public void SetHP(int HP)
+        {
+            hp = HP;
+        }
+
+        public int GetScore()
+        {
+            return score;
+        }
+
+        public void SetScore(int score)
+        {
+            this.score = score;
+        }
     }
 }

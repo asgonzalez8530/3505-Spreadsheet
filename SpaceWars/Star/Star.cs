@@ -22,5 +22,35 @@ namespace SpaceWars
 
         [JsonProperty]
         private double mass;
+
+        public int GetID()
+        {
+            return ID;
+        }
+
+        public void SetID(int id)
+        {
+            ID = id;
+        }
+
+        public Vector2D GetLocation()
+        {
+            return loc;
+        }
+
+        public void SetLocation(Vector2D location)
+        {
+            loc = location;
+        }
+
+        public double GetMass()
+        {
+            return mass;
+        }
+
+        public void SetMass(double mass)
+        {
+            this.mass = mass;
+        }
     }
 }

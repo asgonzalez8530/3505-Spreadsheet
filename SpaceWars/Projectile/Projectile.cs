@@ -28,5 +28,55 @@ namespace SpaceWars
 
         [JsonProperty]
         private int owner;
+
+        public int GetID()
+        {
+            return ID;
+        }
+
+        public void SetID(int id)
+        {
+            ID = id;
+        }
+
+        public Vector2D GetLocation()
+        {
+            return loc;
+        }
+
+        public void SetLocation(Vector2D location)
+        {
+            loc = location;
+        }
+
+        public Vector2D GetDirection()
+        {
+            return dir;
+        }
+
+        public void SetDirection(Vector2D direction)
+        {
+            dir = direction;
+        }
+
+        public bool IsAlive()
+        {
+            return alive;
+        }
+
+        public void SetAlive(bool alive)
+        {
+            this.alive = alive;
+        }
+
+        public int GetOwner()
+        {
+            return owner;
+        }
+
+        public void SetOwner(int owner)
+        {
+            this.owner = owner;
+        }
     }
 }
