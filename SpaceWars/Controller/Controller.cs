@@ -49,36 +49,45 @@ namespace SpaceWarsControl
             Network.GetData(state);
         }
 
-        //TODO: Implement function as described 
+
         /// <summary>
         /// Takes a SocketState object, state, extracts the player ID and world
         /// size, updates the network action and waits for more data. 
         /// </summary>
         private void ReceiveStartup(SocketState state)
         {
-            // It would do something like this:
 
             // get the player ID and world size out of state.sb
-            string totalData = state.GetStringBuilder().ToString();
-
-            // ID and world size are separated by "\n"
-            int newlineCount = 0;
-            int totalDataIndex = 0;
-            while (newlineCount < 2 && totalDataIndex < totalData.Length)
+            IEnumerable<string> tokens = GetTokens(state.GetStringBuilder());
+            List<string> IDAndWorldSize = new List<string>();
+            foreach (string token in tokens)
             {
-                if (totalData[totalDataIndex] == '\n')
-                {
-                    newlineCount++;
-                }
+                IDAndWorldSize.Add(token);
 
-                totalDataIndex++;
+                // we only want two tokens
+                if (IDAndWorldSize.Count >= 2)
+                {
+                    break;
+                }
             }
 
-            // TODO: 
-            // get the first two messages which should be the id and size respectively
+            // see if we actually got out two tokens, should be world size and 
+            // player id, if we did, process them and change network action
+            if (IDAndWorldSize.Count == 2)
+            {
+                // remove tokens from StringBuilder should be size of tokens plus # of new lines
+                int sizeOfTokensAndNewLines = IDAndWorldSize[0].Length + IDAndWorldSize[1].Length + 2;
+                state.GetStringBuilder().Remove(0, sizeOfTokensAndNewLines);
 
-            // Update the action to take when network events happen
-            state.SetNetworkAction(ProcessMessage);
+                // Update the action to take when network events happen
+                state.SetNetworkAction(ProcessMessage);
+
+                // parse the id and worldsize and set them in our client
+                GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
+                SetPlayerID(ID);
+                SetWorldSize(worldSize);
+                
+            }
 
             // Start waiting for data
             Network.GetData(state);
@@ -86,50 +95,62 @@ namespace SpaceWarsControl
         }
 
         /// <summary>
-        /// Takes an int, n and a string s. If s contains n new line terminated
-        /// strings, returns a string array containing those strings, excluding
-        /// the new line characters, else returns an empty string array
+        /// Helper method for ReceiveStartup
+        /// Takes in a List<string> object of size 2, parses the strings as int
+        /// and sets them to the out parameters id and worldsize respectively. If 
+        /// IDAndWorldSize is smaller than size 2, behavior is undefined
         /// </summary>
-        private string[] GetNTokens(int n, string s)
+        private void GetWorldSizeAndID(List<string> IDAndWorldSize, out int id, out int worldSize)
         {
-            // create an array of strings to return 
-            string[] strings = new string[n];
+            // id is sent by server first
+            int.TryParse(IDAndWorldSize[0], out id);
+            // world size is sent by server second
+            int.TryParse(IDAndWorldSize[1], out worldSize);
+        }
 
-            // we will need some sub strings, the first one will start at index 0
-            int substringStart = 0;
+        //TODO: implement when we have gui
+        private void SetPlayerID(int iD)
+        {
+            throw new NotImplementedException();
+        }
 
-            // tokens are delimited by "\n"
-            int newlineCount = 0;
-            // we are going to look linearly through s starting at index 0
-            int sIndex = 0;
+        //TODO: implement when we have gui
+        private void SetWorldSize(int worldSize)
+        {
+            throw new NotImplementedException();
+        }
 
+        
 
-            while (newlineCount < n && sIndex < s.Length)
+        /// <summary>
+        /// Takes n StringBuilder sb and returns an IEnumerable<string> that
+        /// enumerates the '\n' delimited strings in sb and removes them from
+        /// sb. 
+        /// </summary>
+        private IEnumerable<string> GetTokens(StringBuilder sb)
+        {
+            // split sb into tokens
+            string[] parts = Regex.Split(sb.ToString(), @"(?<=[\n])");
+
+            // iterator for keeping track of number of tokens found
+            foreach(string part in parts)
             {
-                // if we have found a delimiter
-                if (s[sIndex] == '\n')
+
+                // if it is an empty string ignore it
+                if (part.Length < 1)
                 {
-                    // get the length of the token
-                    int subLength = sIndex - substringStart;
-                    // put it in our array
-                    strings[newlineCount] = s.Substring(substringStart, subLength);
-                    // the next substring will start at the next index
-                    substringStart = sIndex + 1;
-                    // increase the count of found tokens
-                    newlineCount++;
+                    continue;
                 }
 
-                sIndex++;
+                // regex will give a the last token no matter if it ends with \n
+                if (part[part.Length - 1] != '\n')
+                {
+                    break;
+                }
+
+                // return the token, excluding the \n char
+                yield return part.Substring(0, part.Length - 1);
             }
-
-            // if we haven't found n tokens, return an empty array
-            if (newlineCount < n)
-            {
-                strings = new string[0];
-            }
-
-            return strings;
-
         }
 
         // TODO: reimplement for SpaceWars
