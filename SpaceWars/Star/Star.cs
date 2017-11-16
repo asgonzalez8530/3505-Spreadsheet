@@ -23,31 +23,50 @@ namespace SpaceWars
         [JsonProperty]
         private double mass;
 
+
+        /// <summary>
+        /// Gets the Star's ID
+        /// </summary>
         public int GetID()
         {
             return ID;
         }
 
+        /// <summary>
+        /// Sets the stars ID to the passed in id
+        /// </summary>
         public void SetID(int id)
         {
             ID = id;
         }
 
+        /// <summary>
+        /// Gets the ship's location
+        /// </summary>
         public Vector2D GetLocation()
         {
             return loc;
         }
 
+        /// <summary>
+        /// Sets the passed in location to the star's location
+        /// </summary>
         public void SetLocation(Vector2D location)
         {
             loc = location;
         }
 
+        /// <summary>
+        /// Get star's mass 
+        /// </summary>
         public double GetMass()
         {
             return mass;
         }
 
+        /// <summary>
+        /// Sets the star's mass to the passed in mass
+        /// </summary>
         public void SetMass(double mass)
         {
             this.mass = mass;
