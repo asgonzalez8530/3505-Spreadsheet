@@ -67,7 +67,7 @@ namespace SpaceWarsControl
             // ID and world size are separated by "\n"
             string[] parts = Regex.Split(totalData, @"(?<=[\n])");
 
-            // get the first two messages
+            // get the first two messages which should be the id and size respectively
 
             // Update the action to take when network events happen
             // state.callMe = ProcessMessage;
