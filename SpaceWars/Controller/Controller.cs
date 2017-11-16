@@ -15,7 +15,7 @@ namespace SpaceWarsControl
     /// </summary>
     public class Controller
     {
-        
+
         // the windows form controlled by this controller
         ISpaceWarsWindow window;
 
@@ -38,43 +38,119 @@ namespace SpaceWarsControl
         {
             // TODO: replace by player given name
             string name = "TestPlayer";
-            
+
             // begin "handshake" by sending name
             Network.Send(state.GetSocket(), name);
 
             // Change the action that is take when a network event occurs. Now when data is received,
             // the Networking library will invoke ProcessMessage
-            state.SetNetworkAction(ProcessMessage);
-
-            // finish "handshake"
-            ReceiveStartup(state);
+            state.SetNetworkAction(ReceiveStartup);
 
             Network.GetData(state);
         }
 
-        //TODO: Implement function as described 
+
         /// <summary>
         /// Takes a SocketState object, state, extracts the player ID and world
         /// size, updates the network action and waits for more data. 
         /// </summary>
         private void ReceiveStartup(SocketState state)
         {
-            // It would do something like this:
 
             // get the player ID and world size out of state.sb
-            string totalData = state.GetStringBuilder().ToString();
+            IEnumerable<string> tokens = GetTokens(state.GetStringBuilder());
+            List<string> IDAndWorldSize = new List<string>();
+            foreach (string token in tokens)
+            {
+                IDAndWorldSize.Add(token);
 
-            // ID and world size are separated by "\n"
-            string[] parts = Regex.Split(totalData, @"(?<=[\n])");
+                // we only want two tokens
+                if (IDAndWorldSize.Count >= 2)
+                {
+                    break;
+                }
+            }
 
-            // get the first two messages which should be the id and size respectively
+            // see if we actually got out two tokens, should be world size and 
+            // player id, if we did, process them and change network action
+            if (IDAndWorldSize.Count == 2)
+            {
+                // remove tokens from StringBuilder should be size of tokens plus # of new lines
+                int sizeOfTokensAndNewLines = IDAndWorldSize[0].Length + IDAndWorldSize[1].Length + 2;
+                state.GetStringBuilder().Remove(0, sizeOfTokensAndNewLines);
 
-            // Update the action to take when network events happen
-            // state.callMe = ProcessMessage;
+                // Update the action to take when network events happen
+                state.SetNetworkAction(ProcessMessage);
+
+                // parse the id and worldsize and set them in our client
+                GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
+                SetPlayerID(ID);
+                SetWorldSize(worldSize);
+                
+            }
 
             // Start waiting for data
-            // Networking.GetData(state);
+            Network.GetData(state);
 
+        }
+
+        /// <summary>
+        /// Helper method for ReceiveStartup
+        /// Takes in a List<string> object of size 2, parses the strings as int
+        /// and sets them to the out parameters id and worldsize respectively. If 
+        /// IDAndWorldSize is smaller than size 2, behavior is undefined
+        /// </summary>
+        private void GetWorldSizeAndID(List<string> IDAndWorldSize, out int id, out int worldSize)
+        {
+            // id is sent by server first
+            int.TryParse(IDAndWorldSize[0], out id);
+            // world size is sent by server second
+            int.TryParse(IDAndWorldSize[1], out worldSize);
+        }
+
+        //TODO: implement when we have gui
+        private void SetPlayerID(int iD)
+        {
+            throw new NotImplementedException();
+        }
+
+        //TODO: implement when we have gui
+        private void SetWorldSize(int worldSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+        /// <summary>
+        /// Takes n StringBuilder sb and returns an IEnumerable<string> that
+        /// enumerates the '\n' delimited strings in sb and removes them from
+        /// sb. 
+        /// </summary>
+        private IEnumerable<string> GetTokens(StringBuilder sb)
+        {
+            // split sb into tokens
+            string[] parts = Regex.Split(sb.ToString(), @"(?<=[\n])");
+
+            // iterator for keeping track of number of tokens found
+            foreach(string part in parts)
+            {
+
+                // if it is an empty string ignore it
+                if (part.Length < 1)
+                {
+                    continue;
+                }
+
+                // regex will give a the last token no matter if it ends with \n
+                if (part[part.Length - 1] != '\n')
+                {
+                    break;
+                }
+
+                // return the token, excluding the \n char
+                yield return part.Substring(0, part.Length - 1);
+            }
         }
 
         // TODO: reimplement for SpaceWars
