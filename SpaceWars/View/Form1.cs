@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SpaceWars;
 
-namespace View
+namespace SpaceWarsView
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, ISpaceWarsWindow
     {
         public Form1()
         {

@@ -1,4 +1,4 @@
-﻿namespace View
+﻿namespace SpaceWarsView
 {
     partial class Form1
     {

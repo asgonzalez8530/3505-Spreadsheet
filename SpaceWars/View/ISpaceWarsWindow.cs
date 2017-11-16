@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Controller
+namespace SpaceWarsView
 {
-    public class Class1
+    interface ISpaceWarsWindow
     {
     }
 }
