@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SpaceWarsView
 {
-    interface ISpaceWarsWindow
+    public interface ISpaceWarsWindow
     {
+
     }
 }

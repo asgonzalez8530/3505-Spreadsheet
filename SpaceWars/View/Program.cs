@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpaceWarsView;
+using SpaceWarsControl;
 
 
 namespace SpaceWars
@@ -73,7 +74,7 @@ namespace SpaceWars
 
             // Start an application context and run one form inside it
             SpaceWarsContext appContext = SpaceWarsContext.getAppContext();
-            appContext.RunForm(new Form1());
+            appContext.RunForm(new SpaceWarsForm());
 
             Application.Run(appContext);
         }

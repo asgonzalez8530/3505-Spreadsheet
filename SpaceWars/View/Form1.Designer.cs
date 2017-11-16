@@ -1,6 +1,6 @@
 ﻿namespace SpaceWarsView
 {
-    partial class Form1
+    partial class SpaceWarsForm
     {
         /// <summary>
         /// Required designer variable.
