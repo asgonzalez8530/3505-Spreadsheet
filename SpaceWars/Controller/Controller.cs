@@ -124,8 +124,7 @@ namespace SpaceWarsControl
 
         /// <summary>
         /// Takes n StringBuilder sb and returns an IEnumerable<string> that
-        /// enumerates the '\n' delimited strings in sb and removes them from
-        /// sb. 
+        /// enumerates the '\n' delimited strings in sb.
         /// </summary>
         private IEnumerable<string> GetTokens(StringBuilder sb)
         {
