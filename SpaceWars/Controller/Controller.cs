@@ -15,7 +15,7 @@ namespace SpaceWarsControl
     /// </summary>
     public class Controller
     {
-        
+
         // the windows form controlled by this controller
         ISpaceWarsWindow window;
 
@@ -38,16 +38,13 @@ namespace SpaceWarsControl
         {
             // TODO: replace by player given name
             string name = "TestPlayer";
-            
+
             // begin "handshake" by sending name
             Network.Send(state.GetSocket(), name);
 
             // Change the action that is take when a network event occurs. Now when data is received,
             // the Networking library will invoke ProcessMessage
-            state.SetNetworkAction(ProcessMessage);
-
-            // finish "handshake"
-            ReceiveStartup(state);
+            state.SetNetworkAction(ReceiveStartup);
 
             Network.GetData(state);
         }
@@ -65,15 +62,73 @@ namespace SpaceWarsControl
             string totalData = state.GetStringBuilder().ToString();
 
             // ID and world size are separated by "\n"
-            string[] parts = Regex.Split(totalData, @"(?<=[\n])");
+            int newlineCount = 0;
+            int totalDataIndex = 0;
+            while (newlineCount < 2 && totalDataIndex < totalData.Length)
+            {
+                if (totalData[totalDataIndex] == '\n')
+                {
+                    newlineCount++;
+                }
 
+                totalDataIndex++;
+            }
+
+            // TODO: 
             // get the first two messages which should be the id and size respectively
 
             // Update the action to take when network events happen
-            // state.callMe = ProcessMessage;
+            state.SetNetworkAction(ProcessMessage);
 
             // Start waiting for data
-            // Networking.GetData(state);
+            Network.GetData(state);
+
+        }
+
+        /// <summary>
+        /// Takes an int, n and a string s. If s contains n new line terminated
+        /// strings, returns a string array containing those strings, excluding
+        /// the new line characters, else returns an empty string array
+        /// </summary>
+        private string[] GetNTokens(int n, string s)
+        {
+            // create an array of strings to return 
+            string[] strings = new string[n];
+
+            // we will need some sub strings, the first one will start at index 0
+            int substringStart = 0;
+
+            // tokens are delimited by "\n"
+            int newlineCount = 0;
+            // we are going to look linearly through s starting at index 0
+            int sIndex = 0;
+
+
+            while (newlineCount < n && sIndex < s.Length)
+            {
+                // if we have found a delimiter
+                if (s[sIndex] == '\n')
+                {
+                    // get the length of the token
+                    int subLength = sIndex - substringStart;
+                    // put it in our array
+                    strings[newlineCount] = s.Substring(substringStart, subLength);
+                    // the next substring will start at the next index
+                    substringStart = sIndex + 1;
+                    // increase the count of found tokens
+                    newlineCount++;
+                }
+
+                sIndex++;
+            }
+
+            // if we haven't found n tokens, return an empty array
+            if (newlineCount < n)
+            {
+                strings = new string[0];
+            }
+
+            return strings;
 
         }
 
