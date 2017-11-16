@@ -50,5 +50,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkController\NetworkController.csproj">
+      <Project>{64d77279-ed61-41eb-883b-ea2a7ef17211}</Project>
+      <Name>NetworkController</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

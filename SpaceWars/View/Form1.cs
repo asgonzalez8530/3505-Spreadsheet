@@ -16,5 +16,7 @@ namespace SpaceWarsView
         {
             InitializeComponent();
         }
-    }
+
+
+    }// end of class
 }
