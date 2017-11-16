@@ -28,6 +28,8 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
+            // TODO: need to set double buffer
+
         }
 
         /// <summary>
@@ -75,8 +77,8 @@ namespace SpaceWarsControl
             // player id, if we did, process them and change network action
             if (IDAndWorldSize.Count == 2)
             {
-                // remove tokens from StringBuilder should be size of tokens plus # of new lines
-                int sizeOfTokensAndNewLines = IDAndWorldSize[0].Length + IDAndWorldSize[1].Length + 2;
+                // remove tokens from StringBuilder should be size of tokens
+                int sizeOfTokensAndNewLines = IDAndWorldSize[0].Length + IDAndWorldSize[1].Length;
                 state.GetStringBuilder().Remove(0, sizeOfTokensAndNewLines);
 
                 // Update the action to take when network events happen
@@ -147,8 +149,8 @@ namespace SpaceWarsControl
                     break;
                 }
 
-                // return the token, excluding the \n char
-                yield return part.Substring(0, part.Length - 1);
+                // return the token
+                yield return part.Substring(0, part.Length);
             }
         }
 
@@ -160,23 +162,13 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
-            string totalData = state.GetStringBuilder().ToString();
-
-            // Messages are separated by newline
-            string[] parts = Regex.Split(totalData, @"(?<=[\n])");
+            IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
             // Loop until we have processed all messages.
             // We may have received more than one.
 
-            foreach (string p in parts)
-            {
-                // Ignore empty strings added by the regex splitter
-                if (p.Length == 0)
-                    continue;
-                // The regex splitter will include the last string even if it doesn't end with a '\n',
-                // So we need to ignore it if this happens. 
-                if (p[p.Length - 1] != '\n')
-                    break;
+            foreach (string message in messages)
+            { 
 
                 // TODO: this.Invoke is a reference in the windows.forms dll ie our view
                 // we will need to implement a method for doing this in through our interface
@@ -189,7 +181,7 @@ namespace SpaceWarsControl
                 //  () => messages.AppendText(p)));
 
                 // Then remove the processed message from the SocketState's growable buffer
-                state.GetStringBuilder().Remove(0, p.Length);
+                state.GetStringBuilder().Remove(0, message.Length);
             }
 
             // Now ask for more data. This will start an event loop.
