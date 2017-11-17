@@ -28,14 +28,29 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
-            //window.enterConnectEvent += GetConnected();
+            window.enterConnectEvent += GetConnected;
             
 
         }
 
-        private Action GetConnected()
+        private void GetConnected()
         {
-            throw new NotImplementedException();
+            string serverAddress = window.GetServer();
+
+            if (serverAddress == "")
+            {
+                window.DisplayMessageBox("Please enter a server address");
+                return;
+            }
+
+
+            // Disable the controls and try to connect
+            window.SetServerBoxInactive();
+            window.SetUserBoxInactive();
+            window.SetConnectButtonInactive();
+
+            // Connect to the server, specifying the first thing we want to do once a connection is made is FirstContact
+            Network.ConnectToServer(FirstContact, serverAddress);
         }
 
         /// <summary>
@@ -44,14 +59,14 @@ namespace SpaceWarsControl
         /// </summary>
         private void FirstContact(SocketState state)
         {
-            // TODO: replace by player given name
-            string name = "TestPlayer";
+
+            string name = window.GetUserName();
 
             // begin "handshake" by sending name
             Network.Send(state.GetSocket(), name);
 
             // Change the action that is take when a network event occurs. Now when data is received,
-            // the Networking library will invoke ProcessMessage
+            // the Networking library will invoke ReceiveStartup
             state.SetNetworkAction(ReceiveStartup);
 
             Network.GetData(state);

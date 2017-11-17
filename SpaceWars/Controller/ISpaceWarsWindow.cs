@@ -36,14 +36,24 @@ namespace SpaceWarsView
         void SetDefaultAcceptButton();
 
         /// <summary>
-        /// Tells the form to set user box inactive
+        /// Tells the form to set user box to inactive
         /// </summary>
         void SetUserBoxInactive();
 
         /// <summary>
-        /// Tells the form to set server box inactive
+        /// Tells the form to set server box to inactive
         /// </summary>
         void SetServerBoxInactive();
+
+        /// <summary>
+        /// Tells the form to set enter button to inactive
+        /// </summary>
+        void SetConnectButtonInactive();
+
+        /// <summary>
+        /// Displays a messagebox with s as the message
+        /// </summary>
+        void DisplayMessageBox(string s);
 
 
     }

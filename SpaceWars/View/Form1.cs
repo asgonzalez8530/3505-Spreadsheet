@@ -54,12 +54,12 @@ namespace SpaceWarsView
 
         public void SetServerString(string s)
         {
-            throw new NotImplementedException();
+            serverTextBox.Text = s;
         }
 
         public void SetUserName(string s)
         {
-            throw new NotImplementedException();
+            nameTextBox.Text = s;
         }
 
         private void connectButton_Click(object sender, EventArgs e)
@@ -82,5 +82,22 @@ namespace SpaceWarsView
         {
             serverTextBox.Enabled = false;
         }
+
+        /// <summary>
+        /// Displays a messagebox with s as the message
+        /// </summary>
+        public void DisplayMessageBox(string s)
+        {
+            MessageBox.Show(s);
+        }
+
+        /// <summary>
+        /// Disables connectButton
+        /// </summary>
+        public void SetConnectButtonInactive()
+        {
+            connectButton.Enabled = false;
+        }
+
     }// end of class
 }
