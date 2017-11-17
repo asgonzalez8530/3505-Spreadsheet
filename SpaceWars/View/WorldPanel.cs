@@ -73,8 +73,8 @@ namespace SpaceWarsView
         {
             Ship s = o as Ship;
 
-            int width = 10;
-            int height = 10;
+            int width = 30;
+            int height = 30;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             using (System.Drawing.SolidBrush blueBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Blue))
             using (System.Drawing.SolidBrush greenBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Green))

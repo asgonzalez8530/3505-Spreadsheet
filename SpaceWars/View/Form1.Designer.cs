@@ -39,7 +39,6 @@
             this.nameLabel = new System.Windows.Forms.Label();
             this.nameTextBox = new System.Windows.Forms.TextBox();
             this.scoreBoard = new System.Windows.Forms.Panel();
-            this.world = new System.Windows.Forms.Panel();
             this.tableLayoutPanel.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -165,21 +164,11 @@
             this.scoreBoard.Size = new System.Drawing.Size(177, 663);
             this.scoreBoard.TabIndex = 1;
             // 
-            // world
-            // 
-            this.world.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.world.Location = new System.Drawing.Point(0, 23);
-            this.world.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.world.Name = "world";
-            this.world.Size = new System.Drawing.Size(763, 663);
-            this.world.TabIndex = 2;
-            // 
             // SpaceWarsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(940, 686);
-            this.Controls.Add(this.world);
             this.Controls.Add(this.scoreBoard);
             this.Controls.Add(this.tableLayoutPanel);
             this.MainMenuStrip = this.menuStrip;
@@ -207,7 +196,6 @@
         private System.Windows.Forms.TextBox nameTextBox;
         private System.Windows.Forms.Button connectButton;
         private System.Windows.Forms.Panel scoreBoard;
-        private System.Windows.Forms.Panel world;
     }
 }
 
