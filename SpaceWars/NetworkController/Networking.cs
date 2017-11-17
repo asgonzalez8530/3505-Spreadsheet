@@ -151,6 +151,32 @@ namespace Communication
         }
 
         /// <summary>
+        /// Attempt to connect to the server via the provided hostname and port. It should 
+        /// </summary>
+        /// <param name="callbackFunction"> a function to be called when a connection is made </param>
+        /// <param name="hostname"> name of the server to connect to </param>
+        /// <returns></returns>
+        public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname, int port)
+        {
+            System.Diagnostics.Debug.WriteLine("connecting  to " + hostname);
+
+            // Create a TCP/IP socket.
+            MakeSocket(hostname, out Socket socket, out IPAddress ipAddress);
+
+            // make a new state of the socket we just made
+            SocketState state = new SocketState(socket, -1);
+
+            // call the correct function needed for the client
+            state.SetNetworkAction(callbackFunction);
+
+            // make a new connection to the server
+            state.GetSocket().BeginConnect(ipAddress, port, ConnectedCallback, state);
+
+            // return the current socket with respect to the state
+            return state.GetSocket();
+        }
+
+        /// <summary>
         /// Called by the OS when the socket connects to the server. 
         /// </summary>
         public static void ConnectedToServer(IAsyncResult stateAsArObject)

@@ -107,8 +107,8 @@ namespace SpaceWarsControl
 
                 // parse the id and worldsize and set them in our client
                 GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
-                SetPlayerID(ID);
-                SetWorldSize(worldSize);
+                //SetPlayerID(ID);
+                //SetWorldSize(worldSize);
                 
             }
 
@@ -189,7 +189,10 @@ namespace SpaceWarsControl
             // We may have received more than one.
 
             foreach (string message in messages)
-            { 
+            {
+
+                // TODO: remove print statment, done for testing conection.
+                System.Console.Write(message);
 
                 // TODO: this.Invoke is a reference in the windows.forms dll ie our view
                 // we will need to implement a method for doing this in through our interface
