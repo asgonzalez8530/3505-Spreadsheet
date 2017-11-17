@@ -195,8 +195,8 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
-            try
-            {
+            //try
+            //{
                 IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
                 // Loop until we have processed all messages.
@@ -263,11 +263,11 @@ namespace SpaceWarsControl
                     // Then remove the processed message from the SocketState's growable buffer
                     state.GetStringBuilder().Remove(0, message.Length);
                 }
-            }
-            catch (Exception)
-            {
+            //}
+            //catch (Exception)
+            //{
 
-            }
+            //}
 
             // Now ask for more data. This will start an event loop.
             Network.GetData(state);
