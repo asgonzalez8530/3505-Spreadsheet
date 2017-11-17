@@ -47,21 +47,34 @@ namespace SpaceWarsView
             return nameTextBox.Text;
         }
 
+        /// <summary>
+        /// Sets the default accept button to connectButton
+        /// </summary>
         public void SetDefaultAcceptButton()
         {
             AcceptButton = connectButton;
         }
 
+        /// <summary>
+        /// Sets serverTextBox text to s
+        /// </summary>
         public void SetServerString(string s)
         {
             serverTextBox.Text = s;
         }
 
+        /// <summary>
+        /// Sets the nameTextBox text to s
+        /// </summary>
         public void SetUserName(string s)
         {
             nameTextBox.Text = s;
         }
-
+        
+        /// <summary>
+        /// Form designer defined event handler for connectButton
+        /// fires enterConnectEvent
+        /// </summary>
         private void connectButton_Click(object sender, EventArgs e)
         {
             enterConnectEvent();
