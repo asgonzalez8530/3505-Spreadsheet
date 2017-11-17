@@ -257,7 +257,7 @@ namespace SpaceWarsView
                 }
                 foreach (Star star in theWorld.GetStars())
                 {
-                    DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), star.GetOrientation().ToAngle(), StarDrawer);
+                    DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
                 }
             }
             // Do anything that Panel (from which we inherit) needs to do

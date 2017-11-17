@@ -27,7 +27,10 @@ namespace SpaceWars
 
         public void AddShip(Ship s)
         {
-            ships.Add(s.GetID(), s);
+            if (s != null)
+            {
+                ships.Add(s.GetID(), s);
+            }
         }
 
         public IEnumerable<Star> GetStars()
@@ -37,7 +40,10 @@ namespace SpaceWars
 
         public void AddStar(Star s)
         {
-            stars.Add(s.GetID(), s);
+            if (s != null)
+            {
+                stars.Add(s.GetID(), s);
+            }
         }
 
         public IEnumerable<Projectile> GetProjs()
@@ -45,9 +51,12 @@ namespace SpaceWars
             return projectiles.Values;
         }
 
-        public void AddStar(Projectile p)
+        public void AddProjectile(Projectile p)
         {
-            projectiles.Add(p.GetID(), p);
+            if (p != null)
+            {
+                projectiles.Add(p.GetID(), p);
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using SpaceWars;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 
 namespace SpaceWarsControl
 {
@@ -32,11 +32,11 @@ namespace SpaceWarsControl
         {
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
-            
+
             window.enterConnectEvent += GetConnected;
 
             theWorld = new World();
-            
+
 
         }
 
@@ -113,7 +113,7 @@ namespace SpaceWarsControl
                 // Update the action to take when network events happen
                 state.SetNetworkAction(ProcessMessage);
 
-                
+
 
                 // parse the id and worldsize and set them in our client
                 GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
@@ -155,7 +155,7 @@ namespace SpaceWarsControl
             throw new NotImplementedException();
         }
 
-        
+
 
         /// <summary>
         /// Takes n StringBuilder sb and returns an IEnumerable<string> that
@@ -167,7 +167,7 @@ namespace SpaceWarsControl
             string[] parts = Regex.Split(sb.ToString(), @"(?<=[\n])");
 
             // iterator for keeping track of number of tokens found
-            foreach(string part in parts)
+            foreach (string part in parts)
             {
 
                 // if it is an empty string ignore it
@@ -208,33 +208,41 @@ namespace SpaceWarsControl
                     // TODO: remove print statment, done for testing connection.
                     System.Console.Write(message);
 
-                    if (message.Length == 0)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        JObject obj = JObject.Parse(message);
-                        JToken ship = obj["ship"];
-                        JToken proj = obj["proj"];
-                        JToken star = obj["star"];
+                    //if (message.Length == 0)
+                    //{
+                    //    continue;
+                    //}
+                    //else
+                    //{
+                    JObject obj = JObject.Parse(message);
+                    JToken ship = obj["ship"];
+                    JToken proj = obj["proj"];
+                    JToken star = obj["star"];
 
-                        if(ship != null)
-                        {
-                            theShip = JsonConvert.DeserializeObject<Ship>(message, settings);
-                        }
-                        if (proj != null)
-                        {
-                            theProj = JsonConvert.DeserializeObject<Projectile>(message, settings);
-                        }
-                        if (star != null)
-                        {
-                            theStar = JsonConvert.DeserializeObject<Star>(message, settings);
-                        }
+                    Ship theShip = null;
+                    Projectile theProj = null;
+                    Star theStar = null;
+
+                    if (ship != null)
+                    {
+                        theShip = JsonConvert.DeserializeObject<Ship>(message);
                     }
+                    if (proj != null)
+                    {
+                        theProj = JsonConvert.DeserializeObject<Projectile>(message);
+                    }
+                    if (star != null)
+                    {
+                        theStar = JsonConvert.DeserializeObject<Star>(message);
+                    }
+                    //}
 
                     lock (theWorld)
                     {
+                        theWorld.AddStar(theStar);
+                        theWorld.AddShip(theShip);
+                        theWorld.AddProjectile(theProj);
+
                         // TODO: Figure this out
                         //this.Invoke(new MethodInvoker(() => this.Invalidate(true)));
                     }
