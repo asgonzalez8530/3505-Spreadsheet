@@ -28,6 +28,11 @@ namespace SpaceWarsView
             DoubleBuffered = true;
             theWorld = new World();
 
+            shipCoastImages = new Dictionary<int, Image>();
+            shipThrustImages = new Dictionary<int, Image>();
+            starImages = new Dictionary<int, Image>();
+            projectileImages = new Dictionary<int, Image>();
+
             string pathString = @"../../../Resources/Images/";
             LoadImages(pathString);
         }
@@ -43,6 +48,8 @@ namespace SpaceWarsView
             int star = 0; 
             foreach(string file in files)
             {
+                Console.Out.WriteLine(file);
+
                 if (file.Contains("coast"))
                 {
                     shipCoastImages.Add(coast++, Image.FromFile(file));
