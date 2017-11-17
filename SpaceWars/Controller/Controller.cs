@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SpaceWarsView;
 using Communication;
 using System.Text.RegularExpressions;
+using SpaceWars;
 
 namespace SpaceWarsControl
 {
@@ -18,6 +19,7 @@ namespace SpaceWarsControl
 
         // the windows form controlled by this controller
         ISpaceWarsWindow window;
+        World theWorld;
 
         /// <summary>
         /// Takes an object which implements the ISpaceWarsWindow interface, SpaceWarsWindow
@@ -27,8 +29,10 @@ namespace SpaceWarsControl
         {
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
-
+            
             window.enterConnectEvent += GetConnected;
+
+            theWorld = new World();
             
 
         }
@@ -37,6 +41,7 @@ namespace SpaceWarsControl
         {
             string serverAddress = window.GetServer();
 
+            // TODO: more error checking
             if (serverAddress == "")
             {
                 window.DisplayMessageBox("Please enter a server address");
@@ -105,11 +110,15 @@ namespace SpaceWarsControl
                 // Update the action to take when network events happen
                 state.SetNetworkAction(ProcessMessage);
 
+                
+
                 // parse the id and worldsize and set them in our client
                 GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
                 //SetPlayerID(ID);
                 //SetWorldSize(worldSize);
-                
+
+                // TODO: set the world size and create a drawingpane with theWorld
+
             }
 
             // Start waiting for data
@@ -196,6 +205,8 @@ namespace SpaceWarsControl
 
                 // TODO: this.Invoke is a reference in the windows.forms dll ie our view
                 // we will need to implement a method for doing this in through our interface
+
+                // this is the json stuff 
 
                 // Display the message
                 // "messages" is the big message text box in the form.
