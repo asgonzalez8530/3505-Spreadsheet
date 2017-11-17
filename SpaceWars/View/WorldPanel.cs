@@ -75,119 +75,166 @@ namespace SpaceWarsView
 
             int width = 30;
             int height = 30;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            using (System.Drawing.SolidBrush blueBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Blue))
-            using (System.Drawing.SolidBrush greenBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Green))
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
+
+            // Rectangles are drawn starting from the top-left corner.
+            // So if we want the rectangle centered on the player's location, we have to offset it
+            // by half its size to the left (-width/2) and up (-height/2)
+            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            //TODO: may need to do the ship rotation here
+
+            string imageString = "";
+
+            switch (s.GetID() % 8)
             {
-                // Rectangles are drawn starting from the top-left corner.
-                // So if we want the rectangle centered on the player's location, we have to offset it
-                // by half its size to the left (-width/2) and up (-height/2)
-                Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-                string imageString = "";
-                
-                switch (s.GetID() % 8)
-                {
-
-                    case 0:
-                        imageString = "";
-                        break;
-                    case 1:
-                        imageString = "";
-                        break;
-                    case 2:
-                        imageString = "";
-                        break;
-                    case 3:
-                        imageString = "";
-                        break;
-                    case 4:
-                        imageString = "";
-                        break;
-                    case 5:
-                        imageString = "";
-                        break;
-                    case 6:
-                        imageString = "";
-                        break;
-                    case 7:
-                        imageString = "";
-                        break;
-                }
-
-                Image image = Image.FromFile(imageString);
-                e.Graphics.DrawImage(image, r);
-                
+                case 0:
+                    imageString = "";
+                    break;
+                case 1:
+                    imageString = "";
+                    break;
+                case 2:
+                    imageString = "";
+                    break;
+                case 3:
+                    imageString = "";
+                    break;
+                case 4:
+                    imageString = "";
+                    break;
+                case 5:
+                    imageString = "";
+                    break;
+                case 6:
+                    imageString = "";
+                    break;
+                case 7:
+                    imageString = "";
+                    break;
             }
+            
+            Image image = Image.FromFile(imageString);
+            e.Graphics.DrawImage(image, r);
         }
 
-        ///// <summary>
-        ///// Acts as a drawing delegate for DrawObjectWithTransform
-        ///// After performing the necessary transformation (translate/rotate)
-        ///// DrawObjectWithTransform will invoke this method
-        ///// </summary>
-        ///// <param name="o">The object to draw</param>
-        ///// <param name="e">The PaintEventArgs to access the graphics</param>
-        //private void PowerupDrawer(object o, PaintEventArgs e)
-        //{
-        //    Powerup p = o as Powerup;
+        /// <summary>
+        /// Acts as a drawing delegate for DrawObjectWithTransform
+        /// After performing the necessary transformation (translate/rotate)
+        /// DrawObjectWithTransform will invoke this method
+        /// </summary>
+        /// <param name="o">The object to draw</param>
+        /// <param name="e">The PaintEventArgs to access the graphics</param>
+        private void ProjectileDrawer(object o, PaintEventArgs e)
+        {
+            Projectile p = o as Projectile;
 
-        //    int width = 8;
-        //    int height = 8;
-        //    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        //    using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
-        //    using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
-        //    using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
-        //    {
-        //        // Circles are drawn starting from the top-left corner.
-        //        // So if we want the circle centered on the powerup's location, we have to offset it
-        //        // by half its size to the left (-width/2) and up (-height/2)
-        //        Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            int width = 30;
+            int height = 30;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
-        //        if (p.GetKind() == 1) // red powerup
-        //            e.Graphics.FillEllipse(redBrush, r);
-        //        if (p.GetKind() == 2) // yellow powerup
-        //            e.Graphics.FillEllipse(yellowBrush, r);
-        //        if (p.GetKind() == 3) // black powerup
-        //            e.Graphics.FillEllipse(blackBrush, r);
-        //    }
-        //}
+            // Rectangles are drawn starting from the top-left corner.
+            // So if we want the rectangle centered on the player's location, we have to offset it
+            // by half its size to the left (-width/2) and up (-height/2)
+            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-        ///// <summary>
-        ///// Acts as a drawing delegate for DrawObjectWithTransform
-        ///// After performing the necessary transformation (translate/rotate)
-        ///// DrawObjectWithTransform will invoke this method
-        ///// </summary>
-        ///// <param name="o">The object to draw</param>
-        ///// <param name="e">The PaintEventArgs to access the graphics</param>
-        //private void YourOwnDrawer(object o, PaintEventArgs e)
-        //{
-        //    Powerup p = o as Powerup;
+            string imageString = "";
 
-        //    int width = 24;
-        //    int height = 24;
-        //    float start = 60;
-        //    float sweep = 60;
-        //    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        //    using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
-        //    using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
-        //    using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
-        //    {
-        //        // Circles are drawn starting from the top-left corner.
-        //        // So if we want the circle centered on the powerup's location, we have to offset it
-        //        // by half its size to the left (-width/2) and up (-height/2)
-        //        Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            switch (p.GetOwner() % 8)
+            {
 
-        //        if (p.GetKind() == 1) // red powerup
-        //            e.Graphics.FillPie(redBrush, r, start, sweep);
-        //        if (p.GetKind() == 2) // yellow powerup
-        //            e.Graphics.FillPie(yellowBrush, r, start, sweep);
-        //        if (p.GetKind() == 3) // black powerup
-        //            e.Graphics.FillPie(blackBrush, r, start, sweep);
-        //    }
-        //}
+                case 0:
+                    imageString = "";
+                    break;
+                case 1:
+                    imageString = "";
+                    break;
+                case 2:
+                    imageString = "";
+                    break;
+                case 3:
+                    imageString = "";
+                    break;
+                case 4:
+                    imageString = "";
+                    break;
+                case 5:
+                    imageString = "";
+                    break;
+                case 6:
+                    imageString = "";
+                    break;
+                case 7:
+                    imageString = "";
+                    break;
+            }
 
+            Image image = Image.FromFile(imageString);
+            e.Graphics.DrawImage(image, r);
+        }
 
+        /// <summary>
+        /// Acts as a drawing delegate for DrawObjectWithTransform
+        /// After performing the necessary transformation (translate/rotate)
+        /// DrawObjectWithTransform will invoke this method
+        /// </summary>
+        /// <param name="o">The object to draw</param>
+        /// <param name="e">The PaintEventArgs to access the graphics</param>
+        private void StarDrawer(object o, PaintEventArgs e)
+        {
+            Star s = o as Star;
+
+            int width = 30;
+            int height = 30;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
+
+            // Rectangles are drawn starting from the top-left corner.
+            // So if we want the rectangle centered on the player's location, we have to offset it
+            // by half its size to the left (-width/2) and up (-height/2)
+            // TODO: multiply by the mass of the star
+            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+
+            string imageString = "";
+
+            switch (s.GetID() % 8)
+            {
+
+                case 0:
+                    imageString = "";
+                    break;
+                case 1:
+                    imageString = "";
+                    break;
+                case 2:
+                    imageString = "";
+                    break;
+                case 3:
+                    imageString = "";
+                    break;
+                case 4:
+                    imageString = "";
+                    break;
+                case 5:
+                    imageString = "";
+                    break;
+                case 6:
+                    imageString = "";
+                    break;
+                case 7:
+                    imageString = "";
+                    break;
+            }
+
+            Image image = Image.FromFile(imageString);
+            e.Graphics.DrawImage(image, r);
+        }
+        
         // This method is invoked when the DrawingPanel needs to be re-drawn
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -206,11 +253,11 @@ namespace SpaceWarsView
                 foreach (Projectile p in theWorld.GetProjs())
                 {
                     //System.Diagnostics.Debug.WriteLine("drawing powerup at " + p.GetLocation());
-                    //DrawObjectWithTransform(e, p, this.Size.Width, p.GetLocation().GetX(), p.GetLocation().GetY(), 0, YourOwnDrawer);
+                    DrawObjectWithTransform(e, p, this.Size.Width, p.GetLocation().GetX(), p.GetLocation().GetY(), 0, ProjectileDrawer);
                 }
                 foreach (Star star in theWorld.GetStars())
                 {
-                    //DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), star.GetOrientation().ToAngle(), PlayerDrawer);
+                    DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), star.GetOrientation().ToAngle(), StarDrawer);
                 }
             }
             // Do anything that Panel (from which we inherit) needs to do

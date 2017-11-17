@@ -7,6 +7,9 @@ using SpaceWarsView;
 using Communication;
 using System.Text.RegularExpressions;
 using SpaceWars;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace SpaceWarsControl
 {
@@ -192,31 +195,70 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
-            IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
+            try
+            {
+                IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
-            // Loop until we have processed all messages.
-            // We may have received more than one.
+                // Loop until we have processed all messages.
+                // We may have received more than one.
 
-            foreach (string message in messages)
+                foreach (string message in messages)
+                {
+
+                    // TODO: remove print statment, done for testing connection.
+                    System.Console.Write(message);
+
+                    if (message.Length == 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        JObject obj = JObject.Parse(message);
+                        JToken ship = obj["ship"];
+                        JToken proj = obj["proj"];
+                        JToken star = obj["star"];
+
+                        if(ship != null)
+                        {
+                            theShip = JsonConvert.DeserializeObject<Ship>(message, settings);
+                        }
+                        if (proj != null)
+                        {
+                            theProj = JsonConvert.DeserializeObject<Projectile>(message, settings);
+                        }
+                        if (star != null)
+                        {
+                            theStar = JsonConvert.DeserializeObject<Star>(message, settings);
+                        }
+                    }
+
+                    lock (theWorld)
+                    {
+                        // TODO: Figure this out
+                        //this.Invoke(new MethodInvoker(() => this.Invalidate(true)));
+                    }
+                    // TODO: this.Invoke is a reference in the windows.forms dll ie our view
+                    // we will need to implement a method for doing this in through our interface
+
+                    // this is the json stuff 
+
+                    // Display the message
+                    // "messages" is the big message text box in the form.
+                    // We must use a MethodInvoker, because only the thread that created the GUI can modify it.
+                    // This method will be invoked by another thread from the Networking callbacks.
+                    // this.Invoke(new MethodInvoker(
+                    //  () => messages.AppendText(p)));
+
+
+
+                    // Then remove the processed message from the SocketState's growable buffer
+                    state.GetStringBuilder().Remove(0, message.Length);
+                }
+            }
+            catch (Exception)
             {
 
-                // TODO: remove print statment, done for testing conection.
-                System.Console.Write(message);
-
-                // TODO: this.Invoke is a reference in the windows.forms dll ie our view
-                // we will need to implement a method for doing this in through our interface
-
-                // this is the json stuff 
-
-                // Display the message
-                // "messages" is the big message text box in the form.
-                // We must use a MethodInvoker, because only the thread that created the GUI can modify it.
-                // This method will be invoked by another thread from the Networking callbacks.
-                // this.Invoke(new MethodInvoker(
-                //  () => messages.AppendText(p)));
-
-                // Then remove the processed message from the SocketState's growable buffer
-                state.GetStringBuilder().Remove(0, message.Length);
             }
 
             // Now ask for more data. This will start an event loop.
