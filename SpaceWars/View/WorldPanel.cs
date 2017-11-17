@@ -121,71 +121,71 @@ namespace SpaceWarsView
             }
         }
 
-        /// <summary>
-        /// Acts as a drawing delegate for DrawObjectWithTransform
-        /// After performing the necessary transformation (translate/rotate)
-        /// DrawObjectWithTransform will invoke this method
-        /// </summary>
-        /// <param name="o">The object to draw</param>
-        /// <param name="e">The PaintEventArgs to access the graphics</param>
-        private void PowerupDrawer(object o, PaintEventArgs e)
-        {
-            Powerup p = o as Powerup;
+        ///// <summary>
+        ///// Acts as a drawing delegate for DrawObjectWithTransform
+        ///// After performing the necessary transformation (translate/rotate)
+        ///// DrawObjectWithTransform will invoke this method
+        ///// </summary>
+        ///// <param name="o">The object to draw</param>
+        ///// <param name="e">The PaintEventArgs to access the graphics</param>
+        //private void PowerupDrawer(object o, PaintEventArgs e)
+        //{
+        //    Powerup p = o as Powerup;
 
-            int width = 8;
-            int height = 8;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
-            using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
-            using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
-            {
-                // Circles are drawn starting from the top-left corner.
-                // So if we want the circle centered on the powerup's location, we have to offset it
-                // by half its size to the left (-width/2) and up (-height/2)
-                Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+        //    int width = 8;
+        //    int height = 8;
+        //    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        //    using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
+        //    using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
+        //    using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
+        //    {
+        //        // Circles are drawn starting from the top-left corner.
+        //        // So if we want the circle centered on the powerup's location, we have to offset it
+        //        // by half its size to the left (-width/2) and up (-height/2)
+        //        Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-                if (p.GetKind() == 1) // red powerup
-                    e.Graphics.FillEllipse(redBrush, r);
-                if (p.GetKind() == 2) // yellow powerup
-                    e.Graphics.FillEllipse(yellowBrush, r);
-                if (p.GetKind() == 3) // black powerup
-                    e.Graphics.FillEllipse(blackBrush, r);
-            }
-        }
+        //        if (p.GetKind() == 1) // red powerup
+        //            e.Graphics.FillEllipse(redBrush, r);
+        //        if (p.GetKind() == 2) // yellow powerup
+        //            e.Graphics.FillEllipse(yellowBrush, r);
+        //        if (p.GetKind() == 3) // black powerup
+        //            e.Graphics.FillEllipse(blackBrush, r);
+        //    }
+        //}
 
-        /// <summary>
-        /// Acts as a drawing delegate for DrawObjectWithTransform
-        /// After performing the necessary transformation (translate/rotate)
-        /// DrawObjectWithTransform will invoke this method
-        /// </summary>
-        /// <param name="o">The object to draw</param>
-        /// <param name="e">The PaintEventArgs to access the graphics</param>
-        private void YourOwnDrawer(object o, PaintEventArgs e)
-        {
-            Powerup p = o as Powerup;
+        ///// <summary>
+        ///// Acts as a drawing delegate for DrawObjectWithTransform
+        ///// After performing the necessary transformation (translate/rotate)
+        ///// DrawObjectWithTransform will invoke this method
+        ///// </summary>
+        ///// <param name="o">The object to draw</param>
+        ///// <param name="e">The PaintEventArgs to access the graphics</param>
+        //private void YourOwnDrawer(object o, PaintEventArgs e)
+        //{
+        //    Powerup p = o as Powerup;
 
-            int width = 24;
-            int height = 24;
-            float start = 60;
-            float sweep = 60;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
-            using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
-            using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
-            {
-                // Circles are drawn starting from the top-left corner.
-                // So if we want the circle centered on the powerup's location, we have to offset it
-                // by half its size to the left (-width/2) and up (-height/2)
-                Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+        //    int width = 24;
+        //    int height = 24;
+        //    float start = 60;
+        //    float sweep = 60;
+        //    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        //    using (System.Drawing.SolidBrush redBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
+        //    using (System.Drawing.SolidBrush yellowBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Yellow))
+        //    using (System.Drawing.SolidBrush blackBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
+        //    {
+        //        // Circles are drawn starting from the top-left corner.
+        //        // So if we want the circle centered on the powerup's location, we have to offset it
+        //        // by half its size to the left (-width/2) and up (-height/2)
+        //        Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-                if (p.GetKind() == 1) // red powerup
-                    e.Graphics.FillPie(redBrush, r, start, sweep);
-                if (p.GetKind() == 2) // yellow powerup
-                    e.Graphics.FillPie(yellowBrush, r, start, sweep);
-                if (p.GetKind() == 3) // black powerup
-                    e.Graphics.FillPie(blackBrush, r, start, sweep);
-            }
-        }
+        //        if (p.GetKind() == 1) // red powerup
+        //            e.Graphics.FillPie(redBrush, r, start, sweep);
+        //        if (p.GetKind() == 2) // yellow powerup
+        //            e.Graphics.FillPie(yellowBrush, r, start, sweep);
+        //        if (p.GetKind() == 3) // black powerup
+        //            e.Graphics.FillPie(blackBrush, r, start, sweep);
+        //    }
+        //}
 
 
         // This method is invoked when the DrawingPanel needs to be re-drawn
@@ -194,18 +194,23 @@ namespace SpaceWarsView
 
             lock (theWorld)
             {
+
                 // Draw the players
-                foreach (Player play in theWorld.Players.Values)
+                foreach (Ship player in theWorld.GetShips())
                 {
                     //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
-                    DrawObjectWithTransform(e, play, this.Size.Width, play.GetLocation().GetX(), play.GetLocation().GetY(), play.GetOrientation().ToAngle(), PlayerDrawer);
+                    DrawObjectWithTransform(e, player, this.Size.Width, player.GetLocation().GetX(), player.GetLocation().GetY(), player.GetDirection().ToAngle(), ShipDrawer);
                 }
 
                 // Draw the powerups
-                foreach (Powerup pow in theWorld.Powerups.Values)
+                foreach (Projectile p in theWorld.GetProjs())
                 {
                     //System.Diagnostics.Debug.WriteLine("drawing powerup at " + p.GetLocation());
-                    DrawObjectWithTransform(e, pow, this.Size.Width, pow.GetLocation().GetX(), pow.GetLocation().GetY(), 0, YourOwnDrawer);
+                    //DrawObjectWithTransform(e, p, this.Size.Width, p.GetLocation().GetX(), p.GetLocation().GetY(), 0, YourOwnDrawer);
+                }
+                foreach (Star star in theWorld.GetStars())
+                {
+                    //DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), star.GetOrientation().ToAngle(), PlayerDrawer);
                 }
             }
             // Do anything that Panel (from which we inherit) needs to do

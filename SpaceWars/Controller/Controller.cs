@@ -28,8 +28,14 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
-            // TODO: need to set double buffer
+            window.enterConnectEvent += GetConnected();
+            
 
+        }
+
+        private Action GetConnected()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
