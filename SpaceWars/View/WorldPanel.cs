@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +16,56 @@ namespace SpaceWarsView
     {
 
         private World theWorld;
+        private Dictionary<int, Image> shipCoastImages;
+        private Dictionary<int, Image> shipThrustImages;
+        private Dictionary<int, Image> starImages;
+        private Dictionary<int, Image> projectileImages;
 
-        public WorldPanel(World w)
+
+        public WorldPanel()
         {
             InitializeComponent();
             DoubleBuffered = true;
-            theWorld = w;
+            theWorld = new World();
+
+            string pathString = @"../../../Resources/Images/";
+            LoadImages(pathString);
+        }
+
+        private void LoadImages(string directory)
+        {
+            // get all the files from the directory
+            string[] files = Directory.GetFiles(directory, "*.*", SearchOption.TopDirectoryOnly);
+
+            int coast = 0;
+            int thrust = 0;
+            int shot = 0;
+            int star = 0; 
+            foreach(string file in files)
+            {
+                if (file.Contains("coast"))
+                {
+                    shipCoastImages.Add(coast++, Image.FromFile(file));
+                }
+                else if (file.Contains("thrust"))
+                {
+                    shipThrustImages.Add(thrust++, Image.FromFile(file));
+                }
+                else if (file.Contains("shot"))
+                {
+                    projectileImages.Add(shot++, Image.FromFile(file));
+                }
+                else if (file.Contains("star"))
+                {
+                    starImages.Add(star++, Image.FromFile(file));
+                }
+
+            }
+        }
+
+        public World GetWorld()
+        {
+            return theWorld;
         }
 
         /// <summary>
@@ -83,42 +128,17 @@ namespace SpaceWarsView
             // So if we want the rectangle centered on the player's location, we have to offset it
             // by half its size to the left (-width/2) and up (-height/2)
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
-            //TODO: may need to do the ship rotation here
-
-            string pathString = @"../../../Resources/Images/";
-            string imageString = "ship-";
-            imageString += s.HasThrust() ? "thrust-" : "coast-";
-
-            switch (s.GetID() % 8)
+            
+            Image image;
+            if (s.HasThrust())
             {
-
-                case 0:
-                    imageString += "blue.png";
-                    break;
-                case 1:
-                    imageString += "brown.png";
-                    break;
-                case 2:
-                    imageString += "green.png";
-                    break;
-                case 3:
-                    imageString += "grey.png";
-                    break;
-                case 4:
-                    imageString += "red.png";
-                    break;
-                case 5:
-                    imageString += "purple.png";
-                    break;
-                case 6:
-                    imageString += "white.png";
-                    break;
-                case 7:
-                    imageString += "yellow.png";
-                    break;
+                image = shipThrustImages[s.GetID() % shipThrustImages.Count];
             }
-
-            Image image = Image.FromFile(pathString + imageString);
+            else
+            {
+                image = shipCoastImages[s.GetID() % shipCoastImages.Count];
+            }
+            
             e.Graphics.DrawImage(image, r);
         }
 
@@ -144,40 +164,10 @@ namespace SpaceWarsView
             // by half its size to the left (-width/2) and up (-height/2)
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-            string pathString = @"../../../Resources/Images/";
-            string imageString = "shot-";
+            Image image = projectileImages[p.GetOwner() % projectileImages.Count];
 
-            switch (p.GetOwner() % 8)
-            {
-
-                case 0:
-                    imageString += "blue.png";
-                    break;
-                case 1:
-                    imageString += "brown.png";
-                    break;
-                case 2:
-                    imageString += "green.png";
-                    break;
-                case 3:
-                    imageString += "grey.png";
-                    break;
-                case 4:
-                    imageString += "red.png";
-                    break;
-                case 5:
-                    imageString += "purple.png";
-                    break;
-                case 6:
-                    imageString += "white.png";
-                    break;
-                case 7:
-                    imageString += "yellow.png";
-                    break;
-            }
-
-            Image image = Image.FromFile(pathString + imageString);
             e.Graphics.DrawImage(image, r);
+            
         }
 
         /// <summary>
@@ -191,8 +181,8 @@ namespace SpaceWarsView
         {
             Star s = o as Star;
 
-            int width = 30;
-            int height = 30;
+            int width = 50;
+            int height = 50;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -203,10 +193,7 @@ namespace SpaceWarsView
             // TODO: multiply by the mass of the star
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-            string pathString = @"../../../Resources/Images/";
-            string imageString = "star.jpg";
-
-            Image image = Image.FromFile(pathString + imageString);
+            Image image = starImages[s.GetID() % starImages.Count];
             e.Graphics.DrawImage(image, r);
         }
         
@@ -217,6 +204,12 @@ namespace SpaceWarsView
             lock (theWorld)
             {
 
+                // draw stars
+                foreach (Star star in theWorld.GetStars())
+                {
+                    DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
+                }
+
                 // Draw the players
                 foreach (Ship player in theWorld.GetShips())
                 {
@@ -224,16 +217,13 @@ namespace SpaceWarsView
                     DrawObjectWithTransform(e, player, this.Size.Width, player.GetLocation().GetX(), player.GetLocation().GetY(), player.GetDirection().ToAngle(), ShipDrawer);
                 }
 
-                // Draw the powerups
+                // Draw the Projectiles
                 foreach (Projectile p in theWorld.GetProjs())
                 {
                     //System.Diagnostics.Debug.WriteLine("drawing powerup at " + p.GetLocation());
                     DrawObjectWithTransform(e, p, this.Size.Width, p.GetLocation().GetX(), p.GetLocation().GetY(), 0, ProjectileDrawer);
                 }
-                foreach (Star star in theWorld.GetStars())
-                {
-                    DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
-                }
+                
             }
             // Do anything that Panel (from which we inherit) needs to do
             base.OnPaint(e);

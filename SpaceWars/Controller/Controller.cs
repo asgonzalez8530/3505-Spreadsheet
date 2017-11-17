@@ -35,7 +35,7 @@ namespace SpaceWarsControl
 
             window.enterConnectEvent += GetConnected;
 
-            theWorld = new World();
+            theWorld = window.GetWorldPanelWorld();
 
 
         }
@@ -118,9 +118,7 @@ namespace SpaceWarsControl
                 // parse the id and worldsize and set them in our client
                 GetWorldSizeAndID(IDAndWorldSize, out int ID, out int worldSize);
                 //SetPlayerID(ID);
-                //SetWorldSize(worldSize);
-
-                // TODO: set the world size and create a drawingpane with theWorld
+                SetWorldSize(worldSize);
 
             }
 
@@ -152,7 +150,12 @@ namespace SpaceWarsControl
         //TODO: implement when we have gui
         private void SetWorldSize(int worldSize)
         {
-            throw new NotImplementedException();
+            // set the size of the world
+            theWorld.SetSize(worldSize);
+
+            // updates the size of the worldPanel
+            window.UpdateWorldSize(worldSize);
+
         }
 
 
@@ -195,8 +198,7 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
-            //try
-            //{
+            
                 IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
                 // Loop until we have processed all messages.
@@ -205,15 +207,8 @@ namespace SpaceWarsControl
                 foreach (string message in messages)
                 {
 
-                    // TODO: remove print statment, done for testing connection.
-                    System.Console.Write(message);
 
-                    //if (message.Length == 0)
-                    //{
-                    //    continue;
-                    //}
-                    //else
-                    //{
+                    
                     JObject obj = JObject.Parse(message);
                     JToken ship = obj["ship"];
                     JToken proj = obj["proj"];
@@ -242,23 +237,7 @@ namespace SpaceWarsControl
                         theWorld.AddStar(theStar);
                         theWorld.AddShip(theShip);
                         theWorld.AddProjectile(theProj);
-
-                        // TODO: Figure this out
-                        //this.Invoke(new MethodInvoker(() => this.Invalidate(true)));
                     }
-                    // TODO: this.Invoke is a reference in the windows.forms dll ie our view
-                    // we will need to implement a method for doing this in through our interface
-
-                    // this is the json stuff 
-
-                    // Display the message
-                    // "messages" is the big message text box in the form.
-                    // We must use a MethodInvoker, because only the thread that created the GUI can modify it.
-                    // This method will be invoked by another thread from the Networking callbacks.
-                    // this.Invoke(new MethodInvoker(
-                    //  () => messages.AppendText(p)));
-
-
 
                     // Then remove the processed message from the SocketState's growable buffer
                     state.GetStringBuilder().Remove(0, message.Length);

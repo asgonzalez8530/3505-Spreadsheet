@@ -36,31 +36,31 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\ship-coast-black.png" />
     <Content Include="Images\ship-coast-blue.png" />
     <Content Include="Images\ship-coast-brown.png" />
     <Content Include="Images\ship-coast-green.png" />
     <Content Include="Images\ship-coast-grey.png" />
     <Content Include="Images\ship-coast-red.png" />
     <Content Include="Images\ship-coast-violet.png" />
-    <Content Include="Images\ship-coast-white.png" />
     <Content Include="Images\ship-coast-yellow.png" />
+    <Content Include="Images\ship-thrust-black.png" />
     <Content Include="Images\ship-thrust-blue.png" />
     <Content Include="Images\ship-thrust-brown.png" />
     <Content Include="Images\ship-thrust-green.png" />
     <Content Include="Images\ship-thrust-grey.png" />
     <Content Include="Images\ship-thrust-red.png" />
     <Content Include="Images\ship-thrust-violet.png" />
-    <Content Include="Images\ship-thrust-white.png" />
     <Content Include="Images\ship-thrust-yellow.png" />
+    <Content Include="Images\shot-black.png" />
     <Content Include="Images\shot-blue.png" />
     <Content Include="Images\shot-brown.png" />
     <Content Include="Images\shot-green.png" />
     <Content Include="Images\shot-grey.png" />
     <Content Include="Images\shot-red.png" />
     <Content Include="Images\shot-violet.png" />
-    <Content Include="Images\shot-white.png" />
     <Content Include="Images\shot-yellow.png" />
-    <Content Include="Images\star.jpg" />
+    <Content Include="Images\star.png" />
     <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>

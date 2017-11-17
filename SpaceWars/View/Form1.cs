@@ -7,26 +7,44 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace SpaceWarsView
 {
     public partial class SpaceWarsForm : Form, ISpaceWarsWindow
     {
-        World theWorld;
         WorldPanel worldPanel;
 
         public SpaceWarsForm()
         {
             InitializeComponent();
-            theWorld = new World();
-
-            worldPanel = new WorldPanel(theWorld);
+            
+            worldPanel = new WorldPanel();
             worldPanel.Location = new Point(0, 0);
             worldPanel.Size = new Size(1145, 1145);
             worldPanel.BackColor = Color.Black;
             worldPanel.Visible = true;
             this.Controls.Add(worldPanel);
+
+            // Start a new timer that will redraw the game every 15 milliseconds 
+            // This should correspond to about 67 frames per second.
+            System.Timers.Timer frameTimer = new System.Timers.Timer();
+            frameTimer.Interval = 15;
+            frameTimer.Elapsed += Redraw;
+            frameTimer.Start();
+        }
+
+        // Redraw the game. This method is invoked every time the "frameTimer"
+        // above ticks.
+        private void Redraw(object sender, ElapsedEventArgs e)
+        {
+            // Invalidate this form and all its children (true)
+            // This will cause the form to redraw as soon as it can
+            //this.Invalidate(true);
+
+            MethodInvoker newInvoker = () => this.Invalidate(true);
+            this.Invoke(newInvoker);
         }
 
         public event Action enterConnectEvent;
@@ -112,5 +130,16 @@ namespace SpaceWarsView
             connectButton.Enabled = false;
         }
 
+        public World GetWorldPanelWorld()
+        {
+            return worldPanel.GetWorld();
+        }
+
+        public void UpdateWorldSize(int worldSize)
+        {
+            MethodInvoker newInvoker = () => worldPanel.Size = new Size(worldSize, worldSize);
+            this.Invoke(newInvoker);
+            
+        }
     }// end of class
 }

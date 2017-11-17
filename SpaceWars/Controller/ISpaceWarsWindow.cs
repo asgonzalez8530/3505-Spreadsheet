@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpaceWars;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -55,6 +56,8 @@ namespace SpaceWarsView
         /// </summary>
         void DisplayMessageBox(string s);
 
+        World GetWorldPanelWorld();
 
+        void UpdateWorldSize(int worldSize);
     }
 }
