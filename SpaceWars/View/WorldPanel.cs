@@ -85,38 +85,40 @@ namespace SpaceWarsView
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
             //TODO: may need to do the ship rotation here
 
-            string imageString = "";
+            string pathString = @"../../../Resources/Images/";
+            string imageString = "ship-";
+            imageString += s.HasThrust() ? "thrust-" : "coast-";
 
             switch (s.GetID() % 8)
             {
 
                 case 0:
-                    imageString = "";
+                    imageString += "blue.png";
                     break;
                 case 1:
-                    imageString = "";
+                    imageString += "brown.png";
                     break;
                 case 2:
-                    imageString = "";
+                    imageString += "green.png";
                     break;
                 case 3:
-                    imageString = "";
+                    imageString += "grey.png";
                     break;
                 case 4:
-                    imageString = "";
+                    imageString += "red.png";
                     break;
                 case 5:
-                    imageString = "";
+                    imageString += "purple.png";
                     break;
                 case 6:
-                    imageString = "";
+                    imageString += "white.png";
                     break;
                 case 7:
-                    imageString = "";
+                    imageString += "yellow.png";
                     break;
             }
-            
-            Image image = Image.FromFile(imageString);
+
+            Image image = Image.FromFile(pathString + imageString);
             e.Graphics.DrawImage(image, r);
         }
 
@@ -142,38 +144,39 @@ namespace SpaceWarsView
             // by half its size to the left (-width/2) and up (-height/2)
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-            string imageString = "";
+            string pathString = @"../../../Resources/Images/";
+            string imageString = "shot-";
 
             switch (p.GetOwner() % 8)
             {
 
                 case 0:
-                    imageString = "";
+                    imageString += "blue.png";
                     break;
                 case 1:
-                    imageString = "";
+                    imageString += "brown.png";
                     break;
                 case 2:
-                    imageString = "";
+                    imageString += "green.png";
                     break;
                 case 3:
-                    imageString = "";
+                    imageString += "grey.png";
                     break;
                 case 4:
-                    imageString = "";
+                    imageString += "red.png";
                     break;
                 case 5:
-                    imageString = "";
+                    imageString += "purple.png";
                     break;
                 case 6:
-                    imageString = "";
+                    imageString += "white.png";
                     break;
                 case 7:
-                    imageString = "";
+                    imageString += "yellow.png";
                     break;
             }
 
-            Image image = Image.FromFile(imageString);
+            Image image = Image.FromFile(pathString + imageString);
             e.Graphics.DrawImage(image, r);
         }
 
@@ -200,38 +203,10 @@ namespace SpaceWarsView
             // TODO: multiply by the mass of the star
             Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
 
-            string imageString = "";
+            string pathString = @"../../../Resources/Images/";
+            string imageString = "star.jpg";
 
-            switch (s.GetID() % 8)
-            {
-
-                case 0:
-                    imageString = "";
-                    break;
-                case 1:
-                    imageString = "";
-                    break;
-                case 2:
-                    imageString = "";
-                    break;
-                case 3:
-                    imageString = "";
-                    break;
-                case 4:
-                    imageString = "";
-                    break;
-                case 5:
-                    imageString = "";
-                    break;
-                case 6:
-                    imageString = "";
-                    break;
-                case 7:
-                    imageString = "";
-                    break;
-            }
-
-            Image image = Image.FromFile(imageString);
+            Image image = Image.FromFile(pathString + imageString);
             e.Graphics.DrawImage(image, r);
         }
         
