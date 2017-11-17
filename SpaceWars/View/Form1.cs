@@ -25,6 +25,7 @@ namespace SpaceWarsView
             worldPanel.Location = new Point(0, 0);
             worldPanel.Size = new Size(1145, 1145);
             worldPanel.BackColor = Color.Black;
+            worldPanel.Visible = true;
             this.Controls.Add(worldPanel);
         }
 

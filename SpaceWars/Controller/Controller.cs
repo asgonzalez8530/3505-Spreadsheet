@@ -28,7 +28,7 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
-            window.enterConnectEvent += GetConnected();
+            //window.enterConnectEvent += GetConnected();
             
 
         }
