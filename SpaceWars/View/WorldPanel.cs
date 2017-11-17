@@ -118,8 +118,8 @@ namespace SpaceWarsView
         {
             Ship s = o as Ship;
 
-            int width = 30;
-            int height = 30;
+            int width = 100;
+            int height = 65;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -153,8 +153,8 @@ namespace SpaceWarsView
         {
             Projectile p = o as Projectile;
 
-            int width = 30;
-            int height = 30;
+            int width = 50;
+            int height = 50;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -181,8 +181,8 @@ namespace SpaceWarsView
         {
             Star s = o as Star;
 
-            int width = 50;
-            int height = 50;
+            int width = 132;
+            int height = 103;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;

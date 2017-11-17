@@ -23,7 +23,7 @@ namespace SpaceWarsView
             worldPanel = new WorldPanel();
             worldPanel.Location = new Point(0, 0);
             worldPanel.Size = new Size(1145, 1145);
-            worldPanel.BackColor = Color.Black;
+            worldPanel.BackColor = Color.White;
             worldPanel.Visible = true;
             this.Controls.Add(worldPanel);
 
