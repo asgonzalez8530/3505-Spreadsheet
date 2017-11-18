@@ -159,5 +159,10 @@ namespace SpaceWars
         {
             return height;
         }
+
+        public bool IsAlive()
+        {
+            return (hp > 0);
+        }
     }
 }

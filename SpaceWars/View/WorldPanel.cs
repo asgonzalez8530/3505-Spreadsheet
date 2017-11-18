@@ -209,10 +209,12 @@ namespace SpaceWarsView
                 foreach (Star star in theWorld.GetStars())
                 {
                     DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
+
+                    //draw the ships
                     foreach (Ship ship in theWorld.GetShips())
                     {
                         // this is the loop that we need to fix to get the ship to disappear
-                        if (IsTouching(ship, star))
+                        if (ship.IsAlive())
                         {
                             DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
                         }
@@ -239,22 +241,22 @@ namespace SpaceWarsView
         }
 
         /// <summary>
-        /// 
+        /// checks to see if the ship and star overlapping
         /// </summary>
-        /// <param name="ship"></param>
-        /// <param name="star"></param>
+        /// <param name="ship">  </param>
+        /// <param name="star">  </param>
         /// <returns></returns>
-        private bool IsTouching(Ship ship, Star star)
-        {
-            if (ship.GetLocation().GetX() + ship.GetWidth() < star.GetLocation().GetX())
-                return true;
-            if (star.GetLocation().GetX() + star.GetWidth() < ship.GetLocation().GetX())
-                return true;
-            if (ship.GetLocation().GetY() + ship.GetHeight() < star.GetLocation().GetY())
-                return true;
-            if (star.GetLocation().GetY() + star.GetHeight() < ship.GetLocation().GetY())
-                return true;
-            return false;
-        }
+        //private bool IsTouching(Ship ship, Star star)
+        //{
+        //    if (ship.GetLocation().GetX() + ship.GetWidth() /2 < star.GetLocation().GetX())
+        //        return true;
+        //    if (star.GetLocation().GetX() + star.GetWidth() /2 < ship.GetLocation().GetX())
+        //        return true;
+        //    if (ship.GetLocation().GetY() - 15 + ship.GetHeight() /2 < star.GetLocation().GetY() - 15)
+        //        return true;
+        //    if (star.GetLocation().GetY() - 15 + star.GetHeight() /2 < ship.GetLocation().GetY() - 15)
+        //        return true;
+        //    return false;
+        //}
     }
 }
