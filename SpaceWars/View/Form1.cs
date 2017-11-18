@@ -14,7 +14,8 @@ namespace SpaceWarsView
 {
     public partial class SpaceWarsForm : Form, ISpaceWarsWindow
     {
-        WorldPanel worldPanel;
+        private WorldPanel worldPanel;
+        private System.Timers.Timer frameTimer;
 
         public SpaceWarsForm()
         {
@@ -29,7 +30,7 @@ namespace SpaceWarsView
 
             // Start a new timer that will redraw the game every 15 milliseconds 
             // This should correspond to about 67 frames per second.
-            System.Timers.Timer frameTimer = new System.Timers.Timer();
+            frameTimer = new System.Timers.Timer();
             frameTimer.Interval = 15;
             frameTimer.Elapsed += Redraw;
             frameTimer.Start();
@@ -45,9 +46,14 @@ namespace SpaceWarsView
 
             MethodInvoker newInvoker = () => this.Invalidate(true);
             this.Invoke(newInvoker);
+
+
         }
 
         public event Action enterConnectEvent;
+        public event Action<KeyEventArgs> ControlKeyDownEvent;
+        public event Action<KeyEventArgs> ControlKeyUpEvent;
+        public event Action RedrawEvent;
 
         /// <summary>
         /// Returns the string passed in to the server text box
@@ -139,7 +145,25 @@ namespace SpaceWarsView
         {
             MethodInvoker newInvoker = () => worldPanel.Size = new Size(worldSize, worldSize);
             this.Invoke(newInvoker);
-            
+
         }
+
+        private void SpaceWarsForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            // fire keypress event
+            ControlKeyDownEvent(e);
+        }
+
+        private void SpaceWarsForm_KeyUp(object sender, KeyEventArgs e)
+        {
+            ControlKeyUpEvent(e);
+        }
+
+        public System.Timers.Timer GetFrameTimer()
+        {
+            return frameTimer;
+        }
+
+        
     }// end of class
 }
