@@ -15,28 +15,29 @@ namespace SpaceWars
     public class Ship
     {
         [JsonProperty(PropertyName = "ship")]
-        private int ID;
+        private int ID; // unique ID for the ship
 
         [JsonProperty]
-        private Vector2D loc;
+        private Vector2D loc; // current location of the ship in the world
 
         [JsonProperty]
-        private Vector2D dir;
+        private Vector2D dir; // dirction that the ship is headed in the world
 
         [JsonProperty]
-        private bool thrust;
+        private bool thrust; // True if thrusts on the ship are on 
 
         [JsonProperty]
-        private string name;
+        private string name; // name of the user 
 
         [JsonProperty]
-        private int hp;
+        private int hp; // health points for the ship
 
         [JsonProperty]
-        private int score;
+        private int score; // amount of ship's the current ship had shot down
 
-        private int width = 100;
-        private int height = 65;
+        private int width = 100; // image width in pixels
+
+        private int height = 65; // image height in pixels
 
         /// <summary>
         /// Get the ship's ID
@@ -150,16 +151,25 @@ namespace SpaceWars
             this.score = score;
         }
 
+        /// <summary>
+        /// Gets the images width in pixels
+        /// </summary>
         public int GetWidth()
         {
             return width;
         }
 
+        /// <summary>
+        /// Gets the image height in pixels
+        /// </summary>
         public int GetHeight()
         {
             return height;
         }
 
+        /// <summary>
+        /// Returns true if the ship's health points are above 0. Otherwise, returns false.
+        /// </summary>
         public bool IsAlive()
         {
             return (hp > 0);

@@ -15,22 +15,23 @@ namespace SpaceWars
     public class Projectile
     {
         [JsonProperty(PropertyName = "proj")]
-        private int ID;
+        private int ID; // unique ID for the projectile
 
         [JsonProperty]
-        private Vector2D loc;
+        private Vector2D loc; // current location of the projectile
 
         [JsonProperty]
-        private Vector2D dir;
+        private Vector2D dir; // current direction that the projectile is headed in
 
         [JsonProperty]
-        private bool alive;
+        private bool alive; // true if the projectile is still in the world
 
         [JsonProperty]
-        private int owner;
+        private int owner; // ID for the ship that the projectile belongs to
 
-        private int width = 50;
-        private int height = 50;
+        private int width = 50; // image width in pixels
+
+        private int height = 50; // image height in pixels
 
         /// <summary>
         /// Get the projectile's ID
@@ -112,11 +113,17 @@ namespace SpaceWars
             this.owner = owner;
         }
 
+        /// <summary>
+        /// Gets the width of the image in pixels
+        /// </summary>
         public int GetWidth()
         {
             return width;
         }
 
+        /// <summary>
+        /// Gets the height of the image in pixels
+        /// </summary>
         public int GetHeight()
         {
             return height;

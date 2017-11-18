@@ -15,16 +15,17 @@ namespace SpaceWars
     public class Star
     {
         [JsonProperty(PropertyName = "star")]
-        private int ID;
+        private int ID; // unique ID for the star
 
         [JsonProperty]
-        private Vector2D loc;
+        private Vector2D loc; // current location of the star in the world
 
         [JsonProperty]
-        private double mass;
+        private double mass; // star's mass
 
-        private int width = 132;
-        private int height = 103;
+        private int width = 132; // image width in pixels
+
+        private int height = 103; // image height in pixels
 
         /// <summary>
         /// Gets the Star's ID
@@ -74,11 +75,18 @@ namespace SpaceWars
             this.mass = mass;
         }
 
+        /// <summary>
+        /// Gets the image width in pixels
+        /// </summary>
         public int GetWidth()
         {
             return width;
         }
 
+
+        /// <summary>
+        /// Gets the image height in pixels
+        /// </summary>
         public int GetHeight()
         {
             return height;

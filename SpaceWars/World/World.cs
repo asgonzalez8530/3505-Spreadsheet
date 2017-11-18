@@ -8,11 +8,11 @@ namespace SpaceWars
 {
     public class World
     {
-        private Dictionary<int, Ship> ships;
-        private Dictionary<int, Star> stars;
-        private Dictionary<int, Projectile> projectiles;
+        private Dictionary<int, Ship> ships; // keeps track of all the ships on the screen
+        private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
+        private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
-        private int size;
+        private int size; // size of the world
 
         public World()
         {
@@ -20,7 +20,6 @@ namespace SpaceWars
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
             size = 0;
-
         }
 
         /// <summary>
@@ -32,16 +31,36 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Sets the world size
+        /// Sets the worlds size
         /// </summary>
+        /// <param name="n"> the world's size </param>
         public void SetSize(int n)
         {
             size = n;
         }
 
+        /// <summary>
+        /// Gets a list of all the ships in the world
+        /// </summary>
         public IEnumerable<Ship> GetShips()
         {
             return ships.Values;
+        }
+
+        /// <summary>
+        /// Gets a list of all the stars in the world
+        /// </summary>
+        public IEnumerable<Star> GetStars()
+        {
+            return stars.Values;
+        }
+
+        /// <summary>
+        /// Gets a list of all the projectiles in the world
+        /// </summary>
+        public IEnumerable<Projectile> GetProjs()
+        {
+            return projectiles.Values;
         }
 
         /// <summary>
@@ -50,28 +69,27 @@ namespace SpaceWars
         /// </summary>
         public void AddShip(Ship s)
         {
+            // if the ship is null then do nothing
             if (s == null)
             {
                 return;
             }
-
-            if (s.GetHP() < 1)
+            
+            // if the ship is dead then remove it from the world
+            if (!s.IsAlive())
             {
-                projectiles.Remove(s.GetID());
+                ships.Remove(s.GetID());
             }
+            // if the ship is in the world then replace the old ship with the passed in ship
             else if (ships.ContainsKey(s.GetID()))
             {
                 ships[s.GetID()] = s;
             }
+            // if the ship is not in the world then add it
             else
             {
                 ships.Add(s.GetID(), s);
             }
-        }
-
-        public IEnumerable<Star> GetStars()
-        {
-            return stars.Values;
         }
 
         /// <summary>
@@ -80,24 +98,22 @@ namespace SpaceWars
         /// </summary>
         public void AddStar(Star s)
         {
+            // if the star is null then do nothing
             if (s == null)
             {
                 return;
             }
 
+            // if the star is in the world then replace the old star with the passed in star
             else if (stars.ContainsKey(s.GetID()))
             {
                 stars[s.GetID()] = s;
             }
+            // if the star is not in the world then add it to the world
             else
             {
                 stars.Add(s.GetID(), s);
             }
-        }
-
-        public IEnumerable<Projectile> GetProjs()
-        {
-            return projectiles.Values;
         }
 
         /// <summary>
@@ -106,19 +122,24 @@ namespace SpaceWars
         /// </summary>
         public void AddProjectile(Projectile p)
         {
+            // if the projectile is null then do nothing
             if (p == null)
             {
                 return;
             }
 
+            // if the projectile is dead then remove it fromt he world
             if (!p.IsAlive())
             {
                 projectiles.Remove(p.GetID());
             }
+            // if the projectile is in the world then replace the old projectile with the 
+            // passed in projectile
             else if (projectiles.ContainsKey(p.GetID()))
             {
                 projectiles[p.GetID()] = p;
             }
+            // if the projectile is not in the world then add it to the world
             else
             {
                 projectiles.Add(p.GetID(), p);
