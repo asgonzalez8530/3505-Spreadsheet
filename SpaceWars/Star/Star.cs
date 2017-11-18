@@ -23,9 +23,9 @@ namespace SpaceWars
         [JsonProperty]
         private double mass; // star's mass
 
-        private int width = 132; // image width in pixels
+        private int width = 100; // image width in pixels
 
-        private int height = 103; // image height in pixels
+        private int height = 70; // image height in pixels
 
         /// <summary>
         /// Gets the Star's ID

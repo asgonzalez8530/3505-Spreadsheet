@@ -29,9 +29,9 @@ namespace SpaceWars
         [JsonProperty]
         private int owner; // ID for the ship that the projectile belongs to
 
-        private int width = 50; // image width in pixels
+        private int width = 25; // image width in pixels
 
-        private int height = 50; // image height in pixels
+        private int height = 25; // image height in pixels
 
         /// <summary>
         /// Get the projectile's ID
