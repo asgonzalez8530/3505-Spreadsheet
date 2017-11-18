@@ -4,13 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SpaceWarsView
 {
     public interface ISpaceWarsWindow
     {
         event Action enterConnectEvent;
-        
+        event Action<KeyEventArgs> ControlKeyDownEvent;
+        event Action<KeyEventArgs> ControlKeyUpEvent;
+        event Action RedrawEvent;
+
         /// <summary>
         /// Gets the user defined user name
         /// </summary>
@@ -59,5 +63,8 @@ namespace SpaceWarsView
         World GetWorldPanelWorld();
 
         void UpdateWorldSize(int worldSize);
+
+        System.Timers.Timer GetFrameTimer();
+
     }
 }

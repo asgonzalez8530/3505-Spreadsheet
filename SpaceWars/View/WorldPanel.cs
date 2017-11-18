@@ -209,24 +209,14 @@ namespace SpaceWarsView
                 foreach (Star star in theWorld.GetStars())
                 {
                     DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
-
-                    //draw the ships
-                    foreach (Ship ship in theWorld.GetShips())
-                    {
-                        // this is the loop that we need to fix to get the ship to disappear
-                        if (ship.IsAlive())
-                        {
-                            DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
-                        }
-                    }
                 }
 
-                // Draw the players
-                //foreach (Ship ship in theWorld.GetShips())
-                //{
-                //    //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
-                //    DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
-                //}
+                // Draw the ships
+                foreach (Ship ship in theWorld.GetShips())
+                {
+                    //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
+                    DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
+                }
 
                 // Draw the Projectiles
                 foreach (Projectile p in theWorld.GetProjs())
@@ -240,23 +230,6 @@ namespace SpaceWarsView
             base.OnPaint(e);
         }
 
-        /// <summary>
-        /// checks to see if the ship and star overlapping
-        /// </summary>
-        /// <param name="ship">  </param>
-        /// <param name="star">  </param>
-        /// <returns></returns>
-        //private bool IsTouching(Ship ship, Star star)
-        //{
-        //    if (ship.GetLocation().GetX() + ship.GetWidth() /2 < star.GetLocation().GetX())
-        //        return true;
-        //    if (star.GetLocation().GetX() + star.GetWidth() /2 < ship.GetLocation().GetX())
-        //        return true;
-        //    if (ship.GetLocation().GetY() - 15 + ship.GetHeight() /2 < star.GetLocation().GetY() - 15)
-        //        return true;
-        //    if (star.GetLocation().GetY() - 15 + star.GetHeight() /2 < ship.GetLocation().GetY() - 15)
-        //        return true;
-        //    return false;
-        //}
+        
     }
 }

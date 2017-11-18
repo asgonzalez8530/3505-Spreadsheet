@@ -60,7 +60,7 @@
             this.tableLayoutPanel.Controls.Add(this.nameTextBox, 3, 0);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 1;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -70,7 +70,7 @@
             // connectButton
             // 
             this.connectButton.Location = new System.Drawing.Point(341, 2);
-            this.connectButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.connectButton.Margin = new System.Windows.Forms.Padding(2);
             this.connectButton.Name = "connectButton";
             this.connectButton.Size = new System.Drawing.Size(66, 19);
             this.connectButton.TabIndex = 1;
@@ -82,7 +82,7 @@
             // 
             this.serverTextBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.serverTextBox.Location = new System.Drawing.Point(50, 2);
-            this.serverTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.serverTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.serverTextBox.Name = "serverTextBox";
             this.serverTextBox.Size = new System.Drawing.Size(120, 20);
             this.serverTextBox.TabIndex = 3;
@@ -150,7 +150,7 @@
             // 
             this.nameTextBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.nameTextBox.Location = new System.Drawing.Point(218, 2);
-            this.nameTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.nameTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.nameTextBox.Name = "nameTextBox";
             this.nameTextBox.Size = new System.Drawing.Size(119, 20);
             this.nameTextBox.TabIndex = 4;
@@ -159,7 +159,7 @@
             // 
             this.scoreBoard.Dock = System.Windows.Forms.DockStyle.Right;
             this.scoreBoard.Location = new System.Drawing.Point(763, 23);
-            this.scoreBoard.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.scoreBoard.Margin = new System.Windows.Forms.Padding(2);
             this.scoreBoard.Name = "scoreBoard";
             this.scoreBoard.Size = new System.Drawing.Size(177, 663);
             this.scoreBoard.TabIndex = 1;
@@ -172,9 +172,11 @@
             this.Controls.Add(this.scoreBoard);
             this.Controls.Add(this.tableLayoutPanel);
             this.MainMenuStrip = this.menuStrip;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SpaceWarsForm";
             this.Text = "Save Christmas";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SpaceWarsForm_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.SpaceWarsForm_KeyUp);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.menuStrip.ResumeLayout(false);

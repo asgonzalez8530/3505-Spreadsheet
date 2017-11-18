@@ -217,13 +217,12 @@ namespace Communication
         }
 
         /// <summary>
-        /// Takes in a Socket, socket, and a String, data. Appends a new line character to data then sends it
-        /// on the socket.
+        /// Takes in a Socket socket, and a String, data and sends the data on that socket.
         /// </summary>
         public static void Send(Socket socket, String data)
         {            
             // Append a newline, since that is our protocol's terminating character for a message.
-            byte[] messageBytes = Encoding.UTF8.GetBytes(data + "\n");
+            byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             
             socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
         }

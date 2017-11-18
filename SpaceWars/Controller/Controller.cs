@@ -9,7 +9,8 @@ using System.Text.RegularExpressions;
 using SpaceWars;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-//using System.Windows.Forms;
+using System.Windows.Forms;
+using System.Net.Sockets;
 
 namespace SpaceWarsControl
 {
@@ -23,6 +24,7 @@ namespace SpaceWarsControl
         // the windows form controlled by this controller
         ISpaceWarsWindow window;
         World theWorld;
+        Controls theControls;
 
         /// <summary>
         /// Takes an object which implements the ISpaceWarsWindow interface, SpaceWarsWindow
@@ -30,14 +32,58 @@ namespace SpaceWarsControl
         /// </summary>
         public Controller(ISpaceWarsWindow SpaceWarsWindow)
         {
+            theControls = new Controls();
+
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
             window.enterConnectEvent += GetConnected;
+            window.ControlKeyDownEvent += ControlKeyDownHandler;
+            window.ControlKeyUpEvent += ControlKeyUpHandler;
 
             theWorld = window.GetWorldPanelWorld();
 
 
+        }
+
+        private void ControlKeyDownHandler(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                theControls.Fire = true;
+            }
+            if (e.KeyCode == Keys.Left)
+            {
+                theControls.Left = true;
+            }
+            if (e.KeyCode == Keys.Right)
+            {
+                theControls.Right = true;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                theControls.Thrust = true;
+            }
+        }
+
+        private void ControlKeyUpHandler(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                theControls.Fire = false;
+            }
+            if (e.KeyCode == Keys.Left)
+            {
+                theControls.Left = false;
+            }
+            if (e.KeyCode == Keys.Right)
+            {
+                theControls.Right = false;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                theControls.Thrust = false;
+            }
         }
 
         private void GetConnected()
@@ -120,12 +166,39 @@ namespace SpaceWarsControl
                 //SetPlayerID(ID);
                 SetWorldSize(worldSize);
 
+                // now that we have a connection, we can start sending controls
+                StartSendingControls(state.GetSocket());
+
             }
 
             // Start waiting for data
             Network.GetData(state);
 
         }
+
+        /// <summary>
+        /// Starts sending the active controls on the socket every time the frame
+        /// is redrawn
+        /// </summary>
+        private void StartSendingControls(Socket socket)
+        {
+
+            window.GetFrameTimer().Elapsed += (x, y) => SendControls(socket);
+
+        }
+
+        /// <summary>
+        /// Sends the active controls on the Socket, s.
+        /// </summary>
+        private void SendControls(Socket s)
+        {
+            if (theControls.HasActiveControls())
+            {
+                Network.Send(s, theControls.GetControls());
+            }
+        }
+
+
 
         /// <summary>
         /// Helper method for ReceiveStartup
@@ -243,8 +316,71 @@ namespace SpaceWarsControl
             Network.GetData(state);
         }
 
+        /// <summary>
+        /// Simple class that contains the state of controls for a SpaceWars game
+        /// </summary>
+        private class Controls
+        {
+            public bool Right { private get; set; }
+            public bool Left { private get; set; }
+            public bool Thrust { private get; set; }
+            public bool Fire { private get; set; }
+
+            public Controls()
+            {
+                Right = false;
+                Left = false;
+                Thrust = false;
+                Fire = false;
+            }
+
+            /// <summary>
+            /// Returns an '\n' terminated string of all controls which are
+            /// currently active enclosed in parentheses. For example, if all
+            /// controlls are active, would return the string "(RLTF)\n"
+            /// </summary>
+            public string GetControls()
+            {
+                string controls = "(";
+
+                if (Right)
+                {
+                    controls += "R";
+                }
+
+                if (Left)
+                {
+                    controls += "L";
+                }
+
+                if (Thrust)
+                {
+                    controls += "T";
+                }
+
+                if (Fire)
+                {
+                    controls += "F";
+                }
+
+                controls += ")\n";
+
+                return controls;
+            }
+
+            /// <summary>
+            /// Returns true if any controls are active, else returns false
+            /// </summary>
+            public bool HasActiveControls()
+            {
+                return (Right || Left || Thrust || Fire);
+            }
+        }
+
 
 
 
     }// end of Controller class
+
+
 }

@@ -57,7 +57,7 @@ namespace SpaceWars
 
             if (s.GetHP() < 1)
             {
-                projectiles.Remove(s.GetID());
+                ships.Remove(s.GetID());
             }
             else if (ships.ContainsKey(s.GetID()))
             {
