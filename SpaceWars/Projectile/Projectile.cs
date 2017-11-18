@@ -29,6 +29,8 @@ namespace SpaceWars
         [JsonProperty]
         private int owner;
 
+        private int width = 50;
+        private int height = 50;
 
         /// <summary>
         /// Get the projectile's ID
@@ -108,6 +110,16 @@ namespace SpaceWars
         public void SetOwner(int owner)
         {
             this.owner = owner;
+        }
+
+        public int GetWidth()
+        {
+            return width;
+        }
+
+        public int GetHeight()
+        {
+            return height;
         }
     }
 }

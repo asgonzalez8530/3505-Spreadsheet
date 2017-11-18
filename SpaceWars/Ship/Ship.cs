@@ -35,6 +35,8 @@ namespace SpaceWars
         [JsonProperty]
         private int score;
 
+        private int width = 100;
+        private int height = 65;
 
         /// <summary>
         /// Get the ship's ID
@@ -146,6 +148,16 @@ namespace SpaceWars
         public void SetScore(int score)
         {
             this.score = score;
+        }
+
+        public int GetWidth()
+        {
+            return width;
+        }
+
+        public int GetHeight()
+        {
+            return height;
         }
     }
 }

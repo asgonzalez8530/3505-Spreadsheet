@@ -124,9 +124,7 @@ namespace SpaceWarsView
         private void ShipDrawer(object o, PaintEventArgs e)
         {
             Ship s = o as Ship;
-
-            int width = 100;
-            int height = 65;
+            
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -134,7 +132,7 @@ namespace SpaceWarsView
             // Rectangles are drawn starting from the top-left corner.
             // So if we want the rectangle centered on the player's location, we have to offset it
             // by half its size to the left (-width/2) and up (-height/2)
-            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            Rectangle r = new Rectangle(-(s.GetWidth() / 2), -(s.GetHeight() / 2), s.GetWidth(), s.GetHeight());
             
             Image image;
             if (s.HasThrust())
@@ -159,9 +157,7 @@ namespace SpaceWarsView
         private void ProjectileDrawer(object o, PaintEventArgs e)
         {
             Projectile p = o as Projectile;
-
-            int width = 50;
-            int height = 50;
+            
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -169,7 +165,7 @@ namespace SpaceWarsView
             // Rectangles are drawn starting from the top-left corner.
             // So if we want the rectangle centered on the player's location, we have to offset it
             // by half its size to the left (-width/2) and up (-height/2)
-            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            Rectangle r = new Rectangle(-(p.GetWidth() / 2), -(p.GetHeight() / 2), p.GetWidth(), p.GetHeight());
 
             Image image = projectileImages[p.GetOwner() % projectileImages.Count];
 
@@ -188,8 +184,6 @@ namespace SpaceWarsView
         {
             Star s = o as Star;
 
-            int width = 132;
-            int height = 103;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -198,7 +192,7 @@ namespace SpaceWarsView
             // So if we want the rectangle centered on the player's location, we have to offset it
             // by half its size to the left (-width/2) and up (-height/2)
             // TODO: multiply by the mass of the star
-            Rectangle r = new Rectangle(-(width / 2), -(height / 2), width, height);
+            Rectangle r = new Rectangle(-(s.GetWidth() / 2), -(s.GetHeight() / 2), s.GetWidth(), s.GetHeight());
 
             Image image = starImages[s.GetID() % starImages.Count];
             e.Graphics.DrawImage(image, r);
@@ -215,14 +209,22 @@ namespace SpaceWarsView
                 foreach (Star star in theWorld.GetStars())
                 {
                     DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
+                    foreach (Ship ship in theWorld.GetShips())
+                    {
+                        // this is the loop that we need to fix to get the ship to disappear
+                        if (IsTouching(ship, star))
+                        {
+                            DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
+                        }
+                    }
                 }
 
                 // Draw the players
-                foreach (Ship player in theWorld.GetShips())
-                {
-                    //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
-                    DrawObjectWithTransform(e, player, this.Size.Width, player.GetLocation().GetX(), player.GetLocation().GetY(), player.GetDirection().ToAngle(), ShipDrawer);
-                }
+                //foreach (Ship ship in theWorld.GetShips())
+                //{
+                //    //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
+                //    DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
+                //}
 
                 // Draw the Projectiles
                 foreach (Projectile p in theWorld.GetProjs())
@@ -234,6 +236,25 @@ namespace SpaceWarsView
             }
             // Do anything that Panel (from which we inherit) needs to do
             base.OnPaint(e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ship"></param>
+        /// <param name="star"></param>
+        /// <returns></returns>
+        private bool IsTouching(Ship ship, Star star)
+        {
+            if (ship.GetLocation().GetX() + ship.GetWidth() < star.GetLocation().GetX())
+                return true;
+            if (star.GetLocation().GetX() + star.GetWidth() < ship.GetLocation().GetX())
+                return true;
+            if (ship.GetLocation().GetY() + ship.GetHeight() < star.GetLocation().GetY())
+                return true;
+            if (star.GetLocation().GetY() + star.GetHeight() < ship.GetLocation().GetY())
+                return true;
+            return false;
         }
     }
 }

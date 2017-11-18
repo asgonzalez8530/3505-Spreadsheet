@@ -23,6 +23,8 @@ namespace SpaceWars
         [JsonProperty]
         private double mass;
 
+        private int width = 132;
+        private int height = 103;
 
         /// <summary>
         /// Gets the Star's ID
@@ -70,6 +72,16 @@ namespace SpaceWars
         public void SetMass(double mass)
         {
             this.mass = mass;
+        }
+
+        public int GetWidth()
+        {
+            return width;
+        }
+
+        public int GetHeight()
+        {
+            return height;
         }
     }
 }

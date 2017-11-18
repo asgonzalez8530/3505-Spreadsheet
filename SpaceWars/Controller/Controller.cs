@@ -198,55 +198,46 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
-            
-                IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
+            IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
-                // Loop until we have processed all messages.
-                // We may have received more than one.
+            // Loop until we have processed all messages.
+            // We may have received more than one.
 
-                foreach (string message in messages)
+            foreach (string message in messages)
+            {
+                JObject obj = JObject.Parse(message);
+                JToken ship = obj["ship"];
+                JToken proj = obj["proj"];
+                JToken star = obj["star"];
+
+                Ship theShip = null;
+                Projectile theProj = null;
+                Star theStar = null;
+
+                if (ship != null)
                 {
-
-
-                    
-                    JObject obj = JObject.Parse(message);
-                    JToken ship = obj["ship"];
-                    JToken proj = obj["proj"];
-                    JToken star = obj["star"];
-
-                    Ship theShip = null;
-                    Projectile theProj = null;
-                    Star theStar = null;
-
-                    if (ship != null)
-                    {
-                        theShip = JsonConvert.DeserializeObject<Ship>(message);
-                    }
-                    if (proj != null)
-                    {
-                        theProj = JsonConvert.DeserializeObject<Projectile>(message);
-                    }
-                    if (star != null)
-                    {
-                        theStar = JsonConvert.DeserializeObject<Star>(message);
-                    }
-                    //}
-
-                    lock (theWorld)
-                    {
-                        theWorld.AddStar(theStar);
-                        theWorld.AddShip(theShip);
-                        theWorld.AddProjectile(theProj);
-                    }
-
-                    // Then remove the processed message from the SocketState's growable buffer
-                    state.GetStringBuilder().Remove(0, message.Length);
+                    theShip = JsonConvert.DeserializeObject<Ship>(message);
                 }
-            //}
-            //catch (Exception)
-            //{
+                if (proj != null)
+                {
+                    theProj = JsonConvert.DeserializeObject<Projectile>(message);
+                }
+                if (star != null)
+                {
+                    theStar = JsonConvert.DeserializeObject<Star>(message);
+                }
+                //}
 
-            //}
+                lock (theWorld)
+                {
+                    theWorld.AddStar(theStar);
+                    theWorld.AddShip(theShip);
+                    theWorld.AddProjectile(theProj);
+                }
+
+                // Then remove the processed message from the SocketState's growable buffer
+                state.GetStringBuilder().Remove(0, message.Length);
+            }
 
             // Now ask for more data. This will start an event loop.
             Network.GetData(state);
