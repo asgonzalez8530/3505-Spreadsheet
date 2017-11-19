@@ -109,6 +109,7 @@ namespace SpaceWarsView
             return Color.White;
         }
 
+
         public void SetWorld(World w)
         {
             theWorld = w;
