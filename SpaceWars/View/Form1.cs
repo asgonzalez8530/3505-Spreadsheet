@@ -143,9 +143,26 @@ namespace SpaceWarsView
 
         public void UpdateWorldSize(int worldSize)
         {
-            MethodInvoker newInvoker = () => worldPanel.Size = new Size(worldSize, worldSize);
+            MethodInvoker newInvoker = () => resizeWindow(worldSize);
             this.Invoke(newInvoker);
 
+        }
+
+        /// <summary>
+        /// resizes the window size based of the worldSize
+        /// </summary>
+        /// <param name="worldSize"></param>
+        private void resizeWindow(int worldSize)
+        {
+            // update worldPanel size
+            worldPanel.Size = new Size(worldSize, worldSize);
+            // set the width of the control panel
+            tableLayoutPanel.Width = scoreBoard.Width + worldSize;
+            // set the height of the scoreboard
+            scoreBoard.Height = tableLayoutPanel.Height + worldSize;
+            // set this window height and width
+            Width = worldSize + scoreBoard.Width;
+            Height = worldSize + tableLayoutPanel.Height;
         }
 
         private void SpaceWarsForm_KeyDown(object sender, KeyEventArgs e)
