@@ -39,24 +39,33 @@ namespace SpaceWarsView
             // TODO: fix these to be able to be resized. 
             // y stays the same
             // x = worldSize + a constant number;
-            int x = -700;
-            int y = 650;
-            int width = 30;
-            int height = 10;
+            int x = 10;
+            int y = 10;
+            int xPadding = 30;
+            int yPadding = 30;
+            int width = this.Width - xPadding * 2;
+            int height = 20;
+            
+            
+
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
-            //foreach (Ship s in theWorld.GetShips())
-            //{
+            using (SolidBrush brush = new SolidBrush(HealthBarColor(s)))
+            using (SolidBrush blackBrush = new SolidBrush(Color.Black))
+            using (Font font = new Font(new FontFamily("Verdana"), 16))
+            {
+                e.Graphics.DrawString(s.GetName() + ": " + s.GetScore(), font, blackBrush, x, y);
                 // This is the outside rectangle
-                Rectangle outsideRec = new Rectangle(x, y, width * 5, height);
+                Rectangle outsideRec = new Rectangle(x, y + yPadding, width * 5, height);
                 e.Graphics.DrawRectangle(new Pen(HealthBarColor(s)), outsideRec);
 
                 // This is the inside rectangle
-                Rectangle insideRec = new Rectangle(x, y, width * s.GetID(), height);
-                e.Graphics.FillRectangle(new SolidBrush(HealthBarColor(s)), insideRec);
-            //}
+                
+                Rectangle insideRec = new Rectangle(x, y + yPadding, width * s.GetID(), height);
+                e.Graphics.FillRectangle(brush, insideRec);
+            }
         }
 
         // This method is invoked when the DrawingPanel needs to be re-drawn
@@ -97,7 +106,12 @@ namespace SpaceWarsView
                 case 7:
                     return Color.Yellow;
             }
-            return Color.Pink;
+            return Color.White;
+        }
+
+        public void SetWorld(World w)
+        {
+            theWorld = w;
         }
     }
 }

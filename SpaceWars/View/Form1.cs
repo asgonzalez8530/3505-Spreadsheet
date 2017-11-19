@@ -35,6 +35,7 @@ namespace SpaceWarsView
             scorePanel.Location = new Point(763, 24);
             scorePanel.Size = new Size(177, 662);
             scorePanel.Visible = true;
+            scorePanel.SetWorld(worldPanel.GetWorld());
             this.Controls.Add(scorePanel);
 
             // Start a new timer that will redraw the game every 15 milliseconds 
@@ -165,11 +166,12 @@ namespace SpaceWarsView
         {
             // update worldPanel size
             worldPanel.Size = new Size(worldSize, worldSize);
-            // set the width of the control panel
             // set the height of the scoreboard
             scorePanel.Height = tableLayoutPanel.Height + worldSize;
+            // TODO: remove write lines
+            Console.Out.WriteLine("previous location: " + scorePanel.Location.ToString());
             scorePanel.Location = new Point(worldSize, tableLayoutPanel.Height);
-
+            Console.Out.WriteLine("new location: " + scorePanel.Location.ToString());
             // set this window height and width
             Width = worldSize + scorePanel.Width;
             Height = worldSize + tableLayoutPanel.Height;
