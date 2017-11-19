@@ -20,13 +20,21 @@ namespace SpaceWarsView
         public SpaceWarsForm()
         {
             InitializeComponent();
-            
+
+            // Create a WorldPanel and add it to this form
             worldPanel = new WorldPanel();
             worldPanel.Location = new Point(0, 24);
             worldPanel.Size = new Size(1145, 1145);
             worldPanel.BackColor = Color.White;
             worldPanel.Visible = true;
             this.Controls.Add(worldPanel);
+
+            // Create a ScoreBoardPanel and add it to this form
+            ScoreBoardPanel scorePanel = new ScoreBoardPanel();
+            scorePanel.Location = new Point(763, 24);
+            scorePanel.Size = new Size(177, 662);
+            scorePanel.Visible = true;
+            this.Controls.Add(scorePanel);
 
             // Start a new timer that will redraw the game every 15 milliseconds 
             // This should correspond to about 67 frames per second.
