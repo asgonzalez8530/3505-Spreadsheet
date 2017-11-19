@@ -10,7 +10,7 @@ namespace SpaceWarsView
 {
     public interface ISpaceWarsWindow
     {
-
+        // event listeners
         event Action enterConnectEvent;
         event Action<KeyEventArgs> ControlKeyDownEvent;
         event Action<KeyEventArgs> ControlKeyUpEvent;
@@ -62,10 +62,19 @@ namespace SpaceWarsView
         /// </summary>
         void DisplayMessageBox(string s);
 
+        /// <summary>
+        /// Gets the world object used in the world panel
+        /// </summary>
         World GetWorldPanelWorld();
 
+        /// <summary>
+        /// Updates the size of the world
+        /// </summary>
         void UpdateWorldSize(int worldSize);
 
+        /// <summary>
+        /// Gets the current frame timer
+        /// </summary>
         System.Timers.Timer GetFrameTimer();
 
     }

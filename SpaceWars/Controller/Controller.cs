@@ -37,6 +37,7 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
+            // event listeners
             window.enterConnectEvent += GetConnected;
             window.ControlKeyDownEvent += ControlKeyDownHandler;
             window.ControlKeyUpEvent += ControlKeyUpHandler;
@@ -44,25 +45,29 @@ namespace SpaceWarsControl
             window.AboutMenuClick += AboutClick;
 
             theWorld = window.GetWorldPanelWorld();
-
-
         }
 
+        /// <summary>
+        /// Displays the message box that shows when the about menu is clicked
+        /// </summary>
         private void AboutClick()
         {
-            string AboutMessage = "Assignment and sample solution developed by Daniel Kopta\n";
-            AboutMessage += "CS 3500 Fall 2017, University of Utah\n";
-            AboutMessage += "Client Implementation by Anastasia Gonzalez and Aaron Bellis\n";
-            AboutMessage += "Ship and projectile sprite artwork by Anastasia Gonzalez\n";
+            string AboutMessage =   "Assignment and sample solution developed by Daniel Kopta\n";
+            AboutMessage +=         "CS 3500 Fall 2017, University of Utah\n";
+            AboutMessage +=         "Client Implementation by Anastasia Gonzalez and Aaron Bellis\n";
+            AboutMessage +=         "Ship and projectile sprite artwork by Anastasia Gonzalez\n";
             window.DisplayMessageBox(AboutMessage);
         }
 
+        /// <summary>
+        /// Displays the message box that shows when the control menu is clicked
+        /// </summary>
         private void ControlClick()
         {
             string controlMessage = "UP: Fire Thrusters\n";
-            controlMessage += "Left: Rotate Left\n";
-            controlMessage += "Right: Rotate Right\n";
-            controlMessage += "SPACE: Fire";
+            controlMessage +=       "Left: Rotate Left\n";
+            controlMessage +=       "Right: Rotate Right\n";
+            controlMessage +=       "SPACE: Fire";
             window.DisplayMessageBox(controlMessage);
         }
 
@@ -71,6 +76,7 @@ namespace SpaceWarsControl
             if (e.KeyCode == Keys.Space)
             {
                 theControls.Fire = true;
+
                 // following two lines fixes the windows sound from
                 // firing when space is pressed
                 e.Handled = true;

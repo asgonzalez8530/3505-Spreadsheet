@@ -18,6 +18,7 @@ namespace SpaceWars
         public World()
         {
             ships = new Dictionary<int, Ship>();
+            allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
             size = 0;
@@ -72,11 +73,19 @@ namespace SpaceWars
             return projectiles.Values;
         }
 
-        private void AddToAllShips(Ship s)
+        private void AddAllShips(Ship s)
         {
-            allShips.Add(s.GetID(), s);
+            if (ships.ContainsKey(s.GetID()))
+            {
+                allShips[s.GetID()] = s;
+            }
+            // if the ship is not in the world then add it
+            else
+            {
+                allShips.Add(s.GetID(), s);
+            }
         }
-
+        
         /// <summary>
         /// If Ship s does not exist in ships adds it. If the id already exists
         /// in ships, updates reference in ships to s.
@@ -98,13 +107,13 @@ namespace SpaceWars
             else if (ships.ContainsKey(s.GetID()))
             {
                 ships[s.GetID()] = s;
-                AddToAllShips(s);
+                allShips[s.GetID()] = s;
             }
             // if the ship is not in the world then add it
             else
             {
                 ships.Add(s.GetID(), s);
-                AddToAllShips(s);
+                AddAllShips(s);
             }
         }
 
