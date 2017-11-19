@@ -10,10 +10,12 @@ namespace SpaceWarsView
 {
     public interface ISpaceWarsWindow
     {
+
         event Action enterConnectEvent;
         event Action<KeyEventArgs> ControlKeyDownEvent;
         event Action<KeyEventArgs> ControlKeyUpEvent;
-        event Action RedrawEvent;
+        event Action ControlMenuClick;
+        event Action AboutMenuClick;
 
         /// <summary>
         /// Gets the user defined user name

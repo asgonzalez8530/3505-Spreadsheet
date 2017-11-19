@@ -53,7 +53,8 @@ namespace SpaceWarsView
         public event Action enterConnectEvent;
         public event Action<KeyEventArgs> ControlKeyDownEvent;
         public event Action<KeyEventArgs> ControlKeyUpEvent;
-        public event Action RedrawEvent;
+        public event Action ControlMenuClick;
+        public event Action AboutMenuClick;
 
         /// <summary>
         /// Returns the string passed in to the server text box
@@ -164,6 +165,14 @@ namespace SpaceWarsView
             return frameTimer;
         }
 
-        
+        private void controls_Click(object sender, EventArgs e)
+        {
+            ControlMenuClick();
+        }
+
+        private void about_Click(object sender, EventArgs e)
+        {
+            AboutMenuClick();
+        }
     }// end of class
 }

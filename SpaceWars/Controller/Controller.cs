@@ -40,10 +40,30 @@ namespace SpaceWarsControl
             window.enterConnectEvent += GetConnected;
             window.ControlKeyDownEvent += ControlKeyDownHandler;
             window.ControlKeyUpEvent += ControlKeyUpHandler;
+            window.ControlMenuClick += ControlClick;
+            window.AboutMenuClick += AboutClick;
 
             theWorld = window.GetWorldPanelWorld();
 
 
+        }
+
+        private void AboutClick()
+        {
+            string AboutMessage = "Assignment and sample solution developed by Daniel Kopta\n";
+            AboutMessage += "CS 3500 Fall 2017, University of Utah\n";
+            AboutMessage += "Client Implementation by Anastasia Gonzalez and Aaron Bellis\n";
+            AboutMessage += "Ship and projectile sprite artwork by Anastasia Gonzalez\n";
+            window.DisplayMessageBox(AboutMessage);
+        }
+
+        private void ControlClick()
+        {
+            string controlMessage = "UP: Fire Thrusters\n";
+            controlMessage += "Left: Rotate Left\n";
+            controlMessage += "Right: Rotate Right\n";
+            controlMessage += "SPACE: Fire";
+            window.DisplayMessageBox(controlMessage);
         }
 
         private void ControlKeyDownHandler(KeyEventArgs e)
