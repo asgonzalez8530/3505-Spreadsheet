@@ -34,6 +34,8 @@ namespace View
         /// <param name="e">The PaintEventArgs to access the graphics</param>
         private void HealthBarDrawer(object o, PaintEventArgs e)
         {
+            Ship s = o as Ship;
+
             // TODO: fix these to be able to be resized. 
             // y stays the same
             // x = worldSize + a constant number;
@@ -45,8 +47,8 @@ namespace View
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
-            foreach (Ship s in theWorld.GetShips())
-            {
+            //foreach (Ship s in theWorld.GetShips())
+            //{
                 // This is the outside rectangle
                 Rectangle outsideRec = new Rectangle(x, y, width * 5, height);
                 e.Graphics.DrawRectangle(new Pen(HealthBarColor(s)), outsideRec);
@@ -54,7 +56,7 @@ namespace View
                 // This is the inside rectangle
                 Rectangle insideRec = new Rectangle(x, y, width * s.GetID(), height);
                 e.Graphics.FillRectangle(new SolidBrush(HealthBarColor(s)), insideRec);
-            }
+            //}
         }
 
         // This method is invoked when the DrawingPanel needs to be re-drawn
@@ -67,9 +69,8 @@ namespace View
                 {
                     //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
                     //DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), HealthBarDrawer);
-                    HealthBarDrawer(new object(), pe);
+                    HealthBarDrawer(ship, pe);
                 }
-
             }
             // Do anything that Panel (from which we inherit) needs to do
             base.OnPaint(pe);
