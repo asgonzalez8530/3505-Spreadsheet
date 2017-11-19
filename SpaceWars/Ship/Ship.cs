@@ -35,9 +35,9 @@ namespace SpaceWars
         [JsonProperty]
         private int score; // amount of ship's the current ship had shot down
 
-        private int width = 100; // image width in pixels
+        private int width = 65; // image width in pixels
 
-        private int height = 65; // image height in pixels
+        private int height = 100; // image height in pixels
 
         /// <summary>
         /// Get the ship's ID
