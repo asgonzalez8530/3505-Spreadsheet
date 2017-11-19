@@ -15,6 +15,7 @@ namespace SpaceWarsView
     public partial class SpaceWarsForm : Form, ISpaceWarsWindow
     {
         private WorldPanel worldPanel;
+        private ScoreBoardPanel scorePanel;
         private System.Timers.Timer frameTimer;
 
         public SpaceWarsForm()
@@ -30,7 +31,7 @@ namespace SpaceWarsView
             this.Controls.Add(worldPanel);
 
             // Create a ScoreBoardPanel and add it to this form
-            ScoreBoardPanel scorePanel = new ScoreBoardPanel();
+            scorePanel = new ScoreBoardPanel();
             scorePanel.Location = new Point(763, 24);
             scorePanel.Size = new Size(177, 662);
             scorePanel.Visible = true;
@@ -166,9 +167,11 @@ namespace SpaceWarsView
             worldPanel.Size = new Size(worldSize, worldSize);
             // set the width of the control panel
             // set the height of the scoreboard
-            scoreBoard.Height = tableLayoutPanel.Height + worldSize;
+            scorePanel.Height = tableLayoutPanel.Height + worldSize;
+            scorePanel.Location = new Point(worldSize, tableLayoutPanel.Height);
+
             // set this window height and width
-            Width = worldSize + scoreBoard.Width;
+            Width = worldSize + scorePanel.Width;
             Height = worldSize + tableLayoutPanel.Height;
         }
 
