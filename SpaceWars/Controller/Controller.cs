@@ -71,6 +71,10 @@ namespace SpaceWarsControl
             if (e.KeyCode == Keys.Space)
             {
                 theControls.Fire = true;
+                // following two lines fixes the windows sound from
+                // firing when space is pressed
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
             if (e.KeyCode == Keys.Left)
             {
