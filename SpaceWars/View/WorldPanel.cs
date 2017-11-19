@@ -125,7 +125,7 @@ namespace SpaceWarsView
         {
             Ship s = o as Ship;
             
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
@@ -158,7 +158,7 @@ namespace SpaceWarsView
         {
             Projectile p = o as Projectile;
             
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
@@ -184,7 +184,7 @@ namespace SpaceWarsView
         {
             Star s = o as Star;
 
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None; //.AntiAlias;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
@@ -201,7 +201,6 @@ namespace SpaceWarsView
         // This method is invoked when the DrawingPanel needs to be re-drawn
         protected override void OnPaint(PaintEventArgs e)
         {
-
             lock (theWorld)
             {
 
@@ -229,7 +228,5 @@ namespace SpaceWarsView
             // Do anything that Panel (from which we inherit) needs to do
             base.OnPaint(e);
         }
-
-        
     }
 }

@@ -57,6 +57,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScoreBoardPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ScoreBoardPanel.Designer.cs">
+      <DependentUpon>ScoreBoardPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="WorldPanel.cs">
       <SubType>Component</SubType>
     </Compile>
