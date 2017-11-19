@@ -157,7 +157,10 @@ namespace SpaceWarsView
             // update worldPanel size
             worldPanel.Size = new Size(worldSize, worldSize);
             // set the width of the control panel
-            tableLayoutPanel.Width = scoreBoard.Width + worldSize;
+            Console.Out.WriteLine("Prior Width: " + tableLayoutPanel.Width);
+
+            tableLayoutPanel.Size = new Size(scoreBoard.Width + worldSize,tableLayoutPanel.Height); 
+            Console.Out.WriteLine("New Width: " + tableLayoutPanel.Width);
             // set the height of the scoreboard
             scoreBoard.Height = tableLayoutPanel.Height + worldSize;
             // set this window height and width
