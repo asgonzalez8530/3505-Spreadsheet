@@ -42,7 +42,6 @@ namespace SpaceWarsView
         {
             // Invalidate this form and all its children (true)
             // This will cause the form to redraw as soon as it can
-            //this.Invalidate(true);
 
             MethodInvoker newInvoker = () => this.Invalidate(true);
             this.Invoke(newInvoker);
