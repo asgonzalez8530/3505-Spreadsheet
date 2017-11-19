@@ -9,6 +9,7 @@ namespace SpaceWars
     public class World
     {
         private Dictionary<int, Ship> ships; // keeps track of all the ships on the screen
+        private Dictionary<int, Ship> allShips; // keeps track of all the ships in the world (game)
         private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
@@ -40,11 +41,19 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Gets a list of all the ships in the world
+        /// Gets a list of all the ships on the screen
         /// </summary>
         public IEnumerable<Ship> GetShips()
         {
             return ships.Values;
+        }
+
+        /// <summary>
+        /// Gets a list of all the ships in the world
+        /// </summary>
+        public IEnumerable<Ship> GetAllShips()
+        {
+            return allShips.Values;
         }
 
         /// <summary>
@@ -61,6 +70,11 @@ namespace SpaceWars
         public IEnumerable<Projectile> GetProjs()
         {
             return projectiles.Values;
+        }
+
+        private void AddToAllShips(Ship s)
+        {
+            allShips.Add(s.GetID(), s);
         }
 
         /// <summary>
@@ -84,11 +98,13 @@ namespace SpaceWars
             else if (ships.ContainsKey(s.GetID()))
             {
                 ships[s.GetID()] = s;
+                AddToAllShips(s);
             }
             // if the ship is not in the world then add it
             else
             {
                 ships.Add(s.GetID(), s);
+                AddToAllShips(s);
             }
         }
 

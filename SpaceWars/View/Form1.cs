@@ -33,7 +33,7 @@ namespace SpaceWarsView
             // Create a ScoreBoardPanel and add it to this form
             scorePanel = new ScoreBoardPanel();
             scorePanel.Location = new Point(763, 24);
-            scorePanel.Size = new Size(177, 662);
+            scorePanel.Size = new Size(266, 662);
             scorePanel.Visible = true;
             scorePanel.SetWorld(worldPanel.GetWorld());
             this.Controls.Add(scorePanel);
@@ -166,15 +166,14 @@ namespace SpaceWarsView
         {
             // update worldPanel size
             worldPanel.Size = new Size(worldSize, worldSize);
+
             // set the height of the scoreboard
             scorePanel.Height = tableLayoutPanel.Height + worldSize;
-            // TODO: remove write lines
-            Console.Out.WriteLine("previous location: " + scorePanel.Location.ToString());
             scorePanel.Location = new Point(worldSize, tableLayoutPanel.Height);
-            Console.Out.WriteLine("new location: " + scorePanel.Location.ToString());
+            
             // set this window height and width
-            Width = worldSize + scorePanel.Width;
-            Height = worldSize + tableLayoutPanel.Height;
+            Width = worldSize + scorePanel.Width + 30;
+            Height = worldSize + tableLayoutPanel.Height + 40;
         }
 
         private void SpaceWarsForm_KeyDown(object sender, KeyEventArgs e)
