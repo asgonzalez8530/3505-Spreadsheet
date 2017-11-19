@@ -14,9 +14,9 @@ namespace SpaceWarsView
 {
     public partial class SpaceWarsForm : Form, ISpaceWarsWindow
     {
-        private WorldPanel worldPanel;
-        private ScoreBoardPanel scorePanel;
-        private System.Timers.Timer frameTimer;
+        private WorldPanel worldPanel; // panel that will draw the game
+        private ScoreBoardPanel scorePanel; // panel that wil draw the score panel
+        private System.Timers.Timer frameTimer; // simulates the amount of frames per millisecond
 
         public SpaceWarsForm()
         {
@@ -33,7 +33,7 @@ namespace SpaceWarsView
             // Create a ScoreBoardPanel and add it to this form
             scorePanel = new ScoreBoardPanel();
             scorePanel.Location = new Point(763, 24);
-            scorePanel.Size = new Size(177, 662);
+            scorePanel.Size = new Size(266, 662);
             scorePanel.Visible = true;
             scorePanel.SetWorld(worldPanel.GetWorld());
             this.Controls.Add(scorePanel);
@@ -50,26 +50,24 @@ namespace SpaceWarsView
         // above ticks.
         private void Redraw(object sender, ElapsedEventArgs e)
         {
-            
-
             // Invalidate this form and all its children (true)
             // This will cause the form to redraw as soon as it can
             MethodInvoker newInvoker = () => this.Invalidate(true);
 
+            // handle the object disposed exception which could occur when 
+            // this window closes
             try
             {
-                if (!this.IsHandleCreated && !this.IsDisposed) return;
                 this.Invoke(newInvoker);
             }
-            catch (InvalidOperationException exception)
+            catch (InvalidOperationException)
             {
-                // handle the object disposed exception which could occur when 
-                // this window closes
             }
 
 
         }
 
+        // listeners
         public event Action enterConnectEvent;
         public event Action<KeyEventArgs> ControlKeyDownEvent;
         public event Action<KeyEventArgs> ControlKeyUpEvent;
@@ -165,14 +163,15 @@ namespace SpaceWarsView
         public void UpdateWorldSize(int worldSize)
         {
             MethodInvoker newInvoker = () => resizeWindow(worldSize);
+
+            // handle the object disposed exception which could occur when 
+            // this window closes
             try
             {
                 this.Invoke(newInvoker);
             }
-            catch (InvalidOperationException exception)
+            catch (InvalidOperationException)
             {
-                // handle the object disposed exception which could occur when 
-                // this window closes
             }
 
         }
@@ -185,38 +184,51 @@ namespace SpaceWarsView
         {
             // update worldPanel size
             worldPanel.Size = new Size(worldSize, worldSize);
+
             // set the height of the scoreboard
             scorePanel.Height = tableLayoutPanel.Height + worldSize;
-            // TODO: remove write lines
-            Console.Out.WriteLine("previous location: " + scorePanel.Location.ToString());
             scorePanel.Location = new Point(worldSize, tableLayoutPanel.Height);
-            Console.Out.WriteLine("new location: " + scorePanel.Location.ToString());
+            
             // set this window height and width
-            Width = worldSize + scorePanel.Width;
-            Height = worldSize + tableLayoutPanel.Height;
+            Width = worldSize + scorePanel.Width + 30;
+            Height = worldSize + tableLayoutPanel.Height + 40;
         }
 
+        /// <summary>
+        /// fire keypress event
+        /// </summary>
         private void SpaceWarsForm_KeyDown(object sender, KeyEventArgs e)
         {
-            // fire keypress event
             ControlKeyDownEvent(e);
         }
 
+        /// <summary>
+        /// fire key not pressed event
+        /// </summary>
         private void SpaceWarsForm_KeyUp(object sender, KeyEventArgs e)
         {
             ControlKeyUpEvent(e);
         }
 
+        /// <summary>
+        /// Gets the current frame time
+        /// </summary>
         public System.Timers.Timer GetFrameTimer()
         {
             return frameTimer;
         }
 
+        /// <summary>
+        /// fires the control menu event
+        /// </summary>
         private void controls_Click(object sender, EventArgs e)
         {
             ControlMenuClick();
         }
 
+        /// <summary>
+        /// fires the about menu event
+        /// </summary>
         private void about_Click(object sender, EventArgs e)
         {
             AboutMenuClick();

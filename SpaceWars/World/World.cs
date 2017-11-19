@@ -9,6 +9,7 @@ namespace SpaceWars
     public class World
     {
         private Dictionary<int, Ship> ships; // keeps track of all the ships on the screen
+        private Dictionary<int, Ship> allShips; // keeps track of all the ships in the world (game)
         private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
@@ -17,6 +18,7 @@ namespace SpaceWars
         public World()
         {
             ships = new Dictionary<int, Ship>();
+            allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
             size = 0;
@@ -40,11 +42,19 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Gets a list of all the ships in the world
+        /// Gets a list of all the ships on the screen
         /// </summary>
         public IEnumerable<Ship> GetShips()
         {
             return ships.Values;
+        }
+
+        /// <summary>
+        /// Gets a list of all the ships in the world
+        /// </summary>
+        public IEnumerable<Ship> GetAllShips()
+        {
+            return allShips.Values;
         }
 
         /// <summary>
@@ -63,6 +73,19 @@ namespace SpaceWars
             return projectiles.Values;
         }
 
+        private void AddAllShips(Ship s)
+        {
+            if (ships.ContainsKey(s.GetID()))
+            {
+                allShips[s.GetID()] = s;
+            }
+            // if the ship is not in the world then add it
+            else
+            {
+                allShips.Add(s.GetID(), s);
+            }
+        }
+        
         /// <summary>
         /// If Ship s does not exist in ships adds it. If the id already exists
         /// in ships, updates reference in ships to s.
@@ -84,11 +107,13 @@ namespace SpaceWars
             else if (ships.ContainsKey(s.GetID()))
             {
                 ships[s.GetID()] = s;
+                allShips[s.GetID()] = s;
             }
             // if the ship is not in the world then add it
             else
             {
                 ships.Add(s.GetID(), s);
+                AddAllShips(s);
             }
         }
 
