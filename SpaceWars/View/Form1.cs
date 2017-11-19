@@ -50,11 +50,22 @@ namespace SpaceWarsView
         // above ticks.
         private void Redraw(object sender, ElapsedEventArgs e)
         {
+            
+
             // Invalidate this form and all its children (true)
             // This will cause the form to redraw as soon as it can
-
             MethodInvoker newInvoker = () => this.Invalidate(true);
-            this.Invoke(newInvoker);
+
+            try
+            {
+                if (!this.IsHandleCreated && !this.IsDisposed) return;
+                this.Invoke(newInvoker);
+            }
+            catch (InvalidOperationException exception)
+            {
+                // handle the object disposed exception which could occur when 
+                // this window closes
+            }
 
 
         }
@@ -154,7 +165,15 @@ namespace SpaceWarsView
         public void UpdateWorldSize(int worldSize)
         {
             MethodInvoker newInvoker = () => resizeWindow(worldSize);
-            this.Invoke(newInvoker);
+            try
+            {
+                this.Invoke(newInvoker);
+            }
+            catch (InvalidOperationException exception)
+            {
+                // handle the object disposed exception which could occur when 
+                // this window closes
+            }
 
         }
 
