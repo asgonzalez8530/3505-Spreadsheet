@@ -77,26 +77,30 @@ namespace SpaceWarsView
             base.OnPaint(pe);
         }
 
+        /// <summary>
+        /// Takes in a Ship, s, and returns a Color which corresponds to the
+        /// Ship's ID
+        /// </summary>
         private Color HealthBarColor(Ship s)
         {
             switch (s.GetID() % 8)
             {
                 case 0:
-                    return Color.Black;
+                    return Color.FromArgb(0, 0, 0); // black
                 case 1:
-                    return Color.Blue;
+                    return Color.FromArgb(47, 79, 200); // blue
                 case 2:
-                    return Color.Brown;
+                    return Color.FromArgb(124, 69, 38); // brown
                 case 3:
-                    return Color.Green;
+                    return Color.FromArgb(11, 179, 29); // green
                 case 4:
-                    return Color.Gray;
+                    return Color.FromArgb(86, 85, 88); // grey
                 case 5:
-                    return Color.Red;
+                    return Color.FromArgb(220, 0, 0); // red
                 case 6:
-                    return Color.Purple;
+                    return Color.FromArgb(135, 7, 255); // violet
                 default:
-                    return Color.Yellow;
+                    return Color.FromArgb(255, 211, 7); // yellow 
             }
         }
 

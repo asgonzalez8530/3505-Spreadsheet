@@ -47,7 +47,6 @@ namespace SpaceWarsControl
             window.ControlMenuClick += ControlClick;
             window.AboutMenuClick += AboutClick;
 
-            
         }
 
         /// <summary>
