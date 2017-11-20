@@ -131,10 +131,16 @@ namespace SpaceWarsControl
         {
             string serverAddress = window.GetServer();
 
-            // TODO: more error checking
+            // more error checking for server addresses happens below
             if (serverAddress == "")
             {
                 window.DisplayMessageBox("Please enter a server address");
+                return;
+            }
+
+            if (window.GetUserName().Trim() == "")
+            {
+                window.DisplayMessageBox("Please enter a valid player name");
                 return;
             }
             
@@ -144,7 +150,20 @@ namespace SpaceWarsControl
             window.ToggleConnectButtonControl(false);
 
             // Connect to the server, specifying the first thing we want to do once a connection is made is FirstContact
-            Network.ConnectToServer(FirstContact, serverAddress);
+            try
+            {
+                Network.ConnectToServer(FirstContact, serverAddress);
+            }
+            // catch invalid server names or IP addresses
+            catch (ArgumentException)
+            {
+                // show error message
+                string errorMessage = "An error occured trying to contact the server: " + serverAddress;
+                errorMessage += "\nPlease check the server address and try to connect again";
+                ReportNetworkError(errorMessage);
+                // get out of the call loop
+                return;
+            }
         }
 
         /// <summary>
