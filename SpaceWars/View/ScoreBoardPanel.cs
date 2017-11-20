@@ -38,12 +38,13 @@ namespace SpaceWarsView
 
             int xPadding = 30; // end the rectangle indicated pixels before the edge of the panel
             int yPadding = 30; // Spacing between the name and the health bar and between the scores 
-            int width = Width - xPadding * 2; // width of the health bar
+            int width = Width - xPadding; // width of the health bar
             int height = 20; // height of the health bar
 
             using (SolidBrush brush = new SolidBrush(HealthBarColor(s)))
             using (SolidBrush blackBrush = new SolidBrush(Color.Black))
             using (Font font = new Font(new FontFamily("Verdana"), 16))
+            using (Pen boxPen = new Pen(HealthBarColor(s)))
             {
                 int adjustedY = y + count * (yPadding * 2);
                 // This prints the name and score of the current ship
@@ -51,10 +52,10 @@ namespace SpaceWarsView
 
                 // This is the outside rectangle
                 Rectangle outsideRec = new Rectangle(x, adjustedY + yPadding, width, height);
-                e.Graphics.DrawRectangle(new Pen(HealthBarColor(s)), outsideRec);
+                e.Graphics.DrawRectangle(boxPen, outsideRec);
 
                 // This is the inside rectangle
-                Rectangle insideRec = new Rectangle(x, adjustedY + yPadding, s.GetHP() * width , height);
+                Rectangle insideRec = new Rectangle(x, adjustedY + yPadding, (width / 5) * s.GetHP() + 1, height);
                 e.Graphics.FillRectangle(brush, insideRec);
             }
         }

@@ -108,7 +108,6 @@ namespace SpaceWars
             else if (aliveShips.ContainsKey(s.GetID()))
             {
                 aliveShips[s.GetID()] = s;
-                allShips[s.GetID()] = s;
             }
             // if the ship is not in the world then add it
             else

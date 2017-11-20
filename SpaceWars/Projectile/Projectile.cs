@@ -42,27 +42,11 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Set the projectile's ID to be the id 'passed in 
-        /// </summary>
-        public void SetID(int id)
-        {
-            ID = id;
-        }
-
-        /// <summary>
         /// Get the location of the projectile
         /// </summary>
         public Vector2D GetLocation()
         {
             return loc;
-        }
-
-        /// <summary>
-        /// Set the location of the projectile to be the passed in projectile
-        /// </summary>
-        public void SetLocation(Vector2D location)
-        {
-            loc = location;
         }
 
         /// <summary>
@@ -74,14 +58,6 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Set the direction of the projectile to be the passed in direction
-        /// </summary>
-        public void SetDirection(Vector2D direction)
-        {
-            dir = direction;
-        }
-
-        /// <summary>
         /// if the projectile is alive then return true otherwise returns false
         /// </summary>
         public bool IsAlive()
@@ -90,27 +66,11 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Set the life status of the projectile to be the passed in status
-        /// </summary>
-        public void SetAlive(bool alive)
-        {
-            this.alive = alive;
-        }
-
-        /// <summary>
         /// Gets the owner of the projectile
         /// </summary>
         public int GetOwner()
         {
             return owner;
-        }
-
-        /// <summary>
-        /// Set the owner of the projectile to be the passed in owner
-        /// </summary>
-        public void SetOwner(int owner)
-        {
-            this.owner = owner;
         }
 
         /// <summary>
