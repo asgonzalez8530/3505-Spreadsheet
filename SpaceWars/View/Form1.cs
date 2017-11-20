@@ -40,10 +40,7 @@ namespace SpaceWarsView
 
             // Start a new timer that will redraw the game every 15 milliseconds 
             // This should correspond to about 67 frames per second.
-            frameTimer = new System.Timers.Timer();
-            frameTimer.Interval = 15;
-            frameTimer.Elapsed += Redraw;
-            frameTimer.Start();
+            ResetFrameTimer();
         }
 
         // Redraw the game. This method is invoked every time the "frameTimer"
@@ -67,12 +64,24 @@ namespace SpaceWarsView
 
         }
 
+        
+
         // listeners
         public event Action enterConnectEvent;
         public event Action<KeyEventArgs> ControlKeyDownEvent;
         public event Action<KeyEventArgs> ControlKeyUpEvent;
         public event Action ControlMenuClick;
         public event Action AboutMenuClick;
+
+        /// <summary>
+        /// Gives the game model represented by theWorld object to 
+        /// the view objects which need to draw it. 
+        /// </summary>
+        public void SetWorld(World theWorld)
+        {
+            worldPanel.SetWorld(theWorld);
+            scorePanel.SetWorld(theWorld);
+        }
 
         /// <summary>
         /// Returns the string passed in to the server text box
@@ -261,6 +270,24 @@ namespace SpaceWarsView
         private void about_Click(object sender, EventArgs e)
         {
             AboutMenuClick();
+        }
+
+        // Start a new timer that will redraw the game every 15 milliseconds 
+        // This should correspond to about 67 frames per second.
+        public void ResetFrameTimer()
+        {
+            if (frameTimer != null)
+            {
+                frameTimer.Stop();
+                frameTimer.Dispose();
+            }
+            
+            // Start a new timer that will redraw the game every 15 milliseconds 
+            // This should correspond to about 67 frames per second.
+            frameTimer = new System.Timers.Timer();
+            frameTimer.Interval = 15;
+            frameTimer.Elapsed += Redraw;
+            frameTimer.Start();
         }
     }// end of class
 }

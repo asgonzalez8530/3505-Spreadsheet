@@ -37,6 +37,9 @@ namespace SpaceWarsControl
             // keep a reference to the window associated with this controller
             window = SpaceWarsWindow;
 
+            theWorld = new World();
+            window.SetWorld(theWorld);
+
             // event listeners
             window.enterConnectEvent += GetConnected;
             window.ControlKeyDownEvent += ControlKeyDownHandler;
@@ -44,7 +47,7 @@ namespace SpaceWarsControl
             window.ControlMenuClick += ControlClick;
             window.AboutMenuClick += AboutClick;
 
-            theWorld = window.GetWorldPanelWorld();
+            
         }
 
         /// <summary>
@@ -226,6 +229,9 @@ namespace SpaceWarsControl
                 // Update the action to take when network events happen
                 state.SetNetworkAction(ProcessMessage);
 
+                // create new world
+                theWorld = new World();
+                window.SetWorld(theWorld);
 
 
                 // parse the id and worldsize and set them in our client
@@ -243,6 +249,9 @@ namespace SpaceWarsControl
 
         }
 
+
+
+
         /// <summary>
         /// Starts sending the active controls on the socket every time the frame
         /// is redrawn
@@ -250,7 +259,7 @@ namespace SpaceWarsControl
         private void StartSendingControls(Socket socket)
         {
 
-            window.GetFrameTimer().Elapsed += (x, y) => SendControls(socket);
+            window.GetFrameTimer().Elapsed += (x,y) => SendControls(socket);
 
         }
 
@@ -281,7 +290,9 @@ namespace SpaceWarsControl
             int.TryParse(IDAndWorldSize[1], out worldSize);
         }
 
-        //TODO: implement when we have gui
+        /// <summary>
+        /// Sets the worldsize and resizes the window
+        /// </summary>
         private void SetWorldSize(int worldSize)
         {
             // set the size of the world
@@ -324,7 +335,6 @@ namespace SpaceWarsControl
             }
         }
 
-        // TODO: reimplement for SpaceWars
         /// <summary>
         /// This method acts as a NetworkAction delegate (see Networking.cs)
         /// When used as a NetworkAction, this method will be called whenever the Networking code
@@ -339,6 +349,10 @@ namespace SpaceWarsControl
                 string errorMessage = "An error occured trying to contact the server";
                 errorMessage += "\nPlease try to connect again";
                 ReportNetworkError(errorMessage);
+                
+                // reset frame timer, so if reconnecting to server can cancel send events
+                window.ResetFrameTimer();
+
                 // get out of the call loop
                 return;
             }

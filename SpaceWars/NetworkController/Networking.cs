@@ -194,8 +194,8 @@ namespace Communication
             {
                 state.HasError = true;
                 state.errorMessage = e.Message;
-                return;
-                
+                // invoke client delegate so it can take whatever action it needs with an error
+                state.InvokeNetworkAction(state);
             }
 
             // If the socket is still open
