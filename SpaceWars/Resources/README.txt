@@ -20,6 +20,7 @@ in the scoreboard color in everytime.
 Notes for the TAs: Our project was setup in an the proper MVC format. We used the proper abstraction so that the 
 different classes could speak to each other and work together to create a fuctional spreadsheet GUI. 
 
-Added Features: Our scoreboard is color coordinated and our GUI has a fun Santa Claus theme. 
+Added Features: Our scoreboard is color coordinated and our GUI has a fun Santa Claus theme. We picked a white 
+background to represent the snow. 
 
 How to Run: Start the server. Once the server is ready, press start on the client code. Enter in a name and press connect.
