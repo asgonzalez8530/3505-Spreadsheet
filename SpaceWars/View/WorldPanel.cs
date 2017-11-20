@@ -52,8 +52,6 @@ namespace SpaceWarsView
             int star = 0; 
             foreach(string file in files)
             {
-                Console.Out.WriteLine(file);
-
                 if (file.Contains("coast"))
                 {
                     shipCoastImages.Add(coast++, Image.FromFile(file));
@@ -70,7 +68,6 @@ namespace SpaceWarsView
                 {
                     starImages.Add(star++, Image.FromFile(file));
                 }
-
             }
         }
 

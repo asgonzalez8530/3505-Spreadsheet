@@ -46,8 +46,6 @@ namespace SpaceWarsControl
             window.ControlKeyUpEvent += ControlKeyUpHandler;
             window.ControlMenuClick += ControlClick;
             window.AboutMenuClick += AboutClick;
-
-            
         }
 
         /// <summary>
@@ -74,6 +72,9 @@ namespace SpaceWarsControl
             window.DisplayMessageBox(controlMessage);
         }
 
+        /// <summary>
+        /// When key is pressed it sets the appropriate key to true
+        /// </summary>
         private void ControlKeyDownHandler(KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
@@ -99,6 +100,9 @@ namespace SpaceWarsControl
             }
         }
 
+        /// <summary>
+        /// When key is not pressed anymore it sets the appropriate key to false
+        /// </summary>
         private void ControlKeyUpHandler(KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
@@ -119,6 +123,10 @@ namespace SpaceWarsControl
             }
         }
 
+        /// <summary>
+        /// Trys to connect with the server. If the server textbox is empty then 
+        /// display a message box that prompts the user to enter a vaild server name.
+        /// </summary>
         private void GetConnected()
         {
             string serverAddress = window.GetServer();
@@ -129,8 +137,7 @@ namespace SpaceWarsControl
                 window.DisplayMessageBox("Please enter a server address");
                 return;
             }
-
-
+            
             // Disable the controls and try to connect
             window.ToggleServerBoxControl(false);
             window.ToggleUserBoxControl(false);
@@ -176,14 +183,12 @@ namespace SpaceWarsControl
         /// </summary>
         private void ReportNetworkError(String errorMessage)
         {
-            
             window.DisplayMessageBox(errorMessage);
 
             // activate user input boxes and button so they can try again.
             window.ToggleServerBoxControl(true);
             window.ToggleUserBoxControl(true);
             window.ToggleConnectButtonControl(true);
-
         }
 
 
@@ -246,7 +251,6 @@ namespace SpaceWarsControl
 
             // Start waiting for data
             Network.GetData(state);
-
         }
 
 
@@ -258,9 +262,7 @@ namespace SpaceWarsControl
         /// </summary>
         private void StartSendingControls(Socket socket)
         {
-
             window.GetFrameTimer().Elapsed += (x,y) => SendControls(socket);
-
         }
 
         /// <summary>
@@ -300,7 +302,6 @@ namespace SpaceWarsControl
 
             // updates the size of the worldPanel
             window.UpdateWorldSize(worldSize);
-
         }
 
 
@@ -385,8 +386,8 @@ namespace SpaceWarsControl
                 {
                     theStar = JsonConvert.DeserializeObject<Star>(message);
                 }
-                //}
 
+                // lock the following code so that only one thread changes the world at a time
                 lock (theWorld)
                 {
                     theWorld.AddStar(theStar);

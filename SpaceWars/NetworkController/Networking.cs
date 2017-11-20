@@ -11,6 +11,10 @@ namespace Communication
     /// </summary>
     public delegate void NetworkAction(SocketState state);
 
+    /// <summary>
+    /// Class that creates the sockets that will be used during communication between the server
+    /// and client
+    /// </summary>
     public class SocketState
     {
         private NetworkAction action;
@@ -102,6 +106,9 @@ namespace Communication
 
     }
 
+    /// <summary>
+    /// Class that intiates the passing of information with sockets between the server and client
+    /// </summary>
     public static class Network
     {
         //the port that we will be using
@@ -116,8 +123,6 @@ namespace Communication
         /// <returns></returns>
         public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname)
         {
-            System.Diagnostics.Debug.WriteLine("connecting  to " + hostname);
-
             // Create a TCP/IP socket.
             MakeSocket(hostname, out Socket socket, out IPAddress ipAddress);
 
@@ -142,8 +147,6 @@ namespace Communication
         /// <returns></returns>
         public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname, int port)
         {
-            System.Diagnostics.Debug.WriteLine("connecting  to " + hostname);
-
             // Create a TCP/IP socket.
             MakeSocket(hostname, out Socket socket, out IPAddress ipAddress);
 
@@ -240,8 +243,10 @@ namespace Communication
         /// <param name="ipAddress">The created IPAddress</param>
         public static void MakeSocket(string hostName, out Socket socket, out IPAddress ipAddress)
         {
+            //intialize the ipAddress and socket that are passed in 
             ipAddress = IPAddress.None;
             socket = null;
+
             try
             {
                 // Establish the remote endpoint for the socket.
@@ -278,14 +283,11 @@ namespace Communication
 
                 socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
-                // Disable Nagle's algorithm - can speed things up for tiny messages, 
-                // such as for a game
+                // Disable Nagle's algorithm - can speed things up for tiny messages, such as for a game
                 socket.NoDelay = true;
-
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to create socket. Error occured: " + e);
                 throw new ArgumentException("Invalid address");
             }
         }
@@ -308,7 +310,6 @@ namespace Communication
             {
                 state.HasError = true;
                 state.errorMessage = e.Message;
-                System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
             }
 
             state.InvokeNetworkAction(state);
