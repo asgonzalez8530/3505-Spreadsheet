@@ -14,6 +14,7 @@ namespace SpaceWarsView
     public partial class ScoreBoardPanel : Panel
     {
         private World theWorld;
+        private int count = 0; // counts the amount of players we have 
         
         public ScoreBoardPanel()
         {
@@ -44,15 +45,16 @@ namespace SpaceWarsView
             using (SolidBrush blackBrush = new SolidBrush(Color.Black))
             using (Font font = new Font(new FontFamily("Verdana"), 16))
             {
+                int adjustedY = y + count * (yPadding * 2);
                 // This prints the name and score of the current ship
-                e.Graphics.DrawString(s.GetName() + ": " + s.GetScore(), font, blackBrush, x, y);
+                e.Graphics.DrawString(s.GetName() + ": " + s.GetScore(), font, blackBrush, x, adjustedY);
 
                 // This is the outside rectangle
-                Rectangle outsideRec = new Rectangle(x, y + yPadding, width, height);
+                Rectangle outsideRec = new Rectangle(x, adjustedY + yPadding, width, height);
                 e.Graphics.DrawRectangle(new Pen(HealthBarColor(s)), outsideRec);
 
                 // This is the inside rectangle
-                Rectangle insideRec = new Rectangle(x, y + yPadding, width * s.GetID(), height);
+                Rectangle insideRec = new Rectangle(x, adjustedY + yPadding, width * s.GetHP(), height);
                 e.Graphics.FillRectangle(brush, insideRec);
             }
         }
@@ -66,7 +68,9 @@ namespace SpaceWarsView
                 foreach (Ship ship in theWorld.GetAllShips())
                 {
                     HealthBarDrawer(ship, pe);
+                    count++;
                 }
+                count = 0;
             }
             // Do anything that Panel (from which we inherit) needs to do
             base.OnPaint(pe);
