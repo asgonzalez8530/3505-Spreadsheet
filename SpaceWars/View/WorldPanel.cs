@@ -14,29 +14,33 @@ namespace SpaceWarsView
 {
     public partial class WorldPanel : Panel
     {
-
         private World theWorld;
-        private Dictionary<int, Image> shipCoastImages;
-        private Dictionary<int, Image> shipThrustImages;
-        private Dictionary<int, Image> starImages;
-        private Dictionary<int, Image> projectileImages;
-
-
+        private Dictionary<int, Image> shipCoastImages; // stores all the ship images
+        private Dictionary<int, Image> shipThrustImages; // stores all the thrust ship images
+        private Dictionary<int, Image> starImages; // stores all the star images
+        private Dictionary<int, Image> projectileImages; // stores all the projectile images
+        
         public WorldPanel()
         {
+            // make the panel
             InitializeComponent();
             DoubleBuffered = true;
             theWorld = new World();
 
+            // initializes the image dictionaries
             shipCoastImages = new Dictionary<int, Image>();
             shipThrustImages = new Dictionary<int, Image>();
             starImages = new Dictionary<int, Image>();
             projectileImages = new Dictionary<int, Image>();
 
+            // load the images up from the following directory
             string pathString = @"../../../Resources/Images/";
             LoadImages(pathString);
         }
 
+        /// <summary>
+        /// Loads all the images from the directory and stores them in the proper Dictionary
+        /// </summary>
         private void LoadImages(string directory)
         {
             // get all the files from the directory
@@ -70,6 +74,9 @@ namespace SpaceWarsView
             }
         }
 
+        /// <summary>
+        /// Gets the world that is being used
+        /// </summary>
         public World GetWorld()
         {
             return theWorld;
@@ -124,10 +131,6 @@ namespace SpaceWarsView
         private void ShipDrawer(object o, PaintEventArgs e)
         {
             Ship s = o as Ship;
-            
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
             // Rectangles are drawn starting from the top-left corner.
             // So if we want the rectangle centered on the player's location, we have to offset it
@@ -157,10 +160,6 @@ namespace SpaceWarsView
         private void ProjectileDrawer(object o, PaintEventArgs e)
         {
             Projectile p = o as Projectile;
-            
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 
             // Rectangles are drawn starting from the top-left corner.
             // So if we want the rectangle centered on the player's location, we have to offset it
@@ -184,14 +183,9 @@ namespace SpaceWarsView
         {
             Star s = o as Star;
 
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
-
             // Rectangles are drawn starting from the top-left corner.
             // So if we want the rectangle centered on the player's location, we have to offset it
             // by half its size to the left (-width/2) and up (-height/2)
-            // TODO: multiply by the mass of the star
             Rectangle r = new Rectangle(-(s.GetWidth() / 2), -(s.GetHeight() / 2), s.GetWidth(), s.GetHeight());
 
             Image image = starImages[s.GetID() % starImages.Count];
@@ -204,23 +198,21 @@ namespace SpaceWarsView
             lock (theWorld)
             {
 
-                // draw stars
+                // draws the stars
                 foreach (Star star in theWorld.GetStars())
                 {
                     DrawObjectWithTransform(e, star, this.Size.Width, star.GetLocation().GetX(), star.GetLocation().GetY(), 0, StarDrawer);
                 }
 
-                // Draw the ships
+                // draws the ships
                 foreach (Ship ship in theWorld.GetShips())
                 {
-                    //System.Diagnostics.Debug.WriteLine("drawing player at " + p.GetLocation());
                     DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
                 }
 
-                // Draw the Projectiles
+                // draws the Projectiles
                 foreach (Projectile p in theWorld.GetProjs())
                 {
-                    //System.Diagnostics.Debug.WriteLine("drawing powerup at " + p.GetLocation());
                     DrawObjectWithTransform(e, p, this.Size.Width, p.GetLocation().GetX(), p.GetLocation().GetY(), 0, ProjectileDrawer);
                 }
                 
