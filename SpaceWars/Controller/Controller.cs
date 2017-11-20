@@ -144,16 +144,38 @@ namespace SpaceWarsControl
         private void FirstContact(SocketState state)
         {
 
+            if (state.HasError)
+            {
+                ReportNetworkError();
+                return;
+            }
+
             string name = window.GetUserName();
 
             // begin "handshake" by sending name
             Network.Send(state.GetSocket(), name);
 
-            // Change the action that is take when a network event occurs. Now when data is received,
+            // Change the action that is taken when a network event occurs. Now when data is received,
             // the Networking library will invoke ReceiveStartup
             state.SetNetworkAction(ReceiveStartup);
 
             Network.GetData(state);
+        }
+
+        /// <summary>
+        /// Reports to the user that a network error has occured, then 
+        /// enables the controls allowing the user to try to reconnect.
+        /// </summary>
+        private void ReportNetworkError()
+        {
+            // show error message
+            string errorMessage = "An error occured trying to connect to the server";
+            errorMessage += "\nPlease try to connect again";
+            window.DisplayMessageBox(errorMessage);
+
+            // activate user input boxes and button
+            
+
         }
 
 

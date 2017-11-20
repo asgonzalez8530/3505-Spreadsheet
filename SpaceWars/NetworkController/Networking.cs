@@ -34,10 +34,16 @@ namespace Communication
             ID = id;
             messageBuffer = new byte[1024];
             sb = new StringBuilder();
+            HasError = false;
 
             // an empty action, does nothing, guarantees action is not null when created.
             action = x => { };
         }
+
+        /// <summary>
+        /// True if the socket has encountered an error, else false.
+        /// </summary>
+        public bool HasError { get; set; }
 
         /// <summary>
         /// Gets the byte array which is used as the sockets buffer
@@ -47,16 +53,6 @@ namespace Communication
             return messageBuffer;
         }
 
-        //TODO: may need to remove if this method is not used
-        ///// <summary>
-        ///// Takes a byte array, message, and sets it to this sockets buffer
-        ///// </summary>
-        //public void SetMessageBuffer(byte[] message)
-        //{
-        //    
-        //    messageBuffer = message;
-        //}
-
         /// <summary>
         /// Returns the StringBuilder used as a dynamic buffer used by this socket.
         /// </summary>
@@ -64,16 +60,6 @@ namespace Communication
         {
             return sb;
         }
-
-        //TODO: may need to remove if this method is not used
-        ///// <summary>
-        ///// Takes a string, message, and creates a new StringBuilder with message and sets it 
-        ///// to the StringBuilder used as a dynamic buffer used by this socket.
-        ///// </summary>
-        //public void SetStringBuilder(string message)
-        //{
-        //    sb = new StringBuilder(message);
-        //}
 
         /// <summary>
         /// Takes a NetworkAction delegate, a, and sets it to this sockets action.
@@ -108,14 +94,6 @@ namespace Communication
             return theSocket;
         }
 
-        //TODO: may need to remove if this method is not used
-        ///// <summary>
-        ///// Sets the socket passed in, s, to the current sockets state
-        ///// </summary>
-        //public void SetSocket(Socket s)
-        //{
-        //    theSocket = s;
-        //}
     }
 
     public static class Network
@@ -311,6 +289,7 @@ namespace Communication
             }
             catch (Exception e)
             {
+                state.HasError = true;
                 System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
                 return;
             }
