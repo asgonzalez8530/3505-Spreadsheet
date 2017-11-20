@@ -95,7 +95,9 @@ namespace SpaceWarsView
             }
         }
 
-
+        /// <summary>
+        /// Sets the World object w to theWorld
+        /// </summary>
         public void SetWorld(World w)
         {
             theWorld = w;

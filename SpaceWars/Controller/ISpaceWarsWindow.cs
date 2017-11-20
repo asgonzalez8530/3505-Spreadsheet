@@ -43,6 +43,12 @@ namespace SpaceWarsView
         void SetDefaultAcceptButton();
 
         /// <summary>
+        /// Gives the game model represented by theWorld object to 
+        /// the view objects which need to draw it. 
+        /// </summary>
+        void SetWorld(World theWorld);
+
+        /// <summary>
         /// Tells the form to set user box to active if true, inactive if false
         /// </summary>
         void ToggleUserBoxControl(bool active);
@@ -76,6 +82,10 @@ namespace SpaceWarsView
         /// Gets the current frame timer
         /// </summary>
         System.Timers.Timer GetFrameTimer();
-
+        
+        /// <summary>
+        /// Resets the frame timer and reconnects events with it. 
+        /// </summary>
+        void ResetFrameTimer();
     }
 }

@@ -82,6 +82,11 @@ namespace SpaceWarsView
             return theWorld;
         }
 
+        internal void SetWorld(World world)
+        {
+            theWorld = world;
+        }
+
         /// <summary>
         /// Helper method for DrawObjectWithTransform
         /// </summary>
