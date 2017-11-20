@@ -54,7 +54,7 @@ namespace SpaceWarsView
                 e.Graphics.DrawRectangle(new Pen(HealthBarColor(s)), outsideRec);
 
                 // This is the inside rectangle
-                Rectangle insideRec = new Rectangle(x, adjustedY + yPadding, width * s.GetHP(), height);
+                Rectangle insideRec = new Rectangle(x, adjustedY + yPadding, s.GetHP() * width , height);
                 e.Graphics.FillRectangle(brush, insideRec);
             }
         }

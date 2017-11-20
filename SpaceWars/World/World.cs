@@ -8,7 +8,7 @@ namespace SpaceWars
 {
     public class World
     {
-        private Dictionary<int, Ship> ships; // keeps track of all the ships on the screen
+        private Dictionary<int, Ship> aliveShips; // keeps track of all the ships on the screen
         private Dictionary<int, Ship> allShips; // keeps track of all the ships in the world (game)
         private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
@@ -17,7 +17,7 @@ namespace SpaceWars
 
         public World()
         {
-            ships = new Dictionary<int, Ship>();
+            aliveShips = new Dictionary<int, Ship>();
             allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
@@ -42,15 +42,15 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Gets a list of all the ships on the screen
+        /// Gets a list of all the ships that are alive
         /// </summary>
-        public IEnumerable<Ship> GetShips()
+        public IEnumerable<Ship> GetAliveShips()
         {
-            return ships.Values;
+            return aliveShips.Values;
         }
 
         /// <summary>
-        /// Gets a list of all the ships in the world
+        /// Gets a list of all the ships in the we have seen
         /// </summary>
         public IEnumerable<Ship> GetAllShips()
         {
@@ -75,7 +75,8 @@ namespace SpaceWars
 
         private void AddAllShips(Ship s)
         {
-            if (ships.ContainsKey(s.GetID()))
+            // if the ship is in the world, update its reference
+            if (allShips.ContainsKey(s.GetID()))
             {
                 allShips[s.GetID()] = s;
             }
@@ -101,20 +102,22 @@ namespace SpaceWars
             // if the ship is dead then remove it from the world
             if (!s.IsAlive())
             {
-                ships.Remove(s.GetID());
+                aliveShips.Remove(s.GetID());
             }
             // if the ship is in the world then replace the old ship with the passed in ship
-            else if (ships.ContainsKey(s.GetID()))
+            else if (aliveShips.ContainsKey(s.GetID()))
             {
-                ships[s.GetID()] = s;
+                aliveShips[s.GetID()] = s;
                 allShips[s.GetID()] = s;
             }
             // if the ship is not in the world then add it
             else
             {
-                ships.Add(s.GetID(), s);
-                AddAllShips(s);
+                aliveShips.Add(s.GetID(), s);
             }
+
+            // we have taken care of the alive ships, now lets keep track of all ships
+            AddAllShips(s);
         }
 
         /// <summary>

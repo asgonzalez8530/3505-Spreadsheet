@@ -127,13 +127,13 @@ namespace SpaceWars
             return hp;
         }
 
-        /// <summary>
-        /// Set the the ship's hp to be the passed in HP
-        /// </summary>
-        public void SetHP(int HP)
-        {
-            hp = HP;
-        }
+        ///// <summary>
+        ///// Set the the ship's hp to be the passed in HP
+        ///// </summary>
+        //public void SetHP(int HP)
+        //{
+        //    hp = HP;
+        //}
 
         /// <summary>
         /// Gets the ship's score 

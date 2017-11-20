@@ -210,7 +210,7 @@ namespace SpaceWarsView
                 }
 
                 // draws the ships
-                foreach (Ship ship in theWorld.GetShips())
+                foreach (Ship ship in theWorld.GetAliveShips())
                 {
                     DrawObjectWithTransform(e, ship, this.Size.Width, ship.GetLocation().GetX(), ship.GetLocation().GetY(), ship.GetDirection().ToAngle(), ShipDrawer);
                 }
