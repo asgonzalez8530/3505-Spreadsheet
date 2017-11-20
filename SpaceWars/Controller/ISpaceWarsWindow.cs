@@ -1,4 +1,6 @@
-﻿using SpaceWars;
+﻿// Anastasia Gonzalez and Aaron Bellis UID: u0985898 & u0981638
+// Code implemented as part of PS7 : SpaceWars client CS3500 Fall Semester
+using SpaceWars;
 using System;
 using System.Collections.Generic;
 using System.Linq;
