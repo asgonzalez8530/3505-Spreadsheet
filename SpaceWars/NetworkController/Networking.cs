@@ -35,6 +35,7 @@ namespace Communication
             messageBuffer = new byte[1024];
             sb = new StringBuilder();
             HasError = false;
+            errorMessage = "";
 
             // an empty action, does nothing, guarantees action is not null when created.
             action = x => { };
@@ -44,6 +45,11 @@ namespace Communication
         /// True if the socket has encountered an error, else false.
         /// </summary>
         public bool HasError { get; set; }
+
+        /// <summary>
+        /// Contains the error message reported by the system if one was encountered.
+        /// </summary>
+        public string errorMessage { get; set; }
 
         /// <summary>
         /// Gets the byte array which is used as the sockets buffer
@@ -179,7 +185,18 @@ namespace Communication
         {
             SocketState state = (SocketState)stateAsArObject.AsyncState;
 
-            int bytesRead = state.GetSocket().EndReceive(stateAsArObject);
+            int bytesRead = 0;
+            try
+            {
+                bytesRead = state.GetSocket().EndReceive(stateAsArObject);
+            }
+            catch (SocketException e)
+            {
+                state.HasError = true;
+                state.errorMessage = e.Message;
+                return;
+                
+            }
 
             // If the socket is still open
             if (bytesRead > 0)
@@ -290,8 +307,8 @@ namespace Communication
             catch (Exception e)
             {
                 state.HasError = true;
+                state.errorMessage = e.Message;
                 System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
-                return;
             }
 
             state.InvokeNetworkAction(state);

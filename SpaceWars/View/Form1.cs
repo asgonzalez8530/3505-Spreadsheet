@@ -126,17 +126,36 @@ namespace SpaceWarsView
         /// <summary>
         /// Tells the form to set user box inactive
         /// </summary>
-        public void SetUserBoxInactive()
+        public void ToggleUserBoxControl(bool active)
         {
-            nameTextBox.Enabled = false;
+            MethodInvoker newInvoker = () => nameTextBox.Enabled = active;
+            // handle the object disposed exception which could occur when 
+            // this window closes
+            try
+            {
+                this.Invoke(newInvoker);
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
 
         /// <summary>
         /// Tells the form to set server box inactive
         /// </summary>
-        public void SetServerBoxInactive()
+        public void ToggleServerBoxControl(bool active)
         {
-            serverTextBox.Enabled = false;
+            
+            MethodInvoker newInvoker = () => serverTextBox.Enabled = active;
+            // handle the object disposed exception which could occur when 
+            // this window closes
+            try
+            {
+                this.Invoke(newInvoker);
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
 
         /// <summary>
@@ -150,9 +169,19 @@ namespace SpaceWarsView
         /// <summary>
         /// Disables connectButton
         /// </summary>
-        public void SetConnectButtonInactive()
+        public void ToggleConnectButtonControl(bool active)
         {
-            connectButton.Enabled = false;
+            
+            MethodInvoker newInvoker = () => connectButton.Enabled = active;
+            // handle the object disposed exception which could occur when 
+            // this window closes
+            try
+            {
+                this.Invoke(newInvoker);
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
 
         public World GetWorldPanelWorld()

@@ -129,9 +129,9 @@ namespace SpaceWarsControl
 
 
             // Disable the controls and try to connect
-            window.SetServerBoxInactive();
-            window.SetUserBoxInactive();
-            window.SetConnectButtonInactive();
+            window.ToggleServerBoxControl(false);
+            window.ToggleUserBoxControl(false);
+            window.ToggleConnectButtonControl(false);
 
             // Connect to the server, specifying the first thing we want to do once a connection is made is FirstContact
             Network.ConnectToServer(FirstContact, serverAddress);
@@ -146,7 +146,12 @@ namespace SpaceWarsControl
 
             if (state.HasError)
             {
-                ReportNetworkError();
+                // report the error to the user
+                // show error message
+                string errorMessage = "An error occured trying to contact the server";
+                errorMessage += "\nPlease try to connect again";
+                ReportNetworkError(errorMessage);
+                // get out of the call loop
                 return;
             }
 
@@ -166,15 +171,15 @@ namespace SpaceWarsControl
         /// Reports to the user that a network error has occured, then 
         /// enables the controls allowing the user to try to reconnect.
         /// </summary>
-        private void ReportNetworkError()
+        private void ReportNetworkError(String errorMessage)
         {
-            // show error message
-            string errorMessage = "An error occured trying to connect to the server";
-            errorMessage += "\nPlease try to connect again";
+            
             window.DisplayMessageBox(errorMessage);
 
-            // activate user input boxes and button
-            
+            // activate user input boxes and button so they can try again.
+            window.ToggleServerBoxControl(true);
+            window.ToggleUserBoxControl(true);
+            window.ToggleConnectButtonControl(true);
 
         }
 
@@ -185,6 +190,16 @@ namespace SpaceWarsControl
         /// </summary>
         private void ReceiveStartup(SocketState state)
         {
+            if (state.HasError)
+            {
+                // report the error to the user
+                // show error message
+                string errorMessage = "An error occured trying to contact the server";
+                errorMessage += "\nPlease try to connect again";
+                ReportNetworkError(errorMessage);
+                // get out of the call loop
+                return;
+            }
 
             // get the player ID and world size out of state.sb
             IEnumerable<string> tokens = GetTokens(state.GetStringBuilder());
@@ -267,12 +282,6 @@ namespace SpaceWarsControl
         }
 
         //TODO: implement when we have gui
-        private void SetPlayerID(int iD)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: implement when we have gui
         private void SetWorldSize(int worldSize)
         {
             // set the size of the world
@@ -323,6 +332,17 @@ namespace SpaceWarsControl
         /// </summary>
         private void ProcessMessage(SocketState state)
         {
+            if (state.HasError)
+            {
+                // report the error to the user
+                // show error message
+                string errorMessage = "An error occured trying to contact the server";
+                errorMessage += "\nPlease try to connect again";
+                ReportNetworkError(errorMessage);
+                // get out of the call loop
+                return;
+            }
+
             IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
             // Loop until we have processed all messages.
