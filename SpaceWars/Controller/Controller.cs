@@ -243,6 +243,8 @@ namespace SpaceWarsControl
 
         }
 
+        
+        
         /// <summary>
         /// Starts sending the active controls on the socket every time the frame
         /// is redrawn
@@ -250,7 +252,7 @@ namespace SpaceWarsControl
         private void StartSendingControls(Socket socket)
         {
 
-            window.GetFrameTimer().Elapsed += (x, y) => SendControls(socket);
+            window.GetFrameTimer().Elapsed += (x,y) => SendControls(socket);
 
         }
 
@@ -339,6 +341,9 @@ namespace SpaceWarsControl
                 string errorMessage = "An error occured trying to contact the server";
                 errorMessage += "\nPlease try to connect again";
                 ReportNetworkError(errorMessage);
+
+                
+
                 // get out of the call loop
                 return;
             }
