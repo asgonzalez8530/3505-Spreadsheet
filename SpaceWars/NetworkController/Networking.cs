@@ -291,7 +291,6 @@ namespace Communication
             {
                 state.HasError = true;
                 System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
-                return;
             }
 
             state.InvokeNetworkAction(state);

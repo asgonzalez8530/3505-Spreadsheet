@@ -129,9 +129,9 @@ namespace SpaceWarsControl
 
 
             // Disable the controls and try to connect
-            window.SetServerBoxInactive();
-            window.SetUserBoxInactive();
-            window.SetConnectButtonInactive();
+            window.ToggleServerBoxControl(false);
+            window.ToggleUserBoxControl(false);
+            window.ToggleConnectButtonControl(false);
 
             // Connect to the server, specifying the first thing we want to do once a connection is made is FirstContact
             Network.ConnectToServer(FirstContact, serverAddress);
@@ -146,7 +146,9 @@ namespace SpaceWarsControl
 
             if (state.HasError)
             {
+                // report the error to the user
                 ReportNetworkError();
+                // get out of the call loop
                 return;
             }
 
@@ -173,8 +175,10 @@ namespace SpaceWarsControl
             errorMessage += "\nPlease try to connect again";
             window.DisplayMessageBox(errorMessage);
 
-            // activate user input boxes and button
-            
+            // activate user input boxes and button so they can try again.
+            window.ToggleServerBoxControl(true);
+            window.ToggleUserBoxControl(true);
+            window.ToggleConnectButtonControl(true);
 
         }
 
