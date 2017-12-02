@@ -15,7 +15,20 @@ namespace SpaceWars
         private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
-        private int size; // size of the world
+        // Default data for the game
+        private int startingHitPoints = 5;
+        private int projectileSpeed = 15;
+        private double engineStrength = .08;
+        private int turningRate = 2;
+        private int shipSize = 20;
+        private int starSize = 35;
+        private int universeSize = 750;
+        private int MSPerFrame = 16;
+        private int projectileFiringDelay = 6;
+        private int respawnDelay = 300;
+
+        //TODO: remove this and set it to be the Universe size
+        private int size; 
 
         public World()
         {
@@ -23,7 +36,8 @@ namespace SpaceWars
             allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
-            size = 0;
+            //TODO: remove 
+            //size = 0;
         }
 
         /// <summary>
@@ -31,16 +45,16 @@ namespace SpaceWars
         /// </summary>
         public int GetSize()
         {
-            return size;
+            return universeSize;
         }
 
         /// <summary>
         /// Sets the worlds size
         /// </summary>
         /// <param name="n"> the world's size </param>
-        public void SetSize(int n)
+        public void SetUniverseSize(int n)
         {
-            size = n;
+            universeSize = n;
         }
 
         /// <summary>
@@ -75,6 +89,110 @@ namespace SpaceWars
             return projectiles.Values;
         }
 
+        /// <summary>
+        /// Sets the starting hit points for the game
+        /// </summary>
+        public void SetStartingHitPoint(int points)
+        {
+            startingHitPoints = points;
+        }
+
+        /// <summary>
+        /// Sets how fast the projectiles travel 
+        /// </summary>
+        public void SetProjectileSpeed(int speed)
+        {
+            projectileSpeed = speed;
+        }
+
+        /// <summary>
+        /// Sets the acceleration a ship engine applies
+        /// </summary>
+        /// <param name="speed"></param>
+        public void SetEngineStrength(int strength)
+        {
+            engineStrength = strength;
+        }
+
+        /// <summary>
+        /// Sets the degrees that a chip can rotate per frame
+        /// </summary>
+        public void SetTurningRate(int rotate)
+        {
+            turningRate = rotate;
+        }
+
+        /// <summary>
+        /// Sets the area that a ship occupies
+        /// </summary>
+        public void SetShipSize(int size)
+        {
+            shipSize = size;
+        }
+
+        /// <summary>
+        /// Sets the area that a star occupies
+        /// </summary>
+        public void SetStarSize(int size)
+        {
+            starSize = size;
+        }
+
+        /// <summary>
+        /// Sets how often the server attempts to update the world
+        /// </summary>
+        public void SetMSPerFrame(int frames)
+        {
+            MSPerFrame = frames;
+        }
+
+        /// <summary>
+        /// Set how many frames a ship must wait between firing projectiles
+        /// </summary>
+        public void SetProjectileFiringDelay(int firingDelay)
+        {
+            projectileFiringDelay = firingDelay;
+        }
+
+        /// <summary>
+        /// Sets the amount of frames before a ship respawns
+        /// </summary>
+        public void SetRespawnDelay(int delay)
+        {
+            respawnDelay = delay;
+        }
+
+        /// <summary>
+        /// Sets the star's x location
+        /// </summary>
+        /// <param name="x"></param>
+        public void SetStarX(int x)
+        {
+            //TODO: set x
+        }
+        
+        /// <summary>
+        /// Sets the star's y location
+        /// </summary>
+        /// <param name="y"></param>
+        public void SetStarY(int y)
+        {
+            //TODO: set y
+        }
+
+        /// <summary>
+        /// Sets the star's mass
+        /// </summary>
+        /// <param name="mass"></param>
+        public void SetStarMass(int mass)
+        {
+
+        }
+
+        /// <summary>
+        /// When a ship is added to the game we update the info or add it
+        /// to the world 
+        /// </summary>
         private void AddAllShips(Ship s)
         {
             // if the ship is in the world, update its reference
@@ -173,6 +291,49 @@ namespace SpaceWars
             {
                 projectiles.Add(p.GetID(), p);
             }
+        }
+
+        /// <summary>
+        /// Computes the acceleration of the passed in ship
+        /// </summary>
+        public void Motion(Ship ship)
+        {
+            Vector2D acceleration = new Vector2D();
+            //compute the acceleration caused by the star
+            foreach (Star star in stars.Values)
+            {
+                Vector2D g = star.GetLocation() - ship.GetLocation();
+                g.Normalize();
+                acceleration = acceleration + g * star.GetMass();
+            }
+
+            //compute the acceleration 
+            Vector2D t = new Vector2D(ship.GetDirection());
+            t = t * engineStrength;
+
+            acceleration = acceleration + t;
+        }
+
+        /// <summary>
+        /// Checks to see if the passed in ship is on the edge of the world
+        /// </summary>
+        public void Wraparound(Ship s)
+        {
+            int borderCoordinate = universeSize / 2;
+
+            if (Math.Abs(s.GetLocation().GetX()) == borderCoordinate)
+            {
+                //TODO: times x by -1
+            }
+            if (Math.Abs(s.GetLocation().GetY()) == borderCoordinate)
+            {
+                //TODO: times y by -1
+            }
+        }
+
+        public void Collision()
+        {
+
         }
     }
 }

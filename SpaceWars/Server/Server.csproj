@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -52,18 +52,6 @@
     <ProjectReference Include="..\NetworkController\NetworkController.csproj">
       <Project>{64d77279-ed61-41eb-883b-ea2a7ef17211}</Project>
       <Name>NetworkController</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Projectile\Projectile.csproj">
-      <Project>{1872773c-ee4a-44a9-add2-42ac7cd7faef}</Project>
-      <Name>Projectile</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Ship\Ship.csproj">
-      <Project>{848891b6-a85a-447c-b0b3-bcc0d1de532d}</Project>
-      <Name>Ship</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Star\Star.csproj">
-      <Project>{98be4303-f296-42a3-ab06-69b480ae77a2}</Project>
-      <Name>Star</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vector2D\Vector2D.csproj">
       <Project>{b88d64db-ee02-445c-aad5-ece8c19406b4}</Project>

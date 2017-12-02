@@ -59,6 +59,10 @@
       <Project>{98be4303-f296-42a3-ab06-69b480ae77a2}</Project>
       <Name>Star</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vector2D\Vector2D.csproj">
+      <Project>{b88d64db-ee02-445c-aad5-ece8c19406b4}</Project>
+      <Name>Vector2D</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
