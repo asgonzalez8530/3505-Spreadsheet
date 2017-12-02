@@ -12,8 +12,7 @@ namespace SpaceWarsServer
 {
     class Server
     {
-
-        private World world;
+        private World world; // reference to the world
 
         public Server()
         {
@@ -24,6 +23,10 @@ namespace SpaceWarsServer
 
             try
             {
+                string x = null;
+                string y = null;
+                string mass = null;
+
                 using (XmlReader reader = XmlReader.Create(filePath))
                 {
                     while (reader.Read())
@@ -36,13 +39,12 @@ namespace SpaceWarsServer
                                     break;
                                 case "UniverseSize":
                                     reader.Read();
-                                    int.TryParse(reader.Value, out int size);
-                                    world.SetUniverseSize(size);
+                                    world.SetUniverseSize(reader.Value);
                                     break;
                                 case "MSPerFrame":
                                     reader.Read();
                                     int.TryParse(reader.Value, out int frames);
-                                    world.SetMSPerFrame(frames);
+                                    world.SetMSPerFrame(reader.Value);
                                     break;
                                 case "FramesPerShot":
                                     reader.Read();
@@ -56,21 +58,27 @@ namespace SpaceWarsServer
                                     break;
                                 //TODO: add all the extra features + the extra setting
                                 case "Star":
-                                    break;
-                                case "x":
                                     reader.Read();
-                                    int.TryParse(reader.Value, out int x);
-                                    world.SetStarX(x);
-                                    break;
-                                case "y":
-                                    reader.Read();
-                                    int.TryParse(reader.Value, out int y);
-                                    world.SetStarY(y);
-                                    break;
-                                case "mass":
-                                    reader.Read();
-                                    int.TryParse(reader.Value, out int mass);
-                                    world.SetStarMass(mass);
+                                    if (reader.Name == "x")
+                                    {
+                                        reader.Read();
+                                        x = reader.Value;
+                                        reader.Read();
+                                        reader.Read();
+                                        if (reader.Name == "y")
+                                        {
+                                            reader.Read();
+                                            y = reader.Value;
+                                            reader.Read();
+                                            reader.Read();
+                                        }
+                                        if (reader.Name == "mass")
+                                        {
+                                            reader.Read();
+                                            mass = reader.Value;
+                                        }
+                                    }
+                                    world.MakeNewStar(x, y, mass);
                                     break;
                             }
                         }
@@ -81,9 +89,10 @@ namespace SpaceWarsServer
                 // we have successful opened a server... wait for first client
                 Console.WriteLine("Server is up. Awaiting first client.");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //TODO: deal with any problems 
+                //TODO: deal with any problems
+                Console.WriteLine(e.Message);
             }
         }
         

@@ -25,10 +25,7 @@ namespace SpaceWars
         private int universeSize = 750;
         private int MSPerFrame = 16;
         private int projectileFiringDelay = 6;
-        private int respawnDelay = 300;
-
-        //TODO: remove this and set it to be the Universe size
-        private int size; 
+        private int respawnDelay = 300; 
 
         public World()
         {
@@ -36,8 +33,6 @@ namespace SpaceWars
             allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
-            //TODO: remove 
-            //size = 0;
         }
 
         /// <summary>
@@ -163,33 +158,6 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Sets the star's x location
-        /// </summary>
-        /// <param name="x"></param>
-        public void SetStarX(int x)
-        {
-            //TODO: set x
-        }
-        
-        /// <summary>
-        /// Sets the star's y location
-        /// </summary>
-        /// <param name="y"></param>
-        public void SetStarY(int y)
-        {
-            //TODO: set y
-        }
-
-        /// <summary>
-        /// Sets the star's mass
-        /// </summary>
-        /// <param name="mass"></param>
-        public void SetStarMass(int mass)
-        {
-
-        }
-
-        /// <summary>
         /// When a ship is added to the game we update the info or add it
         /// to the world 
         /// </summary>
@@ -291,6 +259,31 @@ namespace SpaceWars
             {
                 projectiles.Add(p.GetID(), p);
             }
+        }
+
+        /// <summary>
+        /// Makes a new reference to a star in the world on the servers side at the
+        /// passed in x and y coordinates and the given mass
+        /// </summary>
+        public void MakeNewStar(string x, string y, string mass)
+        {
+            // make sure that all the properties of a star are vaild
+            if (x == null || y == null || mass == null)
+            {
+                throw new ArgumentException("Server Error: Invalid star in the XML file was found");
+            }
+
+            // parse the x, y, and mass
+            int.TryParse(x, out int X);
+            int.TryParse(y, out int Y);
+            int.TryParse(mass, out int Mass);
+
+            // make a new unique ID for the star
+            int id = stars.Count;
+
+            // make a new star and add it to the world dictionary
+            Star s = new Star(id, X, Y, Mass);
+            AddStar(s);
         }
 
         /// <summary>

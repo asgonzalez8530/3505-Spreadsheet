@@ -30,6 +30,20 @@ namespace SpaceWars
         private int height = 70; // image height in pixels
 
         /// <summary>
+        /// This is for the JSon serialization 
+        /// </summary>
+        public Star()
+        {
+        }
+        
+        public Star(int id, int x, int y, int mass)
+        {
+            ID = id;
+            loc = new Vector2D(x, y);
+            this.mass = mass;
+        }
+
+        /// <summary>
         /// Gets the Star's ID
         /// </summary>
         public int GetID()
