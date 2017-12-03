@@ -319,7 +319,7 @@ namespace SpaceWarsControl
         private void SetWorldSize(int worldSize)
         {
             // set the size of the world
-            theWorld.SetSize(worldSize);
+            theWorld.SetUniverseSize(worldSize);
 
             // updates the size of the worldPanel
             window.UpdateWorldSize(worldSize);

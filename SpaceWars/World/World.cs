@@ -58,8 +58,15 @@ namespace SpaceWars
             {
                 universeSize = s;
             }
-            
-            
+               
+        }
+
+        /// <summary>
+        /// Takes in an int, size and sets the UniverseSize to that value;
+        /// </summary>
+        public void SetUniverseSize(int size)
+        {
+            universeSize = size;
         }
 
         /// <summary>

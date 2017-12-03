@@ -109,6 +109,74 @@ namespace Communication
     }
 
     /// <summary>
+    /// The Connection State class holds data and methods nessasary for handling incoming network
+    /// requests.
+    /// </summary>
+    public class ConnectionState
+    {
+        // the TCP listener for this connection request
+        TcpListener listener;
+
+        // a delegate which can be invoked upon receiving a connection request
+        // enforced invarient: this action cannot be null
+        NetworkAction action;
+
+        /// <summary>
+        /// Creates a new ConnectionState object with the user given TcpListener
+        /// and NetworkAction delegate. 
+        /// 
+        /// If listen is null, throws ArgumentNullException.
+        /// If action is null, sets networkAction to an empty lambda.
+        /// </summary>
+        public ConnectionState(TcpListener listen, NetworkAction networkAction)
+        {
+            if (listen == null)
+            {
+                string exceptionMessage = "TcpListener object passed to ConnectionState cannot be null";
+                throw new ArgumentNullException(exceptionMessage);
+            }
+
+            listener = listen;
+            SetNetworkAction(networkAction);
+        }
+
+        /// <summary>
+        /// Takes a NetworkAction delegate, a, and sets it to this sockets action.
+        /// if a is null, sets action to empty lambda.
+        /// </summary>
+        private void SetNetworkAction(NetworkAction a)
+        {
+            if (a != null)
+            {
+                action = a;
+            }
+            else
+            {
+                action = x => { };
+            }
+        }
+
+        /// <summary>
+        /// Returns the NetworkAction delegate stored by this connection state
+        /// object.
+        /// </summary>
+        public NetworkAction GetNetworkAction()
+        {
+            return action;
+        }
+
+        /// <summary>
+        /// Returns the TcpListener stored by this connection state
+        /// object.
+        /// </summary>
+        public TcpListener GetTcpListener()
+        {
+            return listener;
+        }
+
+    }
+
+    /// <summary>
     /// Class that intiates the passing of information with sockets between the server and client
     /// </summary>
     public static class Network

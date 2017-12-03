@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "View\View.csproj", "{C8B912C5-984D-4294-B23B-AEF630523C04}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "World", "World\World.csproj", "{581F4CF7-23A9-46DC-B6D4-EE12472047DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{91DDEDFA-3B61-4C9F-9292-7731FCD217A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceWarsTests", "SpaceWarsTests\SpaceWarsTests.csproj", "{1EE45355-9B38-4A50-BC3B-1C5926A5A5CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{91DDEDFA-3B61-4C9F-9292-7731FCD217A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91DDEDFA-3B61-4C9F-9292-7731FCD217A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91DDEDFA-3B61-4C9F-9292-7731FCD217A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EE45355-9B38-4A50-BC3B-1C5926A5A5CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EE45355-9B38-4A50-BC3B-1C5926A5A5CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EE45355-9B38-4A50-BC3B-1C5926A5A5CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EE45355-9B38-4A50-BC3B-1C5926A5A5CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
