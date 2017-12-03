@@ -355,6 +355,7 @@ namespace Communication
 
                 // Disable Nagle's algorithm - can speed things up for tiny messages, such as for a game
                 socket.NoDelay = true;
+                
             }
             catch (Exception e)
             {
@@ -384,5 +385,45 @@ namespace Communication
 
             state.InvokeNetworkAction(state);
         }
+
+        #region Methods handling incoming server trafic
+
+        /// <summary>
+        /// Takes a NetworkAction delegate, action and begins an event loop 
+        /// listening for new connections on the default port: 11000
+        /// </summary>
+        /// <param name="action">A delegate to be invoked when a new connection 
+        /// comes in. </param>
+        public static void ServerAwaitingClientLoop(NetworkAction action)
+        {
+            ServerAwaitingClientLoop(action, DEFAULT_PORT);
+        }
+
+        /// <summary>
+        /// Takes a NetworkAction delegate, and a specified port and begins
+        /// an event loop listening for new connections on that port.
+        /// </summary>
+        /// <param name="action">A delegate to be invoked when a new connection 
+        /// comes in.</param>
+        /// <param name="port">The port number to listen on</param>
+        public static void ServerAwaitingClientLoop(NetworkAction action, int port)
+        {
+
+        }
+
+        /// <summary>
+        /// This function is "called" by the operating system when a remote
+        /// connection request comes in.
+        /// 
+        /// AcceptNewClient creates a new socket and saves it in a SocketState
+        /// object then invokes the NetworkAction delegate stored by the 
+        /// parameter ar and continues the event loop. 
+        /// </summary>
+        public static void AcceptNewClient(IAsyncResult ar)
+        {
+
+        }
+
+        #endregion
     }
 }
