@@ -46,10 +46,20 @@ namespace SpaceWars
         /// <summary>
         /// Sets the worlds size
         /// </summary>
-        /// <param name="n"> the world's size </param>
-        public void SetUniverseSize(int n)
+        /// <param name="size"> the world's size </param>
+        public void SetUniverseSize(string size)
         {
-            universeSize = n;
+            // make sure that size is not null and can be parsed to an int 
+            if (size == null || !int.TryParse(size, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid star in the XML file was found");
+            }
+            else
+            {
+                universeSize = s;
+            }
+            
+            
         }
 
         /// <summary>
@@ -128,33 +138,37 @@ namespace SpaceWars
         /// <summary>
         /// Sets the area that a star occupies
         /// </summary>
-        public void SetStarSize(int size)
+        public void SetStarSize(string size)
         {
-            starSize = size;
+            int.TryParse(size, out int s);
+            starSize = s;
         }
 
         /// <summary>
         /// Sets how often the server attempts to update the world
         /// </summary>
-        public void SetMSPerFrame(int frames)
+        public void SetMSPerFrame(string frames)
         {
-            MSPerFrame = frames;
+            int.TryParse(frames, out int f);
+            MSPerFrame = f;
         }
 
         /// <summary>
         /// Set how many frames a ship must wait between firing projectiles
         /// </summary>
-        public void SetProjectileFiringDelay(int firingDelay)
+        public void SetProjectileFiringDelay(string firingDelay)
         {
-            projectileFiringDelay = firingDelay;
+            int.TryParse(firingDelay, out int f);
+            projectileFiringDelay = f;
         }
 
         /// <summary>
         /// Sets the amount of frames before a ship respawns
         /// </summary>
-        public void SetRespawnDelay(int delay)
+        public void SetRespawnDelay(string delay)
         {
-            respawnDelay = delay;
+            int.TryParse(delay, out int d);
+            respawnDelay = d;
         }
 
         /// <summary>

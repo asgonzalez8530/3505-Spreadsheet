@@ -43,18 +43,15 @@ namespace SpaceWarsServer
                                     break;
                                 case "MSPerFrame":
                                     reader.Read();
-                                    int.TryParse(reader.Value, out int frames);
                                     world.SetMSPerFrame(reader.Value);
                                     break;
                                 case "FramesPerShot":
                                     reader.Read();
-                                    int.TryParse(reader.Value, out int firingDelay);
-                                    world.SetProjectileFiringDelay(firingDelay);
+                                    world.SetProjectileFiringDelay(reader.Value);
                                     break;
                                 case "RespawnRate":
                                     reader.Read();
-                                    int.TryParse(reader.Value, out int respawnDelay);
-                                    world.SetRespawnDelay(respawnDelay);
+                                    world.SetRespawnDelay(reader.Value);
                                     break;
                                 //TODO: add all the extra features + the extra setting
                                 case "Star":
