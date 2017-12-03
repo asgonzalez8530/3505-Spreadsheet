@@ -21,7 +21,7 @@ namespace Communication
     {
         private NetworkAction action;
         private Socket theSocket;
-        private int ID;
+        private int ClientID;
 
         // This is the buffer where we will receive data from the socket
         private byte[] messageBuffer;
@@ -37,7 +37,7 @@ namespace Communication
         public SocketState(Socket s, int id)
         {
             theSocket = s;
-            ID = id;
+            ClientID = id;
             messageBuffer = new byte[1024];
             sb = new StringBuilder();
             HasError = false;
@@ -104,6 +104,16 @@ namespace Communication
         public Socket GetSocket()
         {
             return theSocket;
+        }
+
+        // TODO: May not need, remove if necessary. 
+        
+        /// <summary>
+        /// Sets the id sent from the client that describes the current socket
+        /// </summary>
+        public void SetID(int id)
+        {
+            ClientID = id;
         }
 
     }
@@ -386,7 +396,7 @@ namespace Communication
             state.InvokeNetworkAction(state);
         }
 
-        #region Methods handling incoming server trafic
+        #region Server Listening event loop methods
 
         /// <summary>
         /// Takes a NetworkAction delegate, action and begins an event loop 
@@ -408,7 +418,15 @@ namespace Communication
         /// <param name="port">The port number to listen on</param>
         public static void ServerAwaitingClientLoop(NetworkAction action, int port)
         {
+            // create a new TcpListener and start it listening on the given port
+            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
 
+            // save the state of our connection allong with its NetworkAction
+            ConnectionState state = new ConnectionState(listener, action);
+
+            // begin accepting incoming connection attempts
+            listener.BeginAcceptSocket(AcceptNewClient, state);
         }
 
         /// <summary>
@@ -421,7 +439,21 @@ namespace Communication
         /// </summary>
         public static void AcceptNewClient(IAsyncResult ar)
         {
+            // extract the ConnectionState from ar
+            ConnectionState cs = (ConnectionState)ar.AsyncState;
 
+            // extract the socket from the TCP listener 
+            Socket socket = cs.GetTcpListener().EndAcceptSocket(ar);
+
+            // save the socket along with a network action
+            SocketState ss = new SocketState(socket, -1);
+            ss.SetNetworkAction(cs.GetNetworkAction());
+
+            // invoke the network action and pass it our new socket state
+            ss.InvokeNetworkAction(ss);
+
+            //continue the event loop
+            cs.GetTcpListener().BeginAcceptSocket(AcceptNewClient, cs);
         }
 
         #endregion
