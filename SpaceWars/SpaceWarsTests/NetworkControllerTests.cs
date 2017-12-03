@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Sockets;
 using System.Net;
 using Communication;
+using System.Text;
 
 namespace SpaceWarsTests
 {
@@ -150,6 +151,60 @@ namespace SpaceWarsTests
 
         #endregion
 
+        /********************* SocketState Class tests ***********************/
+        #region SocketState tests
 
+        /// <summary>
+        /// Tests the expected state of a SocketState object when it is
+        /// first initialized
+        /// </summary>
+        [TestMethod]
+        public void SocketState_ConstructorTest()
+        {
+            // create a socket using to pass to a SocketState object
+            Network.MakeSocket("localhost", out Socket sock, out IPAddress address);
+
+            try
+            {
+                SocketState state = new SocketState(sock, -1);
+
+                //the state should not be reporting an error
+                Assert.IsFalse(state.HasError);
+
+                // there error messgae should be an empty string
+                Assert.IsTrue(state.ErrorMessage == "");
+
+                //the size of the buffer should be 1024
+                byte[] buffer = state.GetMessageBuffer();
+
+                Assert.AreEqual(1024, buffer.Length);
+
+                // the message buffer should be filled with 0's
+                byte zeroByte = 0x0;
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    Assert.IsTrue(buffer[i] == zeroByte);
+                }
+
+                // growable string builder which represents the message sent by server
+                // should not contain anything.
+                StringBuilder sb = state.GetStringBuilder();
+                Assert.IsTrue(sb.ToString() == "");
+                Assert.AreEqual(0, sb.Length);
+
+                // the socket returned by GetSocket should be the same instance as
+                // passed to the constructor
+                Assert.AreEqual(sock, state.GetSocket());
+
+            }
+            // make sure we close the socket when we are done testing our state
+            finally
+            {
+                sock.Dispose();
+            }
+
+        }
+
+        #endregion
     }
 }

@@ -41,10 +41,10 @@ namespace Communication
             messageBuffer = new byte[1024];
             sb = new StringBuilder();
             HasError = false;
-            errorMessage = "";
+            ErrorMessage = "";
 
-            // an empty action, does nothing, guarantees action is not null when created.
-            action = x => { };
+            // method guarantees action is not null when created.
+            SetNetworkAction(null);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Communication
         /// <summary>
         /// Contains the error message reported by the system if one was encountered.
         /// </summary>
-        public string errorMessage { get; set; }
+        public string ErrorMessage { get; set; }
 
         /// <summary>
         /// Gets the byte array which is used as the sockets buffer
@@ -114,6 +114,14 @@ namespace Communication
         public void SetID(int id)
         {
             ClientID = id;
+        }
+
+        /// <summary>
+        /// Gets the id sent from the client that describes the current socket
+        /// </summary>
+        public int GetID()
+        {
+            return ClientID;
         }
 
     }
@@ -196,31 +204,18 @@ namespace Communication
 
 
         /// <summary>
-        /// Attempt to connect to the server via the provided hostname. It should 
+        /// Attempt to connect to the server via the provided hostname and default port 11000
         /// </summary>
         /// <param name="callbackFunction"> a function to be called when a connection is made </param>
         /// <param name="hostname"> name of the server to connect to </param>
         /// <returns></returns>
         public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname)
         {
-            // Create a TCP/IP socket.
-            MakeSocket(hostname, out Socket socket, out IPAddress ipAddress);
-
-            // make a new state of the socket we just made
-            SocketState state = new SocketState(socket, -1);
-
-            // call the correct function needed for the client
-            state.SetNetworkAction(callbackFunction);
-
-            // make a new connection to the server
-            state.GetSocket().BeginConnect(ipAddress, DEFAULT_PORT, ConnectedCallback, state);
-
-            // return the current socket with respect to the state
-            return state.GetSocket();
+            return ConnectToServer(callbackFunction, hostname, DEFAULT_PORT);
         }
 
         /// <summary>
-        /// Attempt to connect to the server via the provided hostname and port. It should 
+        /// Attempt to connect to the server via the provided hostname and port.  
         /// </summary>
         /// <param name="callbackFunction"> a function to be called when a connection is made </param>
         /// <param name="hostname"> name of the server to connect to </param>
@@ -276,7 +271,7 @@ namespace Communication
             catch (SocketException e)
             {
                 state.HasError = true;
-                state.errorMessage = e.Message;
+                state.ErrorMessage = e.Message;
                 // invoke client delegate so it can take whatever action it needs with an error
                 state.InvokeNetworkAction(state);
             }
@@ -390,7 +385,7 @@ namespace Communication
             catch (Exception e)
             {
                 state.HasError = true;
-                state.errorMessage = e.Message;
+                state.ErrorMessage = e.Message;
             }
 
             state.InvokeNetworkAction(state);
