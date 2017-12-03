@@ -52,7 +52,7 @@ namespace SpaceWars
             // make sure that size is not null and can be parsed to an int 
             if (size == null || !int.TryParse(size, out int s))
             {
-                throw new ArgumentException("Server Error: Invalid star in the XML file was found");
+                throw new ArgumentException("Server Error: Invalid UniverseSize in the XML file was found");
             }
             else
             {
@@ -138,10 +138,9 @@ namespace SpaceWars
         /// <summary>
         /// Sets the area that a star occupies
         /// </summary>
-        public void SetStarSize(string size)
+        public void SetStarSize(int size)
         {
-            int.TryParse(size, out int s);
-            starSize = s;
+            starSize = size;
         }
 
         /// <summary>
@@ -149,8 +148,17 @@ namespace SpaceWars
         /// </summary>
         public void SetMSPerFrame(string frames)
         {
-            int.TryParse(frames, out int f);
-            MSPerFrame = f;
+            // make sure that frames is not null and can be parsed to an int 
+            if (frames == null || !int.TryParse(frames, out int f))
+            {
+                throw new ArgumentException("Server Error: Invalid MSPerFrame in the XML file was found");
+            }
+            else
+            {
+                MSPerFrame = f;
+            }
+            
+            
         }
 
         /// <summary>
@@ -158,8 +166,16 @@ namespace SpaceWars
         /// </summary>
         public void SetProjectileFiringDelay(string firingDelay)
         {
-            int.TryParse(firingDelay, out int f);
-            projectileFiringDelay = f;
+            // make sure that firingDelay is not null and can be parsed to an int 
+            if (firingDelay == null || !int.TryParse(firingDelay, out int f))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                projectileFiringDelay = f;
+            }
+            
         }
 
         /// <summary>
@@ -167,8 +183,15 @@ namespace SpaceWars
         /// </summary>
         public void SetRespawnDelay(string delay)
         {
-            int.TryParse(delay, out int d);
-            respawnDelay = d;
+            // make sure that delay is not null and can be parsed to an int 
+            if (delay == null || !int.TryParse(delay, out int d))
+            {
+                throw new ArgumentException("Server Error: Invalid RespawnRate in the XML file was found");
+            }
+            else
+            {
+                respawnDelay = d;
+            }
         }
 
         /// <summary>
