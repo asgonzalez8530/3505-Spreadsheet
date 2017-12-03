@@ -9,7 +9,7 @@ namespace SpaceWarsTests
         [TestMethod]
         public void TestMethod1()
         {
-
+            Assert.Fail("Method not implemented");
         }
     }
 }

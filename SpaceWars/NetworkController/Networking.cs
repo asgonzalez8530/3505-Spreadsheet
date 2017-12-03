@@ -14,13 +14,17 @@ namespace Communication
     public delegate void NetworkAction(SocketState state);
 
     /// <summary>
-    /// Class that creates the sockets that will be used during communication between the server
-    /// and client
+    /// A class which represents the state of a socket connection as well as a network
+    /// action delegate which can be invoked upon receiving data on the socket
     /// </summary>
     public class SocketState
     {
+        // a delegate which can be invoked when data is received
+        // enforced invariant: cannot be null
         private NetworkAction action;
+        // the socket whos state is represented by this object
         private Socket theSocket;
+        // the id given by client which identifies this connection
         private int ClientID;
 
         // This is the buffer where we will receive data from the socket
@@ -30,7 +34,7 @@ namespace Communication
         private StringBuilder sb;
 
         /// <summary>
-        /// Constructor
+        /// Creates a new socket state object with the given socket and id
         /// </summary>
         /// <param name="s"> the socket </param>
         /// <param name="id"> id sent from the client that describes the current socket </param>
@@ -90,8 +94,8 @@ namespace Communication
         }
 
         /// <summary>
-        /// Takes in a SocketState, s, and calls the NetworkAction method stored by the
-        /// delegate.
+        /// Takes in a SocketState, s, and calls the NetworkAction method stored
+        /// by s.
         /// </summary>
         public void InvokeNetworkAction(SocketState s)
         {
