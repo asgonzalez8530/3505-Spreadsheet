@@ -205,6 +205,7 @@ namespace Communication
     {
         //the port that we will be using
         public const int DEFAULT_PORT = 11000;
+        public const int HTTP_PORT = 80;
 
 
         /// <summary>
@@ -298,7 +299,6 @@ namespace Communication
         /// </summary>
         public static void Send(Socket socket, String data)
         {            
-            // Append a newline, since that is our protocol's terminating character for a message.
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             
             socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
@@ -313,6 +313,8 @@ namespace Communication
             // end the feedback loop for the current socket. 
             s.EndSend(ar);
         }
+
+
 
         /// <summary>
         /// Creates a Socket object for the given host string
@@ -337,7 +339,7 @@ namespace Communication
                     ipHostInfo = Dns.GetHostEntry(hostName);
                     bool foundIPV4 = false;
                     foreach (IPAddress addr in ipHostInfo.AddressList)
-                        if (addr.AddressFamily != AddressFamily.InterNetworkV6)
+                        if (addr.AddressFamily != AddressFamily.InterNetworkV6) 
                         {
                             foundIPV4 = true;
                             ipAddress = addr;
@@ -453,6 +455,27 @@ namespace Communication
 
             //continue the event loop
             cs.GetTcpListener().BeginAcceptSocket(AcceptNewClient, cs);
+        }
+
+        /// <summary>
+        /// Sends data on the given socket then closes the socket when done.
+        /// </summary>
+        public static void SendAndClose(Socket socket, string data)
+        {
+            byte[] messageBytes = Encoding.UTF8.GetBytes(data);
+
+            socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
+        }
+
+        /// <summary>
+        /// A callback invoked when a SendAndClose operation completes
+        /// </summary>
+        public static void SendAndCloseCallback(IAsyncResult ar)
+        {
+            Socket s = (Socket)ar.AsyncState;
+            // end the feedback loop for the current socket. 
+            s.EndSend(ar);
+            s.Close();
         }
 
         #endregion
