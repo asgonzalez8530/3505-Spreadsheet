@@ -62,6 +62,7 @@
     <Content Include="Images\shot-yellow.png" />
     <Content Include="Images\star.png" />
     <Content Include="README.txt" />
+    <Content Include="ServerSettings\settings.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Libraries\" />

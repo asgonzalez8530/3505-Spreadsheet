@@ -44,6 +44,14 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// returns the nunber of milliseconds per frame.
+        /// </summary>
+        public int GetMSPerFrame()
+        {
+            return MSPerFrame;
+        }
+
+        /// <summary>
         /// Sets the worlds size
         /// </summary>
         /// <param name="size"> the world's size </param>
@@ -166,6 +174,69 @@ namespace SpaceWars
             }
             
             
+        }
+
+        /// <summary>
+        /// Takes in a string representing a command request and a playerId
+        /// and updates the associated players ship with the commands.
+        /// 
+        /// A command request is a string containing one or more single-letter 
+        /// commands enclosed in parentheses. 
+        /// 
+        /// The letters can be any combination of the below:
+        /// 1. 'R' - turn right
+        /// 2. 'L' - turn left
+        /// 3. 'T' - engine thrust
+        /// 4. 'F' - fire projectile
+        /// 
+        /// if any character other than these or parentheses are found in the 
+        /// commands string, throws ArgumentException
+        /// 
+        /// if no player exists with playerID, throws ArgumentException
+        /// </summary>
+        public void UpdateShipCommands(string commands, int playerID)
+        {
+            if (!allShips.ContainsKey(playerID))
+            {
+                throw new ArgumentException("Ship Command Error: ship not in world");
+            }
+            else
+            {
+                Ship s = allShips[playerID];
+
+                foreach (char command in commands)
+                {
+                    switch (command)
+                    {
+                        case 'R': // turn right
+                            // can't turn right and left at the same time
+                            if (!s.TurnLeft)
+                            {
+                                s.TurnRight = true;
+                            }
+                            break;
+                        case 'L': // turn left
+                            // can't turn right and left at the same time
+                            if (!s.TurnRight)
+                            {
+                                s.TurnLeft = true;
+                            }
+                            break;
+                        case 'T': // turn on thrust
+                            s.Thrust = true;
+                            break;
+                        case 'F': // fire a projectile
+                            s.FireProjectile = true;
+                            break;
+                        case '(': // valid but not used
+                            break;
+                        case ')': // valid but not used
+                            break;
+                        default:
+                            throw new ArgumentException("Ship Command Error: Invalid command \'" + command + "\'");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -328,6 +399,25 @@ namespace SpaceWars
             // make a new star and add it to the world dictionary
             Star s = new Star(id, X, Y, Mass);
             AddStar(s);
+        }
+
+        /// <summary>
+        /// Creates a new ship with the given name and id, then adds  it to the
+        /// world
+        /// </summary>
+        public void MakeNewShip(String name, int id)
+        {
+            // TODO: Server needs to find suitable location to place ship when
+            // made and when respawning.
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D orientation = new Vector2D(0, 0);
+
+            // make a ship
+            Ship s = new Ship(name, id, location, orientation);
+
+            // add the ship to the world
+            AddShip(s);
+            
         }
 
         /// <summary>

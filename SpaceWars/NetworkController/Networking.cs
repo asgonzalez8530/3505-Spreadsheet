@@ -473,9 +473,13 @@ namespace Communication
         public static void SendAndCloseCallback(IAsyncResult ar)
         {
             Socket s = (Socket)ar.AsyncState;
-            // end the feedback loop for the current socket. 
-            s.EndSend(ar);
-            s.Close();
+            // using notation to ensure socket gets disposed
+            using (s)
+            {
+                // end the feedback loop for the current socket. 
+                s.EndSend(ar);
+                s.Close();
+            }
         }
 
         #endregion

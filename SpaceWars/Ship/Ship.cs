@@ -42,6 +42,48 @@ namespace SpaceWars
         private int height = 100; // image height in pixels
 
         /// <summary>
+        /// Default construtor, needed to deserialize a ship from Json
+        /// initializes a Ship object with no parameters set.
+        /// </summary>
+        public Ship()
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new ship with the given ship name and id at loc (0,0) and
+        /// with a direction (0,0)
+        /// </summary>
+        public Ship(String shipName, int id)
+            :this(shipName, id, new Vector2D(0, 0), new Vector2D(0, 0))
+        {
+            
+        }
+
+        /// <summary>
+        /// Creates a new ship with the given ship name and id and located at
+        /// the specified location and orientation
+        /// </summary>
+        public Ship(String shipName, int id, Vector2D location, Vector2D orientation)
+        {
+            ID = id;
+            name = shipName;
+
+            loc = location;
+            dir = orientation;
+            dir.Normalize();
+
+            thrust = false;
+            hp = 5;
+            score = 0;
+        }
+
+        public bool TurnRight { get; set; }
+        public bool TurnLeft { get; set; }
+        public bool FireProjectile { get; set; }
+        public bool Thrust { get => thrust; set => thrust = value; }
+
+        /// <summary>
         /// Get the ship's ID
         /// </summary>
         public int GetID()
