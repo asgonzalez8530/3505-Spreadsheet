@@ -391,7 +391,7 @@ namespace SpaceWars
             // parse the x, y, and mass
             int.TryParse(x, out int X);
             int.TryParse(y, out int Y);
-            int.TryParse(mass, out int Mass);
+            double.TryParse(mass, out double Mass);
 
             // make a new unique ID for the star
             int id = stars.Count;

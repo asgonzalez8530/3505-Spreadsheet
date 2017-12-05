@@ -37,7 +37,7 @@ namespace SpaceWarsServer
             try
             {
                 // get the game settings and pass them to the world
-                ReadSettingsXML(filePath+fileName);
+                ReadSettingsXML(filePath + fileName);
 
                 // we have successful opened a server... wait for first client
                 Console.WriteLine("Server is up. Awaiting first client.");
@@ -134,7 +134,7 @@ namespace SpaceWarsServer
         {
             // enumerate the complete received messages.
             IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
-            
+
             // find the first complete message
             string commands = "";
             if (messages.Any())
@@ -150,7 +150,7 @@ namespace SpaceWarsServer
 
             // give commands to ship
             commands.TrimEnd();
-            lock(world)
+            lock (world)
             {
                 world.UpdateShipCommands(commands, state.GetID());
             }
@@ -164,20 +164,21 @@ namespace SpaceWarsServer
         /// </summary>
         private void UpdateWorld()
         {
-            
+
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
-            { Thread.Yield();}
+            { Thread.Yield(); }
+            watch.Restart();
             // TODO: may need to do nothing instead of yield 
             //(can't remember what was said in class)
-            
+
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
-            lock(world)
+            lock (world)
             {
                 IEnumerable<Star> stars = world.GetStars();
                 foreach (Star s in stars)
                 {
-                    sb.Append(JsonConvert.SerializeObject(s)+"\n");
+                    sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
             }
 
@@ -187,7 +188,7 @@ namespace SpaceWarsServer
             {
                 foreach (SocketState client in clients)
                 {
-                    Network.Send(client.GetSocket(), data); 
+                    Network.Send(client.GetSocket(), data);
                 }
             }
         }
@@ -263,16 +264,21 @@ namespace SpaceWarsServer
                                 //TODO: add all the extra features + the extra setting
                                 case "Star":
                                     reader.Read();
+                                    reader.Read();
                                     if (reader.Name == "x")
                                     {
                                         reader.Read();
+
                                         x = reader.Value;
                                         reader.Read();
+                                        reader.Read();
+
                                         reader.Read();
                                         if (reader.Name == "y")
                                         {
                                             reader.Read();
                                             y = reader.Value;
+                                            reader.Read();
                                             reader.Read();
                                             reader.Read();
                                         }
@@ -290,7 +296,7 @@ namespace SpaceWarsServer
                     // we're done with the reader, time to close it
                     reader.Close();
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -298,7 +304,7 @@ namespace SpaceWarsServer
                 Console.WriteLine(e.Message);
             }
         }
-        
+
         public static void Main(string[] args)
         {
             Server s = new Server();

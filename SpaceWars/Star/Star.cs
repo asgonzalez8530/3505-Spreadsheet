@@ -36,7 +36,7 @@ namespace SpaceWars
         {
         }
         
-        public Star(int id, int x, int y, int mass)
+        public Star(int id, int x, int y, double mass)
         {
             ID = id;
             loc = new Vector2D(x, y);
