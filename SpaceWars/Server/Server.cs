@@ -31,7 +31,7 @@ namespace SpaceWarsServer
             watch.Start();
 
             //TODO: file path for the game settings
-            string filePath = @"../../../Resources/Images/ServerSettings/";
+            string filePath = @"../../../Resources/ServerSettings/";
             string fileName = @"settings.xml";
 
             try
