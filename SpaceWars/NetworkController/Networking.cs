@@ -110,8 +110,6 @@ namespace Communication
             return theSocket;
         }
 
-        // TODO: May not need, remove if necessary. 
-        
         /// <summary>
         /// Sets the id sent from the client that describes the current socket
         /// </summary>

@@ -34,19 +34,9 @@ namespace SpaceWarsServer
             string filePath = @"../../../Resources/ServerSettings/";
             string fileName = @"settings.xml";
 
-            try
-            {
-                // get the game settings and pass them to the world
-                ReadSettingsXML(filePath + fileName);
+            // get the game settings and pass them to the world
+            ReadSettingsXML(filePath + fileName);
 
-                // we have successful opened a server... wait for first client
-                Console.WriteLine("Server is up. Awaiting first client.");
-            }
-            catch (Exception e)
-            {
-                // TODO: deal with any problems
-                Console.WriteLine(e.Message);
-            }
         }
 
         /// <summary>
@@ -97,6 +87,7 @@ namespace SpaceWarsServer
                 Network.GetData(state);
             }
 
+
             // the id and world are being changed by callback methods (different threads)
             int playerID = 0;
             lock (world)
@@ -116,6 +107,9 @@ namespace SpaceWarsServer
             // send the startup info to the client (ID and world size)
             string startupInfo = playerID + "\n" + world.GetSize() + "\n";
             Network.Send(state.GetSocket(), startupInfo);
+
+            // handshake is done print line that someone has connected
+            Console.Out.WriteLine("Client connected to server");
 
             // add the client's socket to a set of all clients
             lock (clients)
@@ -175,11 +169,13 @@ namespace SpaceWarsServer
             StringBuilder sb = new StringBuilder();
             lock (world)
             {
+                // update world objects then add each to sb.
                 IEnumerable<Star> stars = world.GetStars();
                 foreach (Star s in stars)
                 {
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
+                // TODO: need to still update the sb for ships and projectiles
             }
 
             string data = sb.ToString();
@@ -263,6 +259,7 @@ namespace SpaceWarsServer
                                     break;
                                 //TODO: add all the extra features + the extra setting
                                 case "Star":
+                                    // TODO: abstract the following to new method and generalize it
                                     reader.Read();
                                     reader.Read();
                                     if (reader.Name == "x")
