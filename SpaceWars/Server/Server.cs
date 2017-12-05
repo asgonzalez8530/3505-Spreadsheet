@@ -30,13 +30,12 @@ namespace SpaceWarsServer
             watch = new Stopwatch();
             watch.Start();
 
-            //TODO: file path for the game settings
+            // file path for the game settings
             string filePath = @"../../../Resources/ServerSettings/";
             string fileName = @"settings.xml";
 
             // get the game settings and pass them to the world
             ReadSettingsXML(filePath + fileName);
-
         }
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace SpaceWarsServer
             Network.Send(state.GetSocket(), startupInfo);
 
             // handshake is done print line that someone has connected
-            Console.Out.WriteLine("Client connected to server");
+            Console.Out.WriteLine("A new Client has contacted the Server.");
 
             // add the client's socket to a set of all clients
             lock (clients)

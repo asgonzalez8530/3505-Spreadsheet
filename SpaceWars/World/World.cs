@@ -25,7 +25,7 @@ namespace SpaceWars
         private int universeSize = 750;
         private int MSPerFrame = 16;
         private int projectileFiringDelay = 6;
-        private int respawnDelay = 300; 
+        private int respawnDelay = 300;
 
         public World()
         {
@@ -66,7 +66,7 @@ namespace SpaceWars
             {
                 universeSize = s;
             }
-               
+
         }
 
         /// <summary>
@@ -172,8 +172,8 @@ namespace SpaceWars
             {
                 MSPerFrame = f;
             }
-            
-            
+
+
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace SpaceWars
             {
                 projectileFiringDelay = f;
             }
-            
+
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace SpaceWars
                 allShips.Add(s.GetID(), s);
             }
         }
-        
+
         /// <summary>
         /// If Ship s does not exist in ships adds it. If the id already exists
         /// in ships, updates reference in ships to s.
@@ -301,7 +301,7 @@ namespace SpaceWars
             {
                 return;
             }
-            
+
             // if the ship is dead then remove it from the world
             if (!s.IsAlive())
             {
@@ -417,7 +417,7 @@ namespace SpaceWars
 
             // add the ship to the world
             AddShip(s);
-            
+
         }
 
         /// <summary>
@@ -446,21 +446,88 @@ namespace SpaceWars
         /// </summary>
         public void Wraparound(Ship s)
         {
+            if (s == null)
+            {
+                return;
+            }
+
             int borderCoordinate = universeSize / 2;
 
-            if (Math.Abs(s.GetLocation().GetX()) == borderCoordinate)
+            if (Math.Abs(s.GetLocation().GetX()) >= borderCoordinate)
             {
-                //TODO: times x by -1
+                // times x by -1
+                double x = s.GetLocation().GetX() * -1;
+                double y = s.GetLocation().GetY();
+
+                // set the ship's new location
+                s.SetLocation(x, y);
             }
-            if (Math.Abs(s.GetLocation().GetY()) == borderCoordinate)
+            if (Math.Abs(s.GetLocation().GetY()) >= borderCoordinate)
             {
-                //TODO: times y by -1
+                // times y by -1
+                double y = s.GetLocation().GetY() * -1;
+                double x = s.GetLocation().GetX();
+
+                // set the ship's new location
+                s.SetLocation(x, y);
             }
         }
 
-        public void Collision()
+        public void CollisionWithAStar(Ship ship, Star star)
         {
+            if (ship == null || star == null)
+            {
+                return;
+            }
+
 
         }
+
+        public void CollisionWithAProjectile(Ship ship, Star star)
+        {
+            if (ship == null || star == null)
+            {
+                return;
+            }
+
+
+        }
+
+        /// <summary>
+        /// The passed in ship has hit a star so the health points of the
+        /// ship must be set to zero
+        /// </summary>
+        public void HitAStar(Ship ship)
+        {
+            if (ship == null)
+            {
+                return;
+            }
+
+            ship.SetHP(0);
+        }
+
+        public void ProjectileOffScreen(Projectile p)
+        {
+            if (p == null)
+            {
+                return;
+            }
+
+            int borderCoordinate = universeSize / 2;
+
+            // check to see if its on the edge of the world
+            if (Math.Abs(p.GetLocation().GetX()) >= borderCoordinate)
+            {
+                projectiles.Remove(p.GetID());
+            }
+
+            // check to see if its on the edge of the world
+            else if (Math.Abs(p.GetLocation().GetY()) >= borderCoordinate)
+            {
+                projectiles.Remove(p.GetID());
+            }
+        }
+
     }
 }

@@ -100,6 +100,14 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// Set the ship's location to be at the passed in x and y
+        /// </summary>
+        public void SetLocation(double x, double y)
+        {
+            loc = new Vector2D(x, y);
+        }
+
+        /// <summary>
         /// Get the direction of the ship
         /// </summary>
         public Vector2D GetDirection()
@@ -129,6 +137,14 @@ namespace SpaceWars
         public int GetHP()
         {
             return hp;
+        }
+
+        /// <summary>
+        /// Sets the ships HP to be the passed in score
+        /// </summary>
+        public void SetHP(int score)
+        {
+            hp = score;
         }
 
         /// <summary>
