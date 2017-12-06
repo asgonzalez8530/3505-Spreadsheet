@@ -27,6 +27,7 @@ namespace SpaceWars
         private int MSPerFrame = 16;
         private int projectileFiringDelay = 6;
         private int respawnDelay = 300;
+        private bool isKingOn = false;
 
         public World()
         {
@@ -113,50 +114,98 @@ namespace SpaceWars
         /// <summary>
         /// Sets the starting hit points for the game
         /// </summary>
-        public void SetStartingHitPoint(int points)
+        public void SetStartingHitPoint(string points)
         {
-            startingHitPoints = points;
+            // make sure that points is not null and can be parsed to an int
+            if (points == null || !int.TryParse(points, out int p))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                startingHitPoints = p;
+            }
         }
 
         /// <summary>
         /// Sets how fast the projectiles travel 
         /// </summary>
-        public void SetProjectileSpeed(int speed)
+        public void SetProjectileSpeed(string speed)
         {
-            projectileSpeed = speed;
+            // make sure that speed is not null and can be parsed to an int
+            if (speed == null || !int.TryParse(speed, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                projectileSpeed = s;
+            }
         }
 
         /// <summary>
         /// Sets the acceleration a ship engine applies
         /// </summary>
         /// <param name="speed"></param>
-        public void SetEngineStrength(int strength)
+        public void SetEngineStrength(string strength)
         {
-            engineStrength = strength;
+            // make sure that strength is not null and can be parsed to an int
+            if (strength == null || !int.TryParse(strength, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                engineStrength = s;
+            }
         }
 
         /// <summary>
         /// Sets the degrees that a chip can rotate per frame
         /// </summary>
-        public void SetTurningRate(int rotate)
+        public void SetTurningRate(string rotate)
         {
-            turningRate = rotate;
+            // make sure that rotate is not null and can be parsed to an int
+            if (rotate == null || !int.TryParse(rotate, out int r))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                turningRate = r;
+            }
         }
 
         /// <summary>
         /// Sets the area that a ship occupies
         /// </summary>
-        public void SetShipSize(int size)
+        public void SetShipSize(string size)
         {
-            shipSize = size;
+            // make sure that size is not null and can be parsed to an int
+            if (size == null || !int.TryParse(size, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                shipSize = s;
+            }
         }
 
         /// <summary>
         /// Sets the area that a star occupies
         /// </summary>
-        public void SetStarSize(int size)
+        public void SetStarSize(string size)
         {
-            starSize = size;
+            // make sure that size is not null and can be parsed to an int
+            if (size == null || !int.TryParse(size, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                starSize = s;
+            }
         }
 
         /// <summary>
@@ -173,8 +222,6 @@ namespace SpaceWars
             {
                 MSPerFrame = f;
             }
-
-
         }
 
         /// <summary>
@@ -270,6 +317,23 @@ namespace SpaceWars
             else
             {
                 respawnDelay = d;
+            }
+        }
+
+        public void SetKingOfTheHill(string king)
+        {
+            // make sure that king is not null
+            if (king == null)
+            {
+                isKingOn = false;
+            }
+            else if (king == "true" || king == "True")
+            {
+                isKingOn = true;
+            }
+            else
+            {
+                isKingOn = false;
             }
         }
 
@@ -556,6 +620,19 @@ namespace SpaceWars
 
             // kill the ship
             ship.SetHP(0);
+
+            // if king game mode is turned on 
+            if (isKingOn)
+            {
+                if (ship.IsKing())
+                {
+                    // make sure that the ship that died is no longer king
+                    ship.SetKing(false);
+
+                    // TODO: select a new king 
+
+                }
+            }
         }
 
         /// <summary>
@@ -568,12 +645,28 @@ namespace SpaceWars
             {
                 return;
             }
-            
-            // subtract a health point
-            ship.SetHP(ship.GetHP() - 1);
 
-            // remove the projectile from the world
-            projectiles.Remove(projectile.GetID());
+            if (isKingOn)
+            {
+                // TODO: || projectile.GetOwner() is from the ship
+                if (ship.IsKing())
+                {
+                    // subtract a health point
+                    ship.SetHP(ship.GetHP() - 1);
+
+                    // TODO: do we still want to remove it if it doesnt hit a ship 
+                    // remove the projectile from the world
+                    projectiles.Remove(projectile.GetID());
+                }
+            }
+            else
+            {
+                // subtract a health point
+                ship.SetHP(ship.GetHP() - 1);
+
+                // remove the projectile from the world
+                projectiles.Remove(projectile.GetID());
+            }
         }
 
         /// <summary>

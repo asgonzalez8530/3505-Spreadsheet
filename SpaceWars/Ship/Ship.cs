@@ -39,6 +39,8 @@ namespace SpaceWars
 
         private Vector2D velocity = new Vector2D(0, 0); // current velocity of the ship
 
+        private bool king = false; // true when extra game mode is on and the current ship is the king
+
         private int width = 65; // image width in pixels
 
         private int height = 100; // image height in pixels
@@ -203,6 +205,22 @@ namespace SpaceWars
         public void SetVelocity(Vector2D vel)
         {
             velocity = vel;
+        }
+
+        /// <summary>
+        /// Returns true if the current ship is a king, false otherwise
+        /// </summary>
+        public bool IsKing()
+        {
+            return king;
+        }
+
+        /// <summary>
+        /// Sets the passed k to be the boolean value of king
+        /// </summary>
+        public void SetKing(bool k)
+        {
+            king = k;
         }
 
         /// <summary>

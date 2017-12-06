@@ -266,35 +266,36 @@ namespace SpaceWarsServer
                                     reader.Read();
                                     world.SetRespawnDelay(reader.Value);
                                     break;
-                                //TODO: add all the extra features + the extra setting
+                                case "StartingHitPoints":
+                                    reader.Read();
+                                    world.SetStartingHitPoint(reader.Value);
+                                    break;
+                                case "ProjectileSpeed":
+                                    reader.Read();
+                                    world.SetProjectileSpeed(reader.Value);
+                                    break;
+                                case "EngineStrength":
+                                    reader.Read();
+                                    world.SetEngineStrength(reader.Value);
+                                    break;
+                                case "TurningRate":
+                                    reader.Read();
+                                    world.SetTurningRate(reader.Value);
+                                    break;
+                                case "ShipSize":
+                                    reader.Read();
+                                    world.SetShipSize(reader.Value);
+                                    break;
+                                case "StarSize":
+                                    reader.Read();
+                                    world.SetStarSize(reader.Value);
+                                    break;
+                                case "KingOfTheHill":
+                                    reader.Read();
+                                    world.SetKingOfTheHill(reader.Value);
+                                    break;
                                 case "Star":
-                                    // TODO: abstract the following to new method and generalize it
-                                    reader.Read();
-                                    reader.Read();
-                                    if (reader.Name == "x")
-                                    {
-                                        reader.Read();
-
-                                        x = reader.Value;
-                                        reader.Read();
-                                        reader.Read();
-
-                                        reader.Read();
-                                        if (reader.Name == "y")
-                                        {
-                                            reader.Read();
-                                            y = reader.Value;
-                                            reader.Read();
-                                            reader.Read();
-                                            reader.Read();
-                                        }
-                                        if (reader.Name == "mass")
-                                        {
-                                            reader.Read();
-                                            mass = reader.Value;
-                                        }
-                                    }
-                                    world.MakeNewStar(x, y, mass);
+                                    StarXMLReader(filePath);
                                     break;
                             }
                         }
@@ -308,6 +309,46 @@ namespace SpaceWarsServer
             {
                 //TODO: deal with any problems
                 Console.WriteLine(e.Message);
+            }
+        }
+
+        private void StarXMLReader(string filePath)
+        {
+            using (XmlReader reader = XmlReader.Create(filePath))
+            {
+                string x = null;
+                string y = null;
+                string mass = null;
+
+                while (reader.Read())
+                {
+                    if (reader.IsStartElement())
+                    {
+                        switch (reader.Name)
+                        {
+                            case "x":
+                                reader.Read();
+                                x = reader.Value;
+                                break;
+                            case "y":
+                                reader.Read();
+                                y = reader.Value;
+                                break;
+                            case "mass":
+                                reader.Read();
+                                mass = reader.Value;
+
+                                // make a new star
+                                world.MakeNewStar(x, y, mass);
+
+                                // reset the x, y, and mass to null
+                                x = null;
+                                y = null;
+                                mass = null;
+                                return;
+                        }
+                    }
+                }
             }
         }
 
