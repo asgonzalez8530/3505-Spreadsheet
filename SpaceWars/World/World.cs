@@ -16,6 +16,7 @@ namespace SpaceWars
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
         // Default data for the game
+        // TODO: need to move this into the proper classes??
         private int startingHitPoints = 5;
         private int projectileSpeed = 15;
         private double engineStrength = .08;
@@ -409,6 +410,7 @@ namespace SpaceWars
         {
             // TODO: Server needs to find suitable location to place ship when
             // made and when respawning.
+            // may want to use the respawn method for this
             Vector2D location = new Vector2D(0, 0);
             Vector2D orientation = new Vector2D(0, 0);
 
@@ -425,6 +427,8 @@ namespace SpaceWars
         /// </summary>
         public void Motion(Ship ship)
         {
+            // TODO: apply the commands with direction changes
+
             Vector2D acceleration = new Vector2D();
             //compute the acceleration caused by the star
             foreach (Star star in stars.Values)
@@ -434,11 +438,17 @@ namespace SpaceWars
                 acceleration = acceleration + g * star.GetMass();
             }
 
-            //compute the acceleration 
-            Vector2D t = new Vector2D(ship.GetDirection());
-            t = t * engineStrength;
+            if (ship.HasThrust())
+            {
+                //compute the acceleration due to thrust
+                Vector2D t = new Vector2D(ship.GetDirection());
+                t = t * engineStrength;
+                acceleration = acceleration + t;
+            }
 
-            acceleration = acceleration + t;
+            ship.SetVelocity(ship.GetVelocity() + acceleration);
+            ship.SetLocation(ship.GetVelocity() + ship.GetLocation());
+
         }
 
         /// <summary>
@@ -477,20 +487,60 @@ namespace SpaceWars
         {
             if (ship == null || star == null)
             {
-                return;
+                throw new ArgumentException("CollisionWithAStar: one of the parameters is null");
             }
 
-
-        }
-
-        public void CollisionWithAProjectile(Ship ship, Star star)
-        {
-            if (ship == null || star == null)
+            if (ship.GetLocation().GetX() + shipSize < star.GetLocation().GetX())
+            {
+                return;
+            }
+            if (star.GetLocation().GetX() + starSize < ship.GetLocation().GetX())
+            {
+                return;
+            }
+            if (ship.GetLocation().GetY() + shipSize < star.GetLocation().GetY())
+            {
+                return;
+            }
+            if (star.GetLocation().GetY() + starSize < ship.GetLocation().GetY())
             {
                 return;
             }
 
+            // the passed in ship hit a star so we update the ship's health 
+            HitAStar(ship);
+        }
 
+        /// <summary>
+        /// Detects whether or not a ship is hit by a projectile
+        /// </summary>
+        public void CollisionWithAProjectile(Ship ship, Projectile proj)
+        {
+            if (ship == null || proj == null)
+            {
+                throw new ArgumentException("CollisionWithAStar: one of the parameters is null");
+            }
+
+            if (ship.GetLocation().GetX() + shipSize < proj.GetLocation().GetX())
+            {
+                return;
+            }
+            if (proj.GetLocation().GetX() < ship.GetLocation().GetX())
+            {
+                return;
+            }
+            if (ship.GetLocation().GetY() + shipSize < proj.GetLocation().GetY())
+            {
+                return;
+            }
+            if (proj.GetLocation().GetY() < ship.GetLocation().GetY())
+            {
+                return;
+            }
+
+            // the passed in ship was hit by a projectile so we update health and remove
+            // the projectile from the world
+            HitAProjectile(ship, proj);
         }
 
         /// <summary>
@@ -504,9 +554,32 @@ namespace SpaceWars
                 return;
             }
 
+            // kill the ship
             ship.SetHP(0);
         }
 
+        /// <summary>
+        /// When a ship is hit by a projectile then remove the a health point remove 
+        /// the projectile form the world
+        /// </summary>
+        public void HitAProjectile(Ship ship, Projectile projectile)
+        {
+            if (ship == null)
+            {
+                return;
+            }
+            
+            // subtract a health point
+            ship.SetHP(ship.GetHP() - 1);
+
+            // remove the projectile from the world
+            projectiles.Remove(projectile.GetID());
+        }
+
+        /// <summary>
+        /// When the projectile is off the screen then remove the projectile
+        /// from the world
+        /// </summary>
         public void ProjectileOffScreen(Projectile p)
         {
             if (p == null)
@@ -527,6 +600,28 @@ namespace SpaceWars
             {
                 projectiles.Remove(p.GetID());
             }
+        }
+
+        /// <summary>
+        /// Creates a ship at a random location in the world in a random direction
+        /// </summary>
+        public void Respawn(Ship ship)
+        {
+            // make a randomizing object
+            Random r = new Random();
+            
+            // TODO: Find a random location
+
+            // make new random directions
+            int x = r.Next(0, 2);
+            int y = r.Next(0, 2);
+
+            // make a new normalized direction vector
+            Vector2D dir = new Vector2D(x, y);
+            dir.Normalize();
+
+            // sets a random direction for the ship
+            ship.SetDirection(dir);
         }
 
     }

@@ -159,10 +159,9 @@ namespace SpaceWarsServer
         {
 
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
-            { Thread.Yield(); }
+            { /* do nothing */ }
             watch.Restart();
             // TODO: may need to do nothing instead of yield 
-            //(can't remember what was said in class)
 
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
@@ -174,7 +173,18 @@ namespace SpaceWarsServer
                 {
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
-                // TODO: need to still update the sb for ships and projectiles
+
+                IEnumerable<Ship> ships = world.GetAllShips();
+                foreach (Ship s in ships)
+                {
+                    sb.Append(JsonConvert.SerializeObject(s) + "\n");
+                }
+
+                IEnumerable<Projectile> projectiles = world.GetProjs();
+                foreach (Projectile p in projectiles)
+                {
+                    sb.Append(JsonConvert.SerializeObject(p) + "\n");
+                }
             }
 
             string data = sb.ToString();

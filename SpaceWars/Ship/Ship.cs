@@ -37,6 +37,8 @@ namespace SpaceWars
         [JsonProperty]
         private int score; // amount of ship's the current ship had shot down
 
+        private Vector2D velocity = new Vector2D(0, 0); // current velocity of the ship
+
         private int width = 65; // image width in pixels
 
         private int height = 100; // image height in pixels
@@ -102,6 +104,14 @@ namespace SpaceWars
         /// <summary>
         /// Set the ship's location to be at the passed in x and y
         /// </summary>
+        public void SetLocation(Vector2D location)
+        {
+            loc = location;
+        }
+
+        /// <summary>
+        /// Set the ship's location to be at the passed in x and y
+        /// </summary>
         public void SetLocation(double x, double y)
         {
             loc = new Vector2D(x, y);
@@ -113,6 +123,14 @@ namespace SpaceWars
         public Vector2D GetDirection()
         {
             return dir;
+        }
+
+        /// <summary>
+        /// Sets the ship's direction
+        /// </summary>
+        public void SetDirection(Vector2D direction)
+        {
+            dir = direction;
         }
 
         /// <summary>
@@ -169,6 +187,22 @@ namespace SpaceWars
         public int GetHeight()
         {
             return height;
+        }
+
+        /// <summary>
+        /// Gets the ship's current velocity
+        /// </summary>
+        public Vector2D GetVelocity()
+        {
+            return velocity;
+        }
+
+        /// <summary>
+        /// Sets the ship's velocity to be the one passed in
+        /// </summary>
+        public void SetVelocity(Vector2D vel)
+        {
+            velocity = vel;
         }
 
         /// <summary>
