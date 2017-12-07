@@ -31,8 +31,6 @@ namespace SpaceWars
         [JsonProperty]
         private int owner; // ID for the ship that the projectile belongs to
 
-        private Vector2D vel; // current velocity of the projectile
-
         private int width = 25; // image width in pixels
 
         private int height = 25; // image height in pixels
@@ -49,13 +47,12 @@ namespace SpaceWars
         /// Creates a new ship with the given ship owner and id and located at
         /// the specified location and orientation with a constant velocity
         /// </summary>
-        public Projectile(int owner, int id, Vector2D location, Vector2D direction, Vector2D velocity)
+        public Projectile(int owner, int id, Vector2D location, Vector2D direction)
         {
             this.owner = owner;
             ID = id;
             loc = location;
             dir = direction;
-            vel = velocity;
             alive = true;
         }
 
@@ -121,14 +118,6 @@ namespace SpaceWars
         public int GetOwner()
         {
             return owner;
-        }
-
-        /// <summary>
-        /// Get the projectiles velocity
-        /// </summary>
-        public Vector2D GetVelocity()
-        {
-            return vel;
         }
 
         /// <summary>

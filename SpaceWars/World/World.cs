@@ -16,18 +16,17 @@ namespace SpaceWars
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
 
         // Default data for the game
-        // TODO: need to move this into the proper classes??
-        private int startingHitPoints = 5;
-        private int projectileSpeed = 15;
-        private double engineStrength = .08;
-        private int turningRate = 2;
-        private int shipSize = 20;
-        private int starSize = 35;
-        private int universeSize = 750;
-        private int MSPerFrame = 16;
-        private int projectileFiringDelay = 6;
-        private int respawnDelay = 300;
-        private bool isKingOn = false;
+        private int startingHitPoints;
+        private int projectileSpeed;
+        private double engineStrength;
+        private int turningRate;
+        private int shipSize;
+        private int starSize;
+        private int universeSize;
+        private int MSPerFrame;
+        private int projectileFiringDelay;
+        private int respawnDelay;
+        private bool KingIsOn;
 
         public World()
         {
@@ -35,6 +34,17 @@ namespace SpaceWars
             allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
+            startingHitPoints = 5;
+            projectileSpeed = 15;
+            engineStrength = .08;
+            turningRate = 2;
+            shipSize = 20;
+            starSize = 35;
+            universeSize = 750;
+            MSPerFrame = 16;
+            projectileFiringDelay = 6;
+            respawnDelay = 300;
+            KingIsOn = false;
         }
 
         /// <summary>
@@ -325,15 +335,15 @@ namespace SpaceWars
             // make sure that king is not null
             if (king == null)
             {
-                isKingOn = false;
+                KingIsOn = false;
             }
             else if (king == "true" || king == "True")
             {
-                isKingOn = true;
+                KingIsOn = true;
             }
             else
             {
-                isKingOn = false;
+                KingIsOn = false;
             }
         }
 
@@ -472,6 +482,11 @@ namespace SpaceWars
         /// </summary>
         public void MakeNewShip(String name, int id)
         {
+            if (KingIsOn && allShips.Count == 0)
+            {
+                name = "King " + name;
+            }
+
             // make a ship
             Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, 0), startingHitPoints);
 
@@ -511,9 +526,17 @@ namespace SpaceWars
 
         }
 
+        /// <summary>
+        /// Computes the new location for the projectile
+        /// </summary>
         public void MotionForProjectiles(Projectile projectile)
         {
-            // TODO: calculate via the dircetion
+            // find the velocity with respect to direction
+            Vector2D velocity = projectile.GetDirection() * projectileSpeed;
+
+            // reset the location of the projectile
+            projectile.SetLocation(projectile.GetLocation() + velocity);
+            
         }
 
         /// <summary>
@@ -548,32 +571,16 @@ namespace SpaceWars
             }
         }
 
+        /// <summary>
+        /// Checks to see if the passed in ship touched a star
+        /// </summary>
         public void CollisionWithAStar(Ship ship, Star star)
         {
-            if (ship == null || star == null)
+            if (WithinARadius(ship.GetLocation(), star.GetLocation(), shipSize + starSize))
             {
-                throw new ArgumentException("CollisionWithAStar: one of the parameters is null");
+                // the passed in ship hit a star so we update the ship's health 
+                HitAStar(ship);
             }
-
-            if (ship.GetLocation().GetX() + shipSize < star.GetLocation().GetX())
-            {
-                return;
-            }
-            if (star.GetLocation().GetX() + starSize < ship.GetLocation().GetX())
-            {
-                return;
-            }
-            if (ship.GetLocation().GetY() + shipSize < star.GetLocation().GetY())
-            {
-                return;
-            }
-            if (star.GetLocation().GetY() + starSize < ship.GetLocation().GetY())
-            {
-                return;
-            }
-
-            // the passed in ship hit a star so we update the ship's health 
-            HitAStar(ship);
         }
 
         /// <summary>
@@ -581,31 +588,12 @@ namespace SpaceWars
         /// </summary>
         public void CollisionWithAProjectile(Ship ship, Projectile proj)
         {
-            if (ship == null || proj == null)
+            if (WithinARadius(ship.GetLocation(), proj.GetLocation(), shipSize))
             {
-                throw new ArgumentException("CollisionWithAStar: one of the parameters is null");
+                // the passed in ship was hit by a projectile so we update health and remove
+                // the projectile from the world
+                HitAProjectile(ship, proj);
             }
-
-            if (ship.GetLocation().GetX() + shipSize < proj.GetLocation().GetX())
-            {
-                return;
-            }
-            if (proj.GetLocation().GetX() < ship.GetLocation().GetX())
-            {
-                return;
-            }
-            if (ship.GetLocation().GetY() + shipSize < proj.GetLocation().GetY())
-            {
-                return;
-            }
-            if (proj.GetLocation().GetY() < ship.GetLocation().GetY())
-            {
-                return;
-            }
-
-            // the passed in ship was hit by a projectile so we update health and remove
-            // the projectile from the world
-            HitAProjectile(ship, proj);
         }
 
         /// <summary>
@@ -613,30 +601,11 @@ namespace SpaceWars
         /// </summary>
         public void CollisionBetweenAStarAndProjectile(Star star, Projectile proj)
         {
-            if (star == null || proj == null)
+            if (WithinARadius(star.GetLocation(), proj.GetLocation(), starSize))
             {
-                throw new ArgumentException("CollisionWithAStar: one of the parameters is null");
+                // the passed in projectile hit a star so we remove it from the world
+                proj.Alive(false);
             }
-
-            if (star.GetLocation().GetX() + starSize < proj.GetLocation().GetX())
-            {
-                return;
-            }
-            if (proj.GetLocation().GetX() < star.GetLocation().GetX())
-            {
-                return;
-            }
-            if (star.GetLocation().GetY() + starSize < proj.GetLocation().GetY())
-            {
-                return;
-            }
-            if (proj.GetLocation().GetY() < star.GetLocation().GetY())
-            {
-                return;
-            }
-
-            // projectile hit a star so remove it from the world 
-            proj.Alive(false);
         }
 
         /// <summary>
@@ -654,31 +623,36 @@ namespace SpaceWars
             ship.SetHP(0);
 
             // if king game mode is turned on 
-            if (isKingOn)
+            if (KingIsOn)
             {
                 if (ship.IsKing())
                 {
                     // make sure that the ship that died is no longer king
                     ship.SetKing(false);
                     ship.SetName(ship.GetName().Substring(5));
-                    // TODO: overall health points go down??
+                    // reset health points to original
+                    ship.SetHP(startingHitPoints);
 
                     // select a new king 
                     Ship newKingShip = RandomShip();
                     newKingShip.SetKing(true);
                     newKingShip.SetName("King " + newKingShip.GetName());
-                    // TODO: overall health points go up??
+                    // hit points go up beacuse ship is now king
+                    newKingShip.SetHP(startingHitPoints + 3);
                 }
             }
         }
 
-        public Ship RandomShip()
+        /// <summary>
+        /// Returns a random ship from the world
+        /// </summary>
+        private Ship RandomShip()
         {
-            Random rand = new Random();
+            Random r = new Random();
             List<Ship> values = Enumerable.ToList(allShips.Values);
             int size = allShips.Count;
             
-            return values[rand.Next(size)];
+            return values[r.Next(size)];
         }
 
         /// <summary>
@@ -687,12 +661,7 @@ namespace SpaceWars
         /// </summary>
         public void HitAProjectile(Ship ship, Projectile projectile)
         {
-            if (ship == null)
-            {
-                return;
-            }
-
-            if (isKingOn)
+            if (KingIsOn)
             {
                 // find the owner of the projectile
                 int shipID = projectile.GetOwner();
@@ -749,22 +718,78 @@ namespace SpaceWars
         /// </summary>
         public void Respawn(Ship ship)
         {
+            // find random empty location in the world
+            FindRandomLocation(ship);
+            
             // make a randomizing object
             Random r = new Random();
 
-            // TODO: Find a random location
-
             // make new random directions
-            int x = r.Next(0, 2);
-            int y = r.Next(0, 2);
+            int xDir = r.Next(0, 2);
+            int yDir = r.Next(0, 2);
 
             // make a new normalized direction vector
-            Vector2D dir = new Vector2D(x, y);
+            Vector2D dir = new Vector2D(xDir, yDir);
             dir.Normalize();
 
             // sets a random direction for the ship
             ship.SetDirection(dir);
         }
 
+        /// <summary>
+        /// Finds a random location for the ship that is not near a star
+        /// </summary>
+        private void FindRandomLocation(Ship ship)
+        {
+            // make a randomizing object
+            Random r = new Random();
+            
+            // find a random location
+            int x = r.Next(-(universeSize / 2), universeSize / 2);
+            int y = r.Next(-(universeSize / 2), universeSize / 2);
+
+            // make a new location vector
+            Vector2D location = new Vector2D(x, y);
+
+            // check to make sure that no stars are near
+            foreach (Star star in stars.Values)
+            {
+                while (WithinARadius(location, star.GetLocation(), starSize + 50))
+                {
+                    // find a random location
+                    x = r.Next(-(universeSize / 2), universeSize / 2);
+                    y = r.Next(-(universeSize / 2), universeSize / 2);
+
+                    // make a new location vector
+                    location = new Vector2D(x, y);
+                }
+            }
+
+            // sets the random location to the ship 
+            ship.SetLocation(location);
+        }
+
+        /// <summary>
+        /// Returns true if the two vectors are within the given radius of each other
+        /// otherwise returns false
+        /// </summary>
+        private bool WithinARadius(Vector2D o1, Vector2D o2, int radius)
+        {
+            if (o1 == null || o2 == null)
+            {
+                throw new ArgumentException("LocationIsNearAStar: one of the parameters is null");
+            }
+
+            double xDifference = o1.GetX() - o2.GetX();
+            double yDifference = o1.GetY() - o2.GetY();
+
+            double distanceBetweenVectors = Math.Sqrt(xDifference * xDifference + yDifference * yDifference);
+
+            if (distanceBetweenVectors < radius)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

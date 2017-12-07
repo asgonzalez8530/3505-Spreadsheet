@@ -52,18 +52,7 @@ namespace SpaceWars
         public Ship()
         {
         }
-
-        // TODO: remove??
-        ///// <summary>
-        ///// Creates a new ship with the given ship name and id at loc (0,0) and
-        ///// with a direction (0,0)
-        ///// </summary>
-        //public Ship(String shipName, int id)
-        //    :this(shipName, id, new Vector2D(0, 0), new Vector2D(0, 0))
-        //{
-            
-        //}
-
+        
         /// <summary>
         /// Creates a new ship with the given ship name and id and located at
         /// the specified location and orientation

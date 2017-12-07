@@ -450,7 +450,7 @@ namespace SpaceWarsTests
 
         }
 
-        //TODO: may not need SocketState.SetID(int id) and SocketStateGetID()
+        // TODO: may not need SocketState.SetID(int id) and SocketStateGetID()
         /// <summary>
         /// Make sure we can set a new id with SetID method and then retrieve that id
         /// </summary>

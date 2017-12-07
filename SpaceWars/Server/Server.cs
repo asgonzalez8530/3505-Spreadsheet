@@ -93,8 +93,8 @@ namespace SpaceWarsServer
             {
                 playerID = IDCounter++;
                 // make a ship with a the name and give it a unique id
-                // TODO: add ship to world
-                //world.MakeNewShip(playerName, playerID);
+                // add ship to world
+                world.MakeNewShip(playerName, playerID);
             }
 
             // set the socket state ID
@@ -161,8 +161,7 @@ namespace SpaceWarsServer
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
             { /* do nothing */ }
             watch.Restart();
-            // TODO: may need to do nothing instead of yield 
-
+            
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
             lock (world)
@@ -307,7 +306,7 @@ namespace SpaceWarsServer
             }
             catch (Exception e)
             {
-                //TODO: deal with any problems
+                // TODO: deal with any problems
                 Console.WriteLine(e.Message);
             }
         }
