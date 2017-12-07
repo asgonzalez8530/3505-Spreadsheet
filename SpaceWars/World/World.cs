@@ -26,7 +26,8 @@ namespace SpaceWars
         private int MSPerFrame;
         private int projectileFiringDelay;
         private int respawnDelay;
-        private bool KingIsOn;
+        private bool kingIsOn;
+        private int projectileID;
 
         public World()
         {
@@ -44,7 +45,9 @@ namespace SpaceWars
             MSPerFrame = 16;
             projectileFiringDelay = 6;
             respawnDelay = 300;
-            KingIsOn = false;
+            kingIsOn = false;
+            projectileID = 0;
+
         }
 
         /// <summary>
@@ -330,20 +333,23 @@ namespace SpaceWars
             }
         }
 
+        /// <summary>
+        /// Sets the game mode to King Of The Hill
+        /// </summary>
         public void SetKingOfTheHill(string king)
         {
             // make sure that king is not null
             if (king == null)
             {
-                KingIsOn = false;
+                kingIsOn = false;
             }
             else if (king == "true" || king == "True")
             {
-                KingIsOn = true;
+                kingIsOn = true;
             }
             else
             {
-                KingIsOn = false;
+                kingIsOn = false;
             }
         }
 
@@ -482,7 +488,7 @@ namespace SpaceWars
         /// </summary>
         public void MakeNewShip(String name, int id)
         {
-            if (KingIsOn && allShips.Count == 0)
+            if (kingIsOn && allShips.Count == 0)
             {
                 name = "King " + name;
             }
@@ -502,7 +508,26 @@ namespace SpaceWars
         /// </summary>
         public void MotionForShips(Ship ship)
         {
-            // TODO: apply the commands with direction changes
+            // handle left turn command
+            if (ship.TurnLeft)
+            {
+                ship.GetDirection().Rotate(-turningRate);
+                ship.TurnLeft = false;
+            }
+            // handle right turn command
+            else if (ship.TurnRight)
+            {
+                ship.GetDirection().Rotate(turningRate);
+                ship.TurnRight = false;
+            }
+
+            // spawn a projectile if projectile command has been given
+            if (ship.FireProjectile)
+            {
+                Projectile p = new Projectile(ship.GetID(), projectileID++, ship.GetLocation(), ship.GetDirection());
+                AddProjectile(p);
+                ship.FireProjectile = false;
+            }
 
             Vector2D acceleration = new Vector2D();
             //compute the acceleration caused by the star
@@ -519,10 +544,26 @@ namespace SpaceWars
                 Vector2D t = new Vector2D(ship.GetDirection());
                 t = t * engineStrength;
                 acceleration = acceleration + t;
+                ship.Thrust = false;
             }
 
+            // recalculate velocity and location
             ship.SetVelocity(ship.GetVelocity() + acceleration);
             ship.SetLocation(ship.GetVelocity() + ship.GetLocation());
+            // check to see if ship is off screen
+            Wraparound(ship);
+
+            // check for collisions with any star
+            foreach(Star star in stars.Values)
+            {
+                CollisionWithAStar(ship, star);
+            }
+
+            // check for collisions with any projectiles
+            foreach(Projectile proj in projectiles.Values)
+            {
+                CollisionWithAProjectile(ship, proj);
+            }
 
         }
 
@@ -536,19 +577,21 @@ namespace SpaceWars
 
             // reset the location of the projectile
             projectile.SetLocation(projectile.GetLocation() + velocity);
-            
+            if (!ProjectileOffScreen(projectile))
+            {
+                foreach (Star star in stars.Values)
+                {
+                    CollisionBetweenAStarAndProjectile(star, projectile);
+                }
+            }
+
         }
 
         /// <summary>
         /// Checks to see if the passed in ship is on the edge of the world
         /// </summary>
-        public void Wraparound(Ship s)
+        private void Wraparound(Ship s)
         {
-            if (s == null)
-            {
-                return;
-            }
-
             int borderCoordinate = universeSize / 2;
 
             if (Math.Abs(s.GetLocation().GetX()) >= borderCoordinate)
@@ -569,12 +612,13 @@ namespace SpaceWars
                 // set the ship's new location
                 s.SetLocation(x, y);
             }
+            
         }
 
         /// <summary>
         /// Checks to see if the passed in ship touched a star
         /// </summary>
-        public void CollisionWithAStar(Ship ship, Star star)
+        private void CollisionWithAStar(Ship ship, Star star)
         {
             if (WithinARadius(ship.GetLocation(), star.GetLocation(), shipSize + starSize))
             {
@@ -586,20 +630,23 @@ namespace SpaceWars
         /// <summary>
         /// Detects whether or not a ship is hit by a projectile
         /// </summary>
-        public void CollisionWithAProjectile(Ship ship, Projectile proj)
+        private void CollisionWithAProjectile(Ship ship, Projectile proj)
         {
-            if (WithinARadius(ship.GetLocation(), proj.GetLocation(), shipSize))
+            if (ship.GetID() != proj.GetOwner())
             {
-                // the passed in ship was hit by a projectile so we update health and remove
-                // the projectile from the world
-                HitAProjectile(ship, proj);
+                if (WithinARadius(ship.GetLocation(), proj.GetLocation(), shipSize))
+                {
+                    // the passed in ship was hit by a projectile so we update health and remove
+                    // the projectile from the world
+                    HitAProjectile(ship, proj);
+                }
             }
         }
 
         /// <summary>
         /// Detects whether or not a ship is hit by a projectile
         /// </summary>
-        public void CollisionBetweenAStarAndProjectile(Star star, Projectile proj)
+        private void CollisionBetweenAStarAndProjectile(Star star, Projectile proj)
         {
             if (WithinARadius(star.GetLocation(), proj.GetLocation(), starSize))
             {
@@ -612,7 +659,7 @@ namespace SpaceWars
         /// The passed in ship has hit a star so the health points of the
         /// ship must be set to zero
         /// </summary>
-        public void HitAStar(Ship ship)
+        private void HitAStar(Ship ship)
         {
             if (ship == null)
             {
@@ -623,7 +670,7 @@ namespace SpaceWars
             ship.SetHP(0);
 
             // if king game mode is turned on 
-            if (KingIsOn)
+            if (kingIsOn)
             {
                 if (ship.IsKing())
                 {
@@ -659,9 +706,9 @@ namespace SpaceWars
         /// When a ship is hit by a projectile then remove the a health point remove 
         /// the projectile form the world
         /// </summary>
-        public void HitAProjectile(Ship ship, Projectile projectile)
+        private void HitAProjectile(Ship ship, Projectile projectile)
         {
-            if (KingIsOn)
+            if (kingIsOn)
             {
                 // find the owner of the projectile
                 int shipID = projectile.GetOwner();
@@ -689,28 +736,29 @@ namespace SpaceWars
 
         /// <summary>
         /// When the projectile is off the screen then remove the projectile
-        /// from the world
+        /// from the world and return true. Else, if it was not removed return
+        /// false;
         /// </summary>
-        public void ProjectileOffScreen(Projectile p)
+        private bool ProjectileOffScreen(Projectile p)
         {
-            if (p == null)
-            {
-                return;
-            }
-
+            
             int borderCoordinate = universeSize / 2;
 
             // check to see if its on the edge of the world
             if (Math.Abs(p.GetLocation().GetX()) >= borderCoordinate)
             {
                 projectiles.Remove(p.GetID());
+                return true;
             }
 
             // check to see if its on the edge of the world
             else if (Math.Abs(p.GetLocation().GetY()) >= borderCoordinate)
             {
                 projectiles.Remove(p.GetID());
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -736,6 +784,7 @@ namespace SpaceWars
             ship.SetDirection(dir);
         }
 
+        // TODO: might need to be private
         /// <summary>
         /// Finds a random location for the ship that is not near a star
         /// </summary>

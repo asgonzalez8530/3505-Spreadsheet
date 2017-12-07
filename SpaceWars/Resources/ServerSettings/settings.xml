@@ -1,6 +1,6 @@
 <SpaceSettings>
   <UniverseSize>700</UniverseSize>
-  <MSPerFrame>5000</MSPerFrame>
+  <MSPerFrame>16</MSPerFrame>
   <FramesPerShot>6</FramesPerShot>
   <RespawnRate>300</RespawnRate> 
   <Star>

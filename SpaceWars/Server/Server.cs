@@ -173,16 +173,18 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
 
-                IEnumerable<Ship> ships = world.GetAllShips();
-                foreach (Ship s in ships)
-                {
-                    sb.Append(JsonConvert.SerializeObject(s) + "\n");
-                }
-
                 IEnumerable<Projectile> projectiles = world.GetProjs();
                 foreach (Projectile p in projectiles)
                 {
+                    world.MotionForProjectiles(p);
                     sb.Append(JsonConvert.SerializeObject(p) + "\n");
+                }
+
+                IEnumerable<Ship> ships = world.GetAllShips();
+                foreach (Ship s in ships)
+                {
+                    world.MotionForShips(s);
+                    sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
             }
 
