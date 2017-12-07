@@ -77,13 +77,14 @@ namespace SpaceWarsServer
             string playerName = "";
             if (messages.Any())
             {
-                playerName = messages.First().TrimEnd();
+                playerName = messages.First();
                 state.GetStringBuilder().Clear();
             }
             // if there wasn't a complete message continue the event loop
             else
             {
                 Network.GetData(state);
+                return;
             }
 
 
@@ -94,7 +95,7 @@ namespace SpaceWarsServer
                 playerID = IDCounter++;
                 // make a ship with a the name and give it a unique id
                 // add ship to world
-                world.MakeNewShip(playerName, playerID);
+                world.MakeNewShip(playerName.TrimEnd(), playerID);
             }
 
             // set the socket state ID
@@ -139,6 +140,7 @@ namespace SpaceWarsServer
             else
             {
                 Network.GetData(state);
+                return;
             }
 
             // give commands to ship

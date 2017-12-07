@@ -293,8 +293,8 @@ namespace SpaceWars
                             break;
                         case ')': // valid but not used
                             break;
-                        default:
-                            throw new ArgumentException("Ship Command Error: Invalid command \'" + command + "\'");
+                        //default:
+                        //    throw new ArgumentException("Ship Command Error: Invalid command \'" + command + "\'");
                     }
                 }
             }
