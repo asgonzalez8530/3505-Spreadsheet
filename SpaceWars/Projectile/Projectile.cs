@@ -31,9 +31,33 @@ namespace SpaceWars
         [JsonProperty]
         private int owner; // ID for the ship that the projectile belongs to
 
+        private Vector2D vel; // current velocity of the projectile
+
         private int width = 25; // image width in pixels
 
         private int height = 25; // image height in pixels
+
+        /// <summary>
+        /// Default construtor, needed to deserialize a ship from Json
+        /// initializes a Ship object with no parameters set.
+        /// </summary>
+        public Projectile()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new ship with the given ship owner and id and located at
+        /// the specified location and orientation with a constant velocity
+        /// </summary>
+        public Projectile(int owner, int id, Vector2D location, Vector2D direction, Vector2D velocity)
+        {
+            this.owner = owner;
+            ID = id;
+            loc = location;
+            dir = direction;
+            vel = velocity;
+            alive = true;
+        }
 
         /// <summary>
         /// Get the projectile's ID
@@ -52,11 +76,27 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// Sets the location of the projectile
+        /// </summary>
+        public void SetLocation(Vector2D location)
+        {
+            loc = location;
+        }
+
+        /// <summary>
         /// Get the projectile's direction 
         /// </summary>
         public Vector2D GetDirection()
         {
             return dir;
+        }
+
+        /// <summary>
+        /// Sets the direction of the projectile
+        /// </summary>
+        public void SetDirection(Vector2D direction)
+        {
+            dir = direction;
         }
 
         /// <summary>
@@ -68,11 +108,27 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// Sets the boolean alive to the passed in boolean
+        /// </summary>
+        public void Alive(bool alive)
+        {
+            this.alive = alive;
+        }
+
+        /// <summary>
         /// Gets the owner of the projectile
         /// </summary>
         public int GetOwner()
         {
             return owner;
+        }
+
+        /// <summary>
+        /// Get the projectiles velocity
+        /// </summary>
+        public Vector2D GetVelocity()
+        {
+            return vel;
         }
 
         /// <summary>

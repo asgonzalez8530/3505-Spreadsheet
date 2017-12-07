@@ -51,24 +51,24 @@ namespace SpaceWars
         /// </summary>
         public Ship()
         {
-
         }
 
-        /// <summary>
-        /// Creates a new ship with the given ship name and id at loc (0,0) and
-        /// with a direction (0,0)
-        /// </summary>
-        public Ship(String shipName, int id)
-            :this(shipName, id, new Vector2D(0, 0), new Vector2D(0, 0))
-        {
+        // TODO: remove??
+        ///// <summary>
+        ///// Creates a new ship with the given ship name and id at loc (0,0) and
+        ///// with a direction (0,0)
+        ///// </summary>
+        //public Ship(String shipName, int id)
+        //    :this(shipName, id, new Vector2D(0, 0), new Vector2D(0, 0))
+        //{
             
-        }
+        //}
 
         /// <summary>
         /// Creates a new ship with the given ship name and id and located at
         /// the specified location and orientation
         /// </summary>
-        public Ship(String shipName, int id, Vector2D location, Vector2D orientation)
+        public Ship(String shipName, int id, Vector2D location, Vector2D orientation, int startingHitPoints)
         {
             ID = id;
             name = shipName;
@@ -78,7 +78,7 @@ namespace SpaceWars
             dir.Normalize();
 
             thrust = false;
-            hp = 5;
+            hp = startingHitPoints;
             score = 0;
         }
 
@@ -152,6 +152,14 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// Sets the ship's name to be the passed in name
+        /// </summary>
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
+
+        /// <summary>
         /// Get the ship's hp 
         /// </summary>
         public int GetHP()
@@ -222,7 +230,7 @@ namespace SpaceWars
         {
             king = k;
         }
-
+        
         /// <summary>
         /// Returns true if the ship's health points are above 0. Otherwise, returns false.
         /// </summary>
