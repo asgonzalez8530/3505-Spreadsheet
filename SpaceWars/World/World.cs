@@ -529,7 +529,9 @@ namespace SpaceWars
                 ship.FireProjectile = false;
             }
 
-            Vector2D acceleration = new Vector2D();
+            //get a zero vector
+            Vector2D acceleration = new Vector2D(0.0,0.0);
+            
             //compute the acceleration caused by the star
             foreach (Star star in stars.Values)
             {
