@@ -82,7 +82,7 @@ namespace SpaceWars
             score = 0;
 
             respawnLimit = respawnDelay;
-            respawnTimer = respawnDelay;
+            respawnTimer = 0;
 
             fireTimer = fireDelay;
             fireLimit = fireDelay;

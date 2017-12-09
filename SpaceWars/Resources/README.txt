@@ -28,12 +28,9 @@ How to Run: Start the server. Once the server is ready, press start on the clien
 
 /************************************** REMOVE BELOW *****************************************/
 TODO:
-
-*	Set Projectiles as dead not remove when hitting something
-*	Clean up dead projectiles at begining of loop 
 *	upon disconnect send representation of dead ship then remove object
 *	handle network errors
-*	Respawn timer
-*	respawn ships
-*	projectile timer
 *	King of the hill?
+*	Handle ALL command messages on the next frame, not just the first
+*	Testing
+*	Speedup?

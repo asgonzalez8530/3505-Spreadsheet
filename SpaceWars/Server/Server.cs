@@ -188,7 +188,12 @@ namespace SpaceWarsServer
                 {
                     world.MotionForShips(s);
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
+                    // TODO: come up with a more elegant method of updating
+                    s.Thrust = false;
                 }
+
+                world.CleanUpProjectiles();
+                world.RespawnShips();
             }
 
             string data = sb.ToString();
