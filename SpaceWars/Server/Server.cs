@@ -195,13 +195,7 @@ namespace SpaceWarsServer
             
             // send each object to clients
             lock (clients)
-            {
-                // TODO: remove write line
-                if (clients.Count > 0)
-                {
-                    Console.Out.Write(data);
-                }
-                
+            {   
                 foreach (SocketState client in clients)
                 {
                     Network.Send(client.GetSocket(), data);

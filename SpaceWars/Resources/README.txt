@@ -24,3 +24,16 @@ Added Features: Our scoreboard is color coordinated and our GUI has a fun Santa 
 background to represent the snow. 
 
 How to Run: Start the server. Once the server is ready, press start on the client code. Enter in a name and press connect.
+
+
+/************************************** REMOVE BELOW *****************************************/
+TODO:
+
+*	Set Projectiles as dead not remove when hitting something
+*	Clean up dead projectiles at begining of loop 
+*	upon disconnect send representation of dead ship then remove object
+*	handle network errors
+*	Respawn timer
+*	respawn ships
+*	projectile timer
+*	King of the hill?

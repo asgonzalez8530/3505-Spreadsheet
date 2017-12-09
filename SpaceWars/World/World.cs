@@ -494,7 +494,7 @@ namespace SpaceWars
             }
 
             // make a ship
-            Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0,-1), startingHitPoints);
+            Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0,-1), startingHitPoints, respawnDelay, projectileFiringDelay);
 
             // find a random location and a random direction
             Respawn(s);
@@ -527,6 +527,7 @@ namespace SpaceWars
                 Projectile p = new Projectile(ship.GetID(), projectileID++, ship.GetLocation(), ship.GetDirection());
                 AddProjectile(p);
                 ship.FireProjectile = false;
+                ship.ResetFireTimer();
             }
 
             //get a zero vector
@@ -566,6 +567,8 @@ namespace SpaceWars
             {
                 CollisionWithAProjectile(ship, proj);
             }
+
+            ship.IncrementFireTimer();
 
         }
 
@@ -759,7 +762,8 @@ namespace SpaceWars
         /// </summary>
         private bool ProjectileOffScreen(Projectile p)
         {
-            
+
+            //TODO: instead of removing projectile, mark projectile as dead
             int borderCoordinate = universeSize / 2;
 
             // check to see if its on the edge of the world

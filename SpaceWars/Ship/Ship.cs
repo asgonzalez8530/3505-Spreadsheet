@@ -37,19 +37,30 @@ namespace SpaceWars
         [JsonProperty]
         private int score; // amount of ship's the current ship had shot down
 
+        private int fireTimer; // counts time in frames since last fire up to FireLimit
+
+        private int respawnTimer; // counts time in frames up to respawnLimit
+
+        private int respawnLimit; // the amount of time in frames a ship must wait to respawn
+
+        private int fireLimit; // the amount of time in frames a ship must wait before firing again
+
+        private bool fireRequest;
+
         private Vector2D velocity = new Vector2D(0, 0); // current velocity of the ship
 
         private bool king = false; // true when extra game mode is on and the current ship is the king
 
         private int width = 65; // image width in pixels
 
-        private int height = 100; // image height in pixels
+        private int height = 100; // image height in pixel
 
         /// <summary>
         /// Default construtor, needed to deserialize a ship from Json
         /// initializes a Ship object with no parameters set.
         /// </summary>
         public Ship()
+            : this("", 0, new Vector2D(0,0), new Vector2D(0,-1), 5, 300, 16)
         {
         }
         
@@ -57,7 +68,7 @@ namespace SpaceWars
         /// Creates a new ship with the given ship name and id and located at
         /// the specified location and orientation
         /// </summary>
-        public Ship(String shipName, int id, Vector2D location, Vector2D orientation, int startingHitPoints)
+        public Ship(String shipName, int id, Vector2D location, Vector2D orientation, int startingHitPoints, int respawnDelay, int fireDelay)
         {
             ID = id;
             name = shipName;
@@ -69,12 +80,31 @@ namespace SpaceWars
             thrust = false;
             hp = startingHitPoints;
             score = 0;
+
+            respawnLimit = respawnDelay;
+            respawnTimer = respawnDelay;
+
+            fireTimer = fireDelay;
+            fireLimit = fireDelay;
+            fireRequest = false;
         }
 
         public bool TurnRight { get; set; }
         public bool TurnLeft { get; set; }
-        public bool FireProjectile { get; set; }
+
+        /// <summary>
+        /// Allows FireProjectile to be set to true only if fireDelay has elapsed.
+        /// </summary>
+        public bool FireProjectile { get  => fireRequest; set { fireRequest = CanFire() ? value : false; } }
         public bool Thrust { get => thrust; set => thrust = value; }
+
+        /// <summary>
+        /// Gets or sets the number of frames that a ship must wait before
+        /// firing again
+        /// </summary>
+        public bool FireLimit { get; set; }
+
+
 
         /// <summary>
         /// Get the ship's ID
@@ -226,6 +256,64 @@ namespace SpaceWars
         public bool IsAlive()
         {
             return (hp > 0);
+        }
+
+        /// <summary>
+        /// If fireTimer is less than fireLimit increments fireTimer by one
+        /// else, does nothing.
+        /// </summary>
+        public void IncrementFireTimer()
+        {
+            if (fireTimer <= fireLimit)
+            {
+                fireTimer++;
+            }
+        }
+
+        /// <summary>
+        /// If respawnTimer is less than respawnLimit increments respawnTimer by one
+        /// else, does nothing.
+        /// </summary>
+        public void IncrementRespawnTimer()
+        {
+            if (respawnTimer <= respawnLimit)
+            {
+                respawnTimer++;
+            }
+        }
+
+        /// <summary>
+        /// If the last time we fired was more than the fireLimit, returns true
+        /// else returns false
+        /// </summary>
+        public bool CanFire()
+        {
+            return fireTimer > fireLimit;
+        }
+
+        /// <summary>
+        /// If we died more frames ago than the respawnLimit, returns true
+        /// else returns false.
+        /// </summary>
+        public bool CanRespawn()
+        {
+            return respawnTimer > respawnLimit;
+        }
+
+        /// <summary>
+        /// Resets the FireTimer to 0;
+        /// </summary>
+        public void ResetFireTimer()
+        {
+            fireTimer = 0;
+        }
+
+        /// <summary>
+        /// Resets the respawnTimer to 0;
+        /// </summary>
+        public void ResetRespawnTimer()
+        {
+            respawnTimer = 0;
         }
     }
 }
