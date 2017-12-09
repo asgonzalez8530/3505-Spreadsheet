@@ -152,26 +152,15 @@ namespace SpaceWarsServer
 
             // enumerate the complete received messages.
             IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
-
-            // find the first complete message
-            string commands = "";
-            if (messages.Any())
-            {
-                commands = messages.First();
-                state.GetStringBuilder().Remove(0, commands.Length);
-            }
-            // if there wasn't a complete message continue the event loop
-            else
-            {
-                Network.GetData(state);
-                return;
-            }
-
-            // give commands to ship
-            commands.TrimEnd();
             lock (world)
             {
-                world.UpdateShipCommands(commands, state.GetID());
+                // process all of the commands now, 
+                //may have recieved more than one before refreshing screen
+                foreach (string command in messages)
+                {
+                    world.UpdateShipCommands(command, state.GetID());
+                    state.GetStringBuilder().Remove(0, command.Length);
+                }
             }
 
             // ask client for data (continue loop)
@@ -202,13 +191,6 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
                 }
 
-                IEnumerable<Projectile> projectiles = world.GetProjs();
-                foreach (Projectile p in projectiles)
-                {
-                    world.MotionForProjectiles(p);
-                    sb.Append(JsonConvert.SerializeObject(p) + "\n");
-                }
-
                 IEnumerable<Ship> ships = world.GetAllShips();
                 foreach (Ship s in ships)
                 {
@@ -216,6 +198,13 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
                     // TODO: come up with a more elegant method of updating
                     s.Thrust = false;
+                }
+
+                IEnumerable<Projectile> projectiles = world.GetProjs();
+                foreach (Projectile p in projectiles)
+                {
+                    world.MotionForProjectiles(p);
+                    sb.Append(JsonConvert.SerializeObject(p) + "\n");
                 }
 
                 world.CleanUpProjectiles();
