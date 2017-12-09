@@ -47,7 +47,6 @@ namespace SpaceWars
             respawnDelay = 300;
             kingIsOn = false;
             projectileID = 0;
-
         }
 
         /// <summary>
@@ -81,7 +80,6 @@ namespace SpaceWars
             {
                 universeSize = s;
             }
-
         }
 
         /// <summary>
@@ -357,17 +355,17 @@ namespace SpaceWars
         /// When a ship is added to the game we update the info or add it
         /// to the world 
         /// </summary>
-        private void AddAllShips(Ship s)
+        private void AddAllShips(Ship ship)
         {
             // if the ship is in the world, update its reference
-            if (allShips.ContainsKey(s.GetID()))
+            if (allShips.ContainsKey(ship.GetID()))
             {
-                allShips[s.GetID()] = s;
+                allShips[ship.GetID()] = ship;
             }
             // if the ship is not in the world then add it
             else
             {
-                allShips.Add(s.GetID(), s);
+                allShips.Add(ship.GetID(), ship);
             }
         }
 
@@ -375,55 +373,55 @@ namespace SpaceWars
         /// If Ship s does not exist in ships adds it. If the id already exists
         /// in ships, updates reference in ships to s.
         /// </summary>
-        public void AddShip(Ship s)
+        public void AddShip(Ship ship)
         {
             // if the ship is null then do nothing
-            if (s == null)
+            if (ship == null)
             {
                 return;
             }
 
             // if the ship is dead then remove it from the world
-            if (!s.IsAlive())
+            if (!ship.IsAlive())
             {
-                aliveShips.Remove(s.GetID());
+                aliveShips.Remove(ship.GetID());
             }
             // if the ship is in the world then replace the old ship with the passed in ship
-            else if (aliveShips.ContainsKey(s.GetID()))
+            else if (aliveShips.ContainsKey(ship.GetID()))
             {
-                aliveShips[s.GetID()] = s;
+                aliveShips[ship.GetID()] = ship;
             }
             // if the ship is not in the world then add it
             else
             {
-                aliveShips.Add(s.GetID(), s);
+                aliveShips.Add(ship.GetID(), ship);
             }
 
             // we have taken care of the alive ships, now lets keep track of all ships
-            AddAllShips(s);
+            AddAllShips(ship);
         }
 
         /// <summary>
         /// If Star s does not exist in stars adds it. If the id already exists
         /// in Star, updates reference in stars to s.
         /// </summary>
-        public void AddStar(Star s)
+        public void AddStar(Star star)
         {
             // if the star is null then do nothing
-            if (s == null)
+            if (star == null)
             {
                 return;
             }
 
             // if the star is in the world then replace the old star with the passed in star
-            else if (stars.ContainsKey(s.GetID()))
+            else if (stars.ContainsKey(star.GetID()))
             {
-                stars[s.GetID()] = s;
+                stars[star.GetID()] = star;
             }
             // if the star is not in the world then add it to the world
             else
             {
-                stars.Add(s.GetID(), s);
+                stars.Add(star.GetID(), star);
             }
         }
 
@@ -431,29 +429,29 @@ namespace SpaceWars
         /// If Projectile p does not exist in projectiles adds it. If the id already exists
         /// in projectiles, updates reference in projectiles to p.
         /// </summary>
-        public void AddProjectile(Projectile p)
+        public void AddProjectile(Projectile projectile)
         {
             // if the projectile is null then do nothing
-            if (p == null)
+            if (projectile == null)
             {
                 return;
             }
 
             // if the projectile is dead then remove it fromt he world
-            if (!p.IsAlive())
+            if (!projectile.IsAlive())
             {
-                projectiles.Remove(p.GetID());
+                projectiles.Remove(projectile.GetID());
             }
             // if the projectile is in the world then replace the old projectile with the 
             // passed in projectile
-            else if (projectiles.ContainsKey(p.GetID()))
+            else if (projectiles.ContainsKey(projectile.GetID()))
             {
-                projectiles[p.GetID()] = p;
+                projectiles[projectile.GetID()] = projectile;
             }
             // if the projectile is not in the world then add it to the world
             else
             {
-                projectiles.Add(p.GetID(), p);
+                projectiles.Add(projectile.GetID(), projectile);
             }
         }
 
@@ -594,27 +592,27 @@ namespace SpaceWars
         /// <summary>
         /// Checks to see if the passed in ship is on the edge of the world
         /// </summary>
-        private void Wraparound(Ship s)
+        private void Wraparound(Ship ship)
         {
             int borderCoordinate = universeSize / 2;
 
-            if (Math.Abs(s.GetLocation().GetX()) >= borderCoordinate)
+            if (Math.Abs(ship.GetLocation().GetX()) >= borderCoordinate)
             {
                 // times x by -1
-                double x = s.GetLocation().GetX() * -1;
-                double y = s.GetLocation().GetY();
+                double x = ship.GetLocation().GetX() * -1;
+                double y = ship.GetLocation().GetY();
 
                 // set the ship's new location
-                s.SetLocation(x, y);
+                ship.SetLocation(x, y);
             }
-            if (Math.Abs(s.GetLocation().GetY()) >= borderCoordinate)
+            if (Math.Abs(ship.GetLocation().GetY()) >= borderCoordinate)
             {
                 // times y by -1
-                double y = s.GetLocation().GetY() * -1;
-                double x = s.GetLocation().GetX();
+                double y = ship.GetLocation().GetY() * -1;
+                double x = ship.GetLocation().GetX();
 
                 // set the ship's new location
-                s.SetLocation(x, y);
+                ship.SetLocation(x, y);
             }
             
         }
@@ -634,15 +632,15 @@ namespace SpaceWars
         /// <summary>
         /// Detects whether or not a ship is hit by a projectile
         /// </summary>
-        private void CollisionWithAProjectile(Ship ship, Projectile proj)
+        private void CollisionWithAProjectile(Ship ship, Projectile projectile)
         {
-            if (ship.GetID() != proj.GetOwner())
+            if (ship.GetID() != projectile.GetOwner())
             {
-                if (WithinARadius(ship.GetLocation(), proj.GetLocation(), shipSize))
+                if (WithinARadius(ship.GetLocation(), projectile.GetLocation(), shipSize))
                 {
                     // the passed in ship was hit by a projectile so we update health and remove
                     // the projectile from the world
-                    HitAProjectile(ship, proj);
+                    HitAProjectile(ship, projectile);
                 }
             }
         }
@@ -650,12 +648,12 @@ namespace SpaceWars
         /// <summary>
         /// Detects whether or not a ship is hit by a projectile
         /// </summary>
-        private void CollisionBetweenAStarAndProjectile(Star star, Projectile proj)
+        private void CollisionBetweenAStarAndProjectile(Star star, Projectile projectile)
         {
-            if (WithinARadius(star.GetLocation(), proj.GetLocation(), starSize))
+            if (WithinARadius(star.GetLocation(), projectile.GetLocation(), starSize))
             {
                 // the passed in projectile hit a star so we remove it from the world
-                proj.Alive(false);
+                projectile.Alive(false);
             }
         }
 
@@ -759,23 +757,23 @@ namespace SpaceWars
         /// from the world and return true. Else, if it was not removed return
         /// false;
         /// </summary>
-        private bool ProjectileOffScreen(Projectile p)
+        private bool ProjectileOffScreen(Projectile projectile)
         {
 
             //TODO: instead of removing projectile, mark projectile as dead
             int borderCoordinate = universeSize / 2;
 
             // check to see if its on the edge of the world
-            if (Math.Abs(p.GetLocation().GetX()) >= borderCoordinate)
+            if (Math.Abs(projectile.GetLocation().GetX()) >= borderCoordinate)
             {
-                p.Alive(false);
+                projectile.Alive(false);
                 return true;
             }
 
             // check to see if its on the edge of the world
-            else if (Math.Abs(p.GetLocation().GetY()) >= borderCoordinate)
+            else if (Math.Abs(projectile.GetLocation().GetY()) >= borderCoordinate)
             {
-                p.Alive(false);
+                projectile.Alive(false);
                 return true;
             }
 
@@ -850,15 +848,15 @@ namespace SpaceWars
         /// Returns true if the two vectors are within the given radius of each other
         /// otherwise returns false
         /// </summary>
-        private bool WithinARadius(Vector2D o1, Vector2D o2, int radius)
+        private bool WithinARadius(Vector2D location1, Vector2D location2, int radius)
         {
-            if (o1 == null || o2 == null)
+            if (location1 == null || location2 == null)
             {
                 throw new ArgumentException("LocationIsNearAStar: one of the parameters is null");
             }
 
-            double xDifference = o1.GetX() - o2.GetX();
-            double yDifference = o1.GetY() - o2.GetY();
+            double xDifference = location1.GetX() - location2.GetX();
+            double yDifference = location1.GetY() - location2.GetY();
 
             double distanceBetweenVectors = Math.Sqrt(xDifference * xDifference + yDifference * yDifference);
 
