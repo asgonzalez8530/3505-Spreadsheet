@@ -293,12 +293,7 @@ namespace SpaceWars
                         case 'F': // fire a projectile
                             s.FireProjectile = true;
                             break;
-                        case '(': // valid but not used
-                            break;
-                        case ')': // valid but not used
-                            break;
-                        //default:
-                        //    throw new ArgumentException("Ship Command Error: Invalid command \'" + command + "\'");
+                        
                     }
                 }
             }
@@ -512,6 +507,12 @@ namespace SpaceWars
         /// </summary>
         public void MotionForShips(Ship ship)
         {
+            // if the ship isn't alive, just skip it
+            if (!ship.IsAlive())
+            {
+                return;
+            }
+            
             // handle left turn command
             if (ship.TurnLeft)
             {
@@ -580,6 +581,12 @@ namespace SpaceWars
         /// </summary>
         public void MotionForProjectiles(Projectile projectile)
         {
+            // if the projectile is not alive, don't move it
+            if (!projectile.IsAlive())
+            {
+                return;
+            }
+
             // find the velocity with respect to direction
             Vector2D velocity = projectile.GetDirection() * projectileSpeed;
 
@@ -640,7 +647,7 @@ namespace SpaceWars
         /// </summary>
         private void CollisionWithAProjectile(Ship ship, Projectile projectile)
         {
-            if (ship.GetID() != projectile.GetOwner())
+            if (ship.GetID() != projectile.GetOwner() && ship.IsAlive())
             {
                 if (WithinARadius(ship.GetLocation(), projectile.GetLocation(), shipSize))
                 {
@@ -765,8 +772,6 @@ namespace SpaceWars
         /// </summary>
         private bool ProjectileOffScreen(Projectile projectile)
         {
-
-            //TODO: instead of removing projectile, mark projectile as dead
             int borderCoordinate = universeSize / 2;
 
             // check to see if its on the edge of the world

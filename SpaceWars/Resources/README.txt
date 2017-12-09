@@ -28,7 +28,6 @@ How to Run: Start the server. Once the server is ready, press start on the clien
 
 /************************************** REMOVE BELOW *****************************************/
 TODO:
-*	upon disconnect send representation of dead ship then remove object
 *	handle network errors
 *	King of the hill?
 *	Handle ALL command messages on the next frame, not just the first

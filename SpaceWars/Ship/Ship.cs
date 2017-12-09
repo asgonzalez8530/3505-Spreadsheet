@@ -95,7 +95,7 @@ namespace SpaceWars
         /// <summary>
         /// Allows FireProjectile to be set to true only if fireDelay has elapsed.
         /// </summary>
-        public bool FireProjectile { get  => fireRequest; set { fireRequest = CanFire() ? value : false; } }
+        public bool FireProjectile { get  => fireRequest; set { fireRequest = FireRequest(value);} }
         public bool Thrust { get => thrust; set => thrust = value; }
 
         /// <summary>
@@ -103,6 +103,23 @@ namespace SpaceWars
         /// firing again
         /// </summary>
         public bool FireLimit { get; set; }
+
+        private bool FireRequest(bool request)
+        {
+            // if trying to set to false, set to false
+            if (!request)
+            {
+                return request;
+            }
+
+            // if we can fire and we are trying to set to true, set to true
+            if (CanFire() && request)
+            {
+                return request;
+            }
+
+            return false;
+        }
 
 
 
@@ -288,7 +305,7 @@ namespace SpaceWars
         /// </summary>
         public bool CanFire()
         {
-            return fireTimer > fireLimit;
+            return (fireTimer > fireLimit) && IsAlive();
         }
 
         /// <summary>

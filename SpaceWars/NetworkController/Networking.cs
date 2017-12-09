@@ -278,6 +278,13 @@ namespace Communication
                 // invoke client delegate so it can take whatever action it needs with an error
                 state.InvokeNetworkAction(state);
             }
+            catch (ObjectDisposedException e)
+            {
+                state.HasError = true;
+                state.ErrorMessage = e.Message;
+                // invoke client delegate so it can take whatever action it needs with an error
+                state.InvokeNetworkAction(state);
+            }
 
             // If the socket is still open
             if (bytesRead > 0)
@@ -298,8 +305,19 @@ namespace Communication
         public static void Send(Socket socket, String data)
         {            
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
+            try
+            {
+                socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
+            }
+            catch (SocketException e)
+            {
+                socket.Close();
+            }
+            catch (ObjectDisposedException)
+            { 
+                // object is already disposed don't need to close anything
+            }
             
-            socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
         }
 
         /// <summary>
