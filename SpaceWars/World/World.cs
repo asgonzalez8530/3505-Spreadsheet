@@ -547,7 +547,6 @@ namespace SpaceWars
                 Vector2D t = new Vector2D(ship.GetDirection());
                 t = t * engineStrength;
                 acceleration = acceleration + t;
-                ship.Thrust = false;
             }
 
             // recalculate velocity and location
@@ -804,6 +803,13 @@ namespace SpaceWars
 
             // sets a random direction for the ship
             ship.SetDirection(dir);
+
+            // reset ships health and velocity
+            ship.SetHP(startingHitPoints);
+            ship.SetVelocity(new Vector2D(0, 0));
+
+            // reset ships death timer
+            ship.ResetRespawnTimer();
         }
 
         // TODO: might need to be private
@@ -867,9 +873,10 @@ namespace SpaceWars
         /// Clean up the dead projectiles in the world and remove them so 
         /// that we are not sending uncessary information to the clients
         /// </summary>
-        private void CleanUpProjectiles()
+        public void CleanUpProjectiles()
         {
-            List<Projectile> deadProj = new List<Projectile>();
+            // get all dead projectiles
+            HashSet<Projectile> deadProj = new HashSet<Projectile>();
             foreach (Projectile p in projectiles.Values)
             {
                 if (!p.IsAlive())
@@ -878,9 +885,43 @@ namespace SpaceWars
                 }
             }
 
+            // remove dead projectiles from the world
             foreach (Projectile p in deadProj)
             {
                 projectiles.Remove(p.GetID());
+            }
+        }
+
+        /// <summary>
+        /// Searches in ships for objects which are dead and need to be respawned.
+        /// If a ship's respawn timer has elapsed, sets ship to alive and respawns it
+        /// else, incriments its respawn timer.
+        /// </summary>
+        public void RespawnShips()
+        {
+            // get all the dead ships
+            HashSet<Ship> deadShips = new HashSet<Ship>();
+            foreach (Ship s in allShips.Values)
+            {
+                if (!s.IsAlive())
+                {
+                    deadShips.Add(s);
+                }
+            }
+
+            // try to respawn each ship
+            foreach (Ship s in deadShips)
+            {
+                if (s.CanRespawn())
+                {
+                    // respawn ship
+                    Respawn(s);
+                }
+                else
+                {
+                    s.IncrementRespawnTimer();
+                }
+                    
             }
         }
     }
