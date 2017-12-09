@@ -14,6 +14,7 @@ namespace SpaceWars
         private Dictionary<int, Ship> allShips; // keeps track of all the ships in the world (game)
         private Dictionary<int, Star> stars; // keeps track of all the stars on the screen
         private Dictionary<int, Projectile> projectiles; // keeps track of all the projectiles
+        private HashSet<int> shipsToCleanup; // list of ships which must be cleaned up
 
         // Default data for the game
         private int startingHitPoints;
@@ -35,6 +36,9 @@ namespace SpaceWars
             allShips = new Dictionary<int, Ship>();
             stars = new Dictionary<int, Star>();
             projectiles = new Dictionary<int, Projectile>();
+            shipsToCleanup = new HashSet<int>();
+
+            // default settings for the world
             startingHitPoints = 5;
             projectileSpeed = 15;
             engineStrength = .08;
@@ -234,6 +238,8 @@ namespace SpaceWars
                 MSPerFrame = f;
             }
         }
+
+        
 
         /// <summary>
         /// Takes in a string representing a command request and a playerId
@@ -921,6 +927,32 @@ namespace SpaceWars
                 }
                     
             }
+        }
+
+        /// <summary>
+        /// Takes in a ship Id and adds it to a list of ships which must be
+        /// removed from the world then sets the ships hp to zero
+        /// </summary>
+        public void AddShipToCleanup(int shipID)
+        {
+            shipsToCleanup.Add(shipID);
+            Ship deadShip = allShips[shipID];
+            deadShip.SetHP(0);
+        }
+
+        /// <summary>
+        /// Removes all ships from world which need to be cleaned up.
+        /// </summary>
+        public void CleanupShips()
+        {
+            // get the id of ship to be removed and remove it
+            foreach (int shipID in shipsToCleanup)
+            {
+                allShips.Remove(shipID);
+            }
+
+            // reset list of ships that must be cleaned up
+            shipsToCleanup.Clear();
         }
     }
 }

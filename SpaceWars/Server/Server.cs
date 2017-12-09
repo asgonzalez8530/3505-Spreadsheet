@@ -21,6 +21,7 @@ namespace SpaceWarsServer
         private int IDCounter; // the unique id's set to clients
         private HashSet<SocketState> clients; // a set of all clients to update
         private Stopwatch watch; // a timer to update our world;
+        private HashSet<int> clientsToCleanUp;
 
         //TODO: remove when done testing
         private int frameCounter; // a counter to calculate frame rate
@@ -30,6 +31,7 @@ namespace SpaceWarsServer
             world = new World();
             IDCounter = 0;
             clients = new HashSet<SocketState>();
+            clientsToCleanUp = new HashSet<int>();
             watch = new Stopwatch();
             watch.Start();
 
@@ -110,6 +112,11 @@ namespace SpaceWarsServer
                 state.SetID(playerID);
             }
 
+            if (state.HasError)
+            {
+                HandleNetworkError(state);
+                return;
+            }
             
 
             // change the callback to handle incoming commands from the client
@@ -137,6 +144,12 @@ namespace SpaceWarsServer
         /// </summary>
         private void HandleClientCommands(SocketState state)
         {
+            if (state.HasError)
+            {
+                HandleNetworkError(state);
+                return;
+            }
+
             // enumerate the complete received messages.
             IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
@@ -206,7 +219,9 @@ namespace SpaceWarsServer
                 }
 
                 world.CleanUpProjectiles();
+                world.CleanupShips();
                 world.RespawnShips();
+                
             }
 
             string data = sb.ToString();
@@ -215,10 +230,33 @@ namespace SpaceWarsServer
             lock (clients)
             {   
                 foreach (SocketState client in clients)
-                {
+                {   
                     Network.Send(client.GetSocket(), data);
                 }
             }
+        }
+
+        /// <summary>
+        /// Takes a socket state object, sets its associated ship to dead then removes the ship from 
+        /// the list of clients
+        /// </summary>
+        private void HandleNetworkError(SocketState state)
+        {
+            int clientID = state.GetID();
+            // dispose all resources used by socket
+            state.GetSocket().Dispose();
+
+            lock (clients)
+            {
+                clients.Remove(state);
+            }
+
+            lock (world)
+            {
+                world.AddShipToCleanup(clientID);
+            }
+
+            Console.Out.WriteLine("Player " + clientID + " has left the game");
         }
 
         /// <summary>
