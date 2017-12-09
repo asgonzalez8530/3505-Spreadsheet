@@ -22,6 +22,9 @@ namespace SpaceWarsServer
         private HashSet<SocketState> clients; // a set of all clients to update
         private Stopwatch watch; // a timer to update our world;
 
+        //TODO: remove when done testing
+        private int frameCounter; // a counter to calculate frame rate
+
         public Server()
         {
             world = new World();
@@ -36,6 +39,12 @@ namespace SpaceWarsServer
 
             // get the game settings and pass them to the world
             ReadSettingsXML(filePath + fileName);
+
+            System.Timers.Timer frameRateTimer = new System.Timers.Timer();
+            frameRateTimer.Interval = 3000;
+            frameRateTimer.Elapsed += (x,y) => PrintFrameRate();
+            frameRateTimer.Start();
+
         }
 
         /// <summary>
@@ -164,6 +173,9 @@ namespace SpaceWarsServer
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
             { /* do nothing */ }
             watch.Restart();
+
+            //TODO: remove before turning in, used to make frame counter
+            Interlocked.Increment(ref frameCounter);
             
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
@@ -360,6 +372,15 @@ namespace SpaceWarsServer
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Prints the frame rate to the console
+        /// </summary>
+        private void PrintFrameRate()
+        {
+            int rate = frameCounter / 3000;
+            Console.Out.WriteLine("Frames per second: " + rate);
         }
 
         public static void Main(string[] args)
