@@ -21,6 +21,7 @@ namespace SpaceWarsServer
         private int IDCounter; // the unique id's set to clients
         private HashSet<SocketState> clients; // a set of all clients to update
         private Stopwatch watch; // a timer to update our world;
+        private HashSet<int> clientsToCleanUp;
 
         //TODO: remove when done testing
         private int frameCounter; // a counter to calculate frame rate
@@ -30,6 +31,7 @@ namespace SpaceWarsServer
             world = new World();
             IDCounter = 0;
             clients = new HashSet<SocketState>();
+            clientsToCleanUp = new HashSet<int>();
             watch = new Stopwatch();
             watch.Start();
 
@@ -216,8 +218,32 @@ namespace SpaceWarsServer
             {   
                 foreach (SocketState client in clients)
                 {
+                    
                     Network.Send(client.GetSocket(), data);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Takes a socket state object, sets its associated ship to dead then removes the ship from 
+        /// the list of clients
+        /// </summary>
+        private void HandleNetworkError(SocketState state)
+        {
+            int clientID = state.GetID();
+            lock (clientsToCleanUp)
+            {
+                clientsToCleanUp.Add(clientID);
+            }
+
+            lock (clients)
+            {
+                clients.Remove(state);
+            }
+
+            lock (world)
+            {
+                world.KillShip(clientID);
             }
         }
 
