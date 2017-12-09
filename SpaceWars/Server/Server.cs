@@ -112,6 +112,11 @@ namespace SpaceWarsServer
                 state.SetID(playerID);
             }
 
+            if (state.HasError)
+            {
+                HandleNetworkError(state);
+                return;
+            }
             
 
             // change the callback to handle incoming commands from the client
@@ -139,6 +144,12 @@ namespace SpaceWarsServer
         /// </summary>
         private void HandleClientCommands(SocketState state)
         {
+            if (state.HasError)
+            {
+                HandleNetworkError(state);
+                return;
+            }
+
             // enumerate the complete received messages.
             IEnumerable<string> messages = GetTokens(state.GetStringBuilder());
 
@@ -208,7 +219,9 @@ namespace SpaceWarsServer
                 }
 
                 world.CleanUpProjectiles();
+                world.CleanupShips();
                 world.RespawnShips();
+                
             }
 
             string data = sb.ToString();
@@ -217,8 +230,7 @@ namespace SpaceWarsServer
             lock (clients)
             {   
                 foreach (SocketState client in clients)
-                {
-                    
+                {   
                     Network.Send(client.GetSocket(), data);
                 }
             }
@@ -231,10 +243,8 @@ namespace SpaceWarsServer
         private void HandleNetworkError(SocketState state)
         {
             int clientID = state.GetID();
-            lock (clientsToCleanUp)
-            {
-                clientsToCleanUp.Add(clientID);
-            }
+            // dispose all resources used by socket
+            state.GetSocket().Dispose();
 
             lock (clients)
             {
@@ -243,8 +253,10 @@ namespace SpaceWarsServer
 
             lock (world)
             {
-                world.KillShip(clientID);
+                world.AddShipToCleanup(clientID);
             }
+
+            Console.Out.WriteLine("Player " + clientID + " has left the game");
         }
 
         /// <summary>
