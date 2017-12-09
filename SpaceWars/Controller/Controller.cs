@@ -187,9 +187,10 @@ namespace SpaceWarsControl
             }
 
             string name = window.GetUserName();
+            name += "\n";
 
             // begin "handshake" by sending name
-            Network.Send(state.GetSocket(), name + "\n");
+            Network.Send(state.GetSocket(), name);
 
             // Change the action that is taken when a network event occurs. Now when data is received,
             // the Networking library will invoke ReceiveStartup

@@ -494,9 +494,9 @@ namespace SpaceWars
             }
 
             // make a ship
-            Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, 0), startingHitPoints);
+            Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0,-1), startingHitPoints);
 
-            // find a random location at a random direction
+            // find a random location and a random direction
             Respawn(s);
 
             // add the ship to the world
@@ -770,17 +770,17 @@ namespace SpaceWars
         {
             // find random empty location in the world
             FindRandomLocation(ship);
-            
+
+            // make a new normalized direction vector pointing up
+            Vector2D dir = new Vector2D(0,-1);
+            dir.Normalize();
+
             // make a randomizing object
             Random r = new Random();
+            int randAngle = r.Next(0, 360);
 
-            // make new random directions
-            int xDir = r.Next(0, 2);
-            int yDir = r.Next(0, 2);
-
-            // make a new normalized direction vector
-            Vector2D dir = new Vector2D(xDir, yDir);
-            dir.Normalize();
+            //rotate by random angle
+            dir.Rotate(randAngle);
 
             // sets a random direction for the ship
             ship.SetDirection(dir);

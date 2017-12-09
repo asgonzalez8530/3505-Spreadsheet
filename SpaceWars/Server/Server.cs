@@ -96,10 +96,11 @@ namespace SpaceWarsServer
                 // make a ship with a the name and give it a unique id
                 // add ship to world
                 world.MakeNewShip(playerName.TrimEnd(), playerID);
+                // set the socket state ID
+                state.SetID(playerID);
             }
 
-            // set the socket state ID
-            state.SetID(playerID);
+            
 
             // change the callback to handle incoming commands from the client
             state.SetNetworkAction(HandleClientCommands);
@@ -191,9 +192,16 @@ namespace SpaceWarsServer
             }
 
             string data = sb.ToString();
+            
             // send each object to clients
             lock (clients)
             {
+                // TODO: remove write line
+                if (clients.Count > 0)
+                {
+                    Console.Out.Write(data);
+                }
+                
                 foreach (SocketState client in clients)
                 {
                     Network.Send(client.GetSocket(), data);
