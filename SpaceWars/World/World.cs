@@ -722,6 +722,22 @@ namespace SpaceWars
                         // subtract a health point from the ship
                         ship.SetHP(ship.GetHP() - 1);
                     }
+
+                    if (ship.IsKing() && ship.GetHP() == 0)
+                    {
+                        // make sure that the ship that died is no longer king
+                        ship.SetKing(false);
+                        ship.SetName(ship.GetName().Substring(5));
+                        // reset health points to original
+                        ship.SetHP(startingHitPoints);
+
+                        // select a new king 
+                        Ship newKingShip = RandomShip();
+                        newKingShip.SetKing(true);
+                        newKingShip.SetName("King " + newKingShip.GetName());
+                        // hit points go up beacuse ship is now king
+                        newKingShip.SetHP(startingHitPoints + 3);
+                    }
                 }
                 // set the projectile to dead
                 projectile.Alive(false);
