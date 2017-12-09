@@ -342,7 +342,7 @@ namespace SpaceWars
             {
                 kingIsOn = false;
             }
-            else if (king == "true" || king == "True")
+            else if (king.ToLower() == "true")
             {
                 kingIsOn = true;
             }
@@ -821,7 +821,7 @@ namespace SpaceWars
             ship.ResetRespawnTimer();
         }
 
-        // TODO: might need to be private
+        
         /// <summary>
         /// Finds a random location for the ship that is not near a star
         /// </summary>

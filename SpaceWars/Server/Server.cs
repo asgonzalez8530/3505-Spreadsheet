@@ -196,7 +196,6 @@ namespace SpaceWarsServer
                 {
                     world.MotionForShips(s);
                     sb.Append(JsonConvert.SerializeObject(s) + "\n");
-                    // TODO: come up with a more elegant method of updating
                     s.Thrust = false;
                 }
 
@@ -207,10 +206,21 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(p) + "\n");
                 }
 
+                // TODO: this is a test, move to new action when needed
+                //Task cleanupTask = new Task(() =>
+                //{
+                //    world.CleanUpProjectiles();
+                //    world.CleanupShips();
+                //    world.RespawnShips();
+
+                //});
+
+                //cleanupTask.Start();
+
                 world.CleanUpProjectiles();
                 world.CleanupShips();
                 world.RespawnShips();
-                
+
             }
 
             string data = sb.ToString();
@@ -357,7 +367,6 @@ namespace SpaceWarsServer
             }
             catch (Exception e)
             {
-                // TODO: deal with any problems
                 Console.WriteLine(e.Message);
             }
         }

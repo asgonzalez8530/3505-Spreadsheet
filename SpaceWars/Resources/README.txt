@@ -30,6 +30,5 @@ How to Run: Start the server. Once the server is ready, press start on the clien
 TODO:
 *	handle network errors
 *	King of the hill?
-*	Handle ALL command messages on the next frame, not just the first
 *	Testing
 *	Speedup?
