@@ -47,7 +47,6 @@ namespace SpaceWars
             respawnDelay = 300;
             kingIsOn = false;
             projectileID = 0;
-
         }
 
         /// <summary>
@@ -81,7 +80,6 @@ namespace SpaceWars
             {
                 universeSize = s;
             }
-
         }
 
         /// <summary>
