@@ -765,14 +765,14 @@ namespace SpaceWars
             // check to see if its on the edge of the world
             if (Math.Abs(p.GetLocation().GetX()) >= borderCoordinate)
             {
-                projectiles.Remove(p.GetID());
+                p.Alive(false);
                 return true;
             }
 
             // check to see if its on the edge of the world
             else if (Math.Abs(p.GetLocation().GetY()) >= borderCoordinate)
             {
-                projectiles.Remove(p.GetID());
+                p.Alive(false);
                 return true;
             }
 
@@ -857,6 +857,27 @@ namespace SpaceWars
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Clean up the dead projectiles in the world and remove them so 
+        /// that we are not sending uncessary information to the clients
+        /// </summary>
+        private void CleanUpProjectiles()
+        {
+            List<Projectile> deadProj = new List<Projectile>();
+            foreach (Projectile p in projectiles.Values)
+            {
+                if (!p.IsAlive())
+                {
+                    deadProj.Add(p);
+                }
+            }
+
+            foreach (Projectile p in deadProj)
+            {
+                projectiles.Remove(p.GetID());
+            }
         }
     }
 }
