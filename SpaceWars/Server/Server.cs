@@ -40,8 +40,9 @@ namespace SpaceWarsServer
             // get the game settings and pass them to the world
             ReadSettingsXML(filePath + fileName);
 
+            frameCounter = 0;
             System.Timers.Timer frameRateTimer = new System.Timers.Timer();
-            frameRateTimer.Interval = 3000;
+            frameRateTimer.Interval = 5000;
             frameRateTimer.Elapsed += (x,y) => PrintFrameRate();
             frameRateTimer.Start();
 
@@ -379,7 +380,8 @@ namespace SpaceWarsServer
         /// </summary>
         private void PrintFrameRate()
         {
-            int rate = frameCounter / 3000;
+            int rate = Interlocked.Exchange(ref frameCounter, 0);
+            rate = rate / 5;
             Console.Out.WriteLine("Frames per second: " + rate);
         }
 
