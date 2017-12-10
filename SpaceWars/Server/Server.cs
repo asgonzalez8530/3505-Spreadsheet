@@ -206,17 +206,6 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(p) + "\n");
                 }
 
-                // TODO: this is a test, move to new action when needed
-                //Task cleanupTask = new Task(() =>
-                //{
-                //    world.CleanUpProjectiles();
-                //    world.CleanupShips();
-                //    world.RespawnShips();
-
-                //});
-
-                //cleanupTask.Start();
-
                 world.CleanUpProjectiles();
                 world.CleanupShips();
                 world.RespawnShips();
