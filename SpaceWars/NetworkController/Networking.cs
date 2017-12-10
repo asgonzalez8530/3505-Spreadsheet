@@ -338,7 +338,18 @@ namespace Communication
         {
             Socket s = (Socket)ar.AsyncState;
             // end the feedback loop for the current socket. 
-            s.EndSend(ar);
+            try
+            {
+                s.EndSend(ar);
+            }
+            catch (SocketException e)
+            {
+                s.Close();
+            }
+            catch (ObjectDisposedException e)
+            {
+                // object already disposed dont need to do anything
+            }
         }
 
 
