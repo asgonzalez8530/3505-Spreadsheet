@@ -62,7 +62,7 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// returns the nunber of milliseconds per frame.
+        /// returns the number of milliseconds per frame.
         /// </summary>
         public int GetMSPerFrame()
         {
