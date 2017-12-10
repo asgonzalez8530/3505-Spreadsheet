@@ -33,6 +33,7 @@ namespace SpaceWars
         /// This is for the JSon serialization 
         /// </summary>
         public Star()
+            : this(-1,0,0,0.1)
         {
         }
         

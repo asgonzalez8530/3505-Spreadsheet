@@ -326,40 +326,40 @@ namespace SpaceWarsTests
             Assert.AreEqual(50, shipCounter);
         }
 
-        [TestMethod]
-        public void TestAddShip()
-        {
-            // make a new world 
-            World w = new World();
+        //[TestMethod]
+        //public void TestAddShip()
+        //{
+        //    // make a new world 
+        //    World w = new World();
 
-            // make a ship as king 
-            Ship ship = new Ship("ship1", 1, new Vector2D(0, 0), new Vector2D(0, 0), 0, 0, 0);
-            w.AddShip(ship);
+        //    // make a ship as king 
+        //    Ship ship = new Ship("ship1", 1, new Vector2D(0, 0), new Vector2D(0, 0), 0, 0, 0);
+        //    w.AddShip(ship);
 
-            int counter = 0;
-            // check that the ship was made king
-            foreach (Ship s in w.GetAliveShips())
-            {
-                counter++;
-            }
+        //    int counter = 0;
+        //    // check that the ship was made king
+        //    foreach (Ship s in w.GetAliveShips())
+        //    {
+        //        counter++;
+        //    }
 
-            Assert.AreEqual(0, counter);
+        //    Assert.AreEqual(0, counter);
 
-            // make lots of ships
-            for (int i = 1; i < 50; i++)
-            {
-                // make a new ship
-                w.MakeNewShip("ship", i);
-            }
+        //    // make lots of ships
+        //    for (int i = 1; i < 50; i++)
+        //    {
+        //        // make a new ship
+        //        w.MakeNewShip("ship", i);
+        //    }
 
-            int shipCounter = 1;
-            foreach (Ship s in w.GetAliveShips())
-            {
-                shipCounter++;
-            }
+        //    int shipCounter = 1;
+        //    foreach (Ship s in w.GetAliveShips())
+        //    {
+        //        shipCounter++;
+        //    }
 
-            Assert.AreEqual(50, shipCounter);
-        }
+        //    Assert.AreEqual(50, shipCounter);
+        //}
 
         //************************ Invalid Test ************************// 
 
@@ -737,5 +737,29 @@ namespace SpaceWarsTests
             // make a star
             w.MakeNewStar(null, null, null);
         }
+
+        [TestMethod]
+        public void TestGetProjs_NoProjectiles()
+        {
+            // make new world
+            World w = new World();
+
+            List<Projectile> projList = new List<Projectile>(w.GetProjs());
+
+            Assert.AreEqual(0, projList.Count);
+        }
+
+        [TestMethod]
+        public void TestGetProjs_AddProj()
+        {
+            // make new world
+            World w = new World();
+
+            List<Projectile> projList = new List<Projectile>(w.GetProjs());
+
+            Assert.AreEqual(0, projList.Count);
+        }
+
+
     }
 }

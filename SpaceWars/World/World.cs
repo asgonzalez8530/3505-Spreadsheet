@@ -253,10 +253,7 @@ namespace SpaceWars
         /// 2. 'L' - turn left
         /// 3. 'T' - engine thrust
         /// 4. 'F' - fire projectile
-        /// 
-        /// if any character other than these or parentheses are found in the 
-        /// commands string, throws ArgumentException
-        /// 
+        ///
         /// if no player exists with playerID, throws ArgumentException
         /// </summary>
         public void UpdateShipCommands(string commands, int playerID)
