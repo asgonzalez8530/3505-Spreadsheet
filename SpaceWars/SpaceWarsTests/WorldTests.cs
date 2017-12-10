@@ -242,13 +242,30 @@ namespace SpaceWarsTests
             Assert.AreEqual(true, worldAccessor.GetField("kingIsOn"));
 
             // change the king setting
+            w.SetKingOfTheHill("Princess Ariel");
+
+            // test that the default was changed
+            Assert.AreEqual(false, worldAccessor.GetField("kingIsOn"));
+        }
+
+        [TestMethod]
+        public void TestKingOfTheHill2()
+        {
+            // make a new world 
+            World w = new World();
+
+            // test default size
+            PrivateObject worldAccessor = new PrivateObject(w);
+            Assert.AreEqual(false, worldAccessor.GetField("kingIsOn"));
+
+            // change the king setting
             w.SetKingOfTheHill("True");
 
             // test that the default was changed
             Assert.AreEqual(true, worldAccessor.GetField("kingIsOn"));
 
             // change the king setting
-            w.SetKingOfTheHill("Princess Ariel");
+            w.SetKingOfTheHill(null);
 
             // test that the default was changed
             Assert.AreEqual(false, worldAccessor.GetField("kingIsOn"));
@@ -309,7 +326,7 @@ namespace SpaceWarsTests
             }
 
             Assert.AreEqual(0, counter);
-            
+
             // make lots of ships
             for (int i = 1; i < 50; i++)
             {
@@ -324,42 +341,102 @@ namespace SpaceWarsTests
             }
 
             Assert.AreEqual(50, shipCounter);
+
+            Ship ship1 = null;
+            w.AddShip(ship1);
+
+            shipCounter = 1;
+            foreach (Ship s in w.GetAliveShips())
+            {
+                shipCounter++;
+            }
+
+            Assert.AreEqual(50, shipCounter);
         }
 
-        //[TestMethod]
-        //public void TestAddShip()
-        //{
-        //    // make a new world 
-        //    World w = new World();
+        [TestMethod]
+        public void TestMotionOfShip1()
+        {
+            // make a new world 
+            World w = new World();
 
-        //    // make a ship as king 
-        //    Ship ship = new Ship("ship1", 1, new Vector2D(0, 0), new Vector2D(0, 0), 0, 0, 0);
-        //    w.AddShip(ship);
+            // make a star
+            w.MakeNewStar("0", "0", ".01");
 
-        //    int counter = 0;
-        //    // check that the ship was made king
-        //    foreach (Ship s in w.GetAliveShips())
-        //    {
-        //        counter++;
-        //    }
+            // make lots of ships and add them to the world 
+            for (int i = 0; i < 50; i++)
+            {
+                // make a new ship
+                w.MakeNewShip("ship" + i, i);
+            }
 
-        //    Assert.AreEqual(0, counter);
+            int starCounter = 0;
+            foreach (Star s in w.GetStars())
+            {
+                starCounter++;
+            }
 
-        //    // make lots of ships
-        //    for (int i = 1; i < 50; i++)
-        //    {
-        //        // make a new ship
-        //        w.MakeNewShip("ship", i);
-        //    }
+            Assert.AreEqual(1, starCounter);
 
-        //    int shipCounter = 1;
-        //    foreach (Ship s in w.GetAliveShips())
-        //    {
-        //        shipCounter++;
-        //    }
+            int shipCounter = 0;
+            foreach (Ship s in w.GetAllShips())
+            {
+                w.MotionForShips(s);
+                shipCounter++;
+            }
 
-        //    Assert.AreEqual(50, shipCounter);
-        //}
+            Assert.AreEqual(50, shipCounter);
+        }
+
+        [TestMethod]
+        public void TestMotionOfProjectiles1()
+        {
+            // make a new world 
+            World w = new World();
+
+            // make a star
+            w.MakeNewStar("0", "0", ".01");
+
+            // make lots of ships and add them to the world 
+            for (int i = 0; i < 50; i++)
+            {
+                // make a new ship
+                w.MakeNewShip("ship" + i, i);
+            }
+
+            // make lots of ships and add them to the world 
+            for (int i = 0; i < 50; i++)
+            {
+                // make a new ship
+                w.AddProjectile(new Projectile(i, i, new Vector2D(0 + 1, 0 + 1), new Vector2D(0 + 1, 0 + 1)));
+            }
+
+            int starCounter = 0;
+            foreach (Star s in w.GetStars())
+            {
+                starCounter++;
+            }
+
+            Assert.AreEqual(1, starCounter);
+
+            int shipCounter = 0;
+            foreach (Ship s in w.GetAllShips())
+            {
+                w.MotionForShips(s);
+                shipCounter++;
+            }
+
+            Assert.AreEqual(50, shipCounter);
+
+            int projCounter = 0;
+            foreach (Projectile p in w.GetProjs())
+            {
+                w.MotionForProjectiles(p);
+                projCounter++;
+            }
+
+            Assert.AreEqual(50, projCounter);
+        }
 
         //************************ Invalid Test ************************// 
 
@@ -372,7 +449,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the size with null
-            w.SetUniverseSize("null");
+            w.SetUniverseSize(null);
         }
 
         [TestMethod]
@@ -405,7 +482,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the hit points with null
-            w.SetStartingHitPoint("null");
+            w.SetStartingHitPoint(null);
         }
 
         [TestMethod]
@@ -438,7 +515,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the projectile speed with null
-            w.SetProjectileSpeed("null");
+            w.SetProjectileSpeed(null);
         }
 
         [TestMethod]
@@ -471,7 +548,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the engine strength with null
-            w.SetEngineStrength("null");
+            w.SetEngineStrength(null);
         }
 
         [TestMethod]
@@ -504,7 +581,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the turning rate with null
-            w.SetTurningRate("null");
+            w.SetTurningRate(null);
         }
 
         [TestMethod]
@@ -537,7 +614,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the ship size with null
-            w.SetShipSize("null");
+            w.SetShipSize(null);
         }
 
         [TestMethod]
@@ -570,7 +647,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the star size with null
-            w.SetStarSize("null");
+            w.SetStarSize(null);
         }
 
         [TestMethod]
@@ -603,7 +680,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the MS per frame with null
-            w.SetMSPerFrame("null");
+            w.SetMSPerFrame(null);
         }
 
         [TestMethod]
@@ -636,7 +713,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the firing delay with null
-            w.SetProjectileFiringDelay("null");
+            w.SetProjectileFiringDelay(null);
         }
 
         [TestMethod]
@@ -669,7 +746,7 @@ namespace SpaceWarsTests
             World w = new World();
 
             // try to set the firing delay with null
-            w.SetRespawnDelay("null");
+            w.SetRespawnDelay(null);
         }
 
         [TestMethod]
@@ -737,29 +814,5 @@ namespace SpaceWarsTests
             // make a star
             w.MakeNewStar(null, null, null);
         }
-
-        [TestMethod]
-        public void TestGetProjs_NoProjectiles()
-        {
-            // make new world
-            World w = new World();
-
-            List<Projectile> projList = new List<Projectile>(w.GetProjs());
-
-            Assert.AreEqual(0, projList.Count);
-        }
-
-        [TestMethod]
-        public void TestGetProjs_AddProj()
-        {
-            // make new world
-            World w = new World();
-
-            List<Projectile> projList = new List<Projectile>(w.GetProjs());
-
-            Assert.AreEqual(0, projList.Count);
-        }
-
-
     }
 }
