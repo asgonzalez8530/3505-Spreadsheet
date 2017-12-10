@@ -173,9 +173,7 @@ namespace SpaceWarsServer
         private void UpdateWorld()
         {
 
-            while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
-            { /* do nothing */ }
-            watch.Restart();
+           
 
             //TODO: remove before turning in, used to make frame counter
             Interlocked.Increment(ref frameCounter);
@@ -206,22 +204,46 @@ namespace SpaceWarsServer
                     sb.Append(JsonConvert.SerializeObject(p) + "\n");
                 }
 
-                world.CleanUpProjectiles();
-                world.CleanupShips();
-                world.RespawnShips();
-
             }
 
             string data = sb.ToString();
+            Task sendClients = SendDataToAllClientsAsync(data);
+            Task cleanup = CleanupWorldAsync();
             
-            // send each object to clients
+
+            while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
+            { /* do nothing */ }
+            watch.Restart();
+
+
+        }
+
+        private async Task CleanupWorldAsync()
+        {
+            lock (world)
+            {
+                world.CleanUpProjectiles();
+                world.CleanupShips();
+                world.RespawnShips();
+            }
+        }
+
+        /// <summary>
+        /// Async method takes a string of data and sends it to all clients in client list
+        /// </summary>
+        private async Task SendDataToAllClientsAsync(string data)
+        {
             lock (clients)
-            {   
+            {
                 foreach (SocketState client in clients)
-                {   
-                    Network.Send(client.GetSocket(), data);
+                {
+                    if (!client.HasError)
+                    {
+                        Network.Send(client.GetSocket(), data);
+                    }
                 }
             }
+
         }
 
         /// <summary>
