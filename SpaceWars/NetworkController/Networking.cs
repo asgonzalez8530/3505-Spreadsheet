@@ -255,7 +255,18 @@ namespace Communication
         /// </summary>
         public static void GetData(SocketState state)
         {
-            state.GetSocket().BeginReceive(state.GetMessageBuffer(), 0, state.GetMessageBuffer().Length, SocketFlags.None, ReceiveCallback, state);
+            try
+            {
+                state.GetSocket().BeginReceive(state.GetMessageBuffer(), 0, state.GetMessageBuffer().Length, SocketFlags.None, ReceiveCallback, state);
+            }
+            catch (SocketException e)
+            {
+                // put the state object in a state of error with the given message
+                state.HasError = true;
+                state.ErrorMessage = e.Message;
+                // invoke client delegate so it can take whatever action it needs with an error
+                state.InvokeNetworkAction(state);
+            }
         }
 
         /// <summary>

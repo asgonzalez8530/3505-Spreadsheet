@@ -172,12 +172,7 @@ namespace SpaceWarsServer
         /// </summary>
         private void UpdateWorld()
         {
-
            
-
-            //TODO: remove before turning in, used to make frame counter
-            Interlocked.Increment(ref frameCounter);
-            
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
             lock (world)
@@ -209,12 +204,12 @@ namespace SpaceWarsServer
             string data = sb.ToString();
             Task sendClients = SendDataToAllClientsAsync(data);
             Task cleanup = CleanupWorldAsync();
-            
 
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
             { /* do nothing */ }
             watch.Restart();
-
+            //TODO: remove before turning in, used to make frame counter
+            Interlocked.Increment(ref frameCounter);
 
         }
 
@@ -254,7 +249,7 @@ namespace SpaceWarsServer
         {
             int clientID = state.GetID();
             // dispose all resources used by socket
-            state.GetSocket().Dispose();
+            // state.GetSocket().Dispose();
 
             lock (clients)
             {
