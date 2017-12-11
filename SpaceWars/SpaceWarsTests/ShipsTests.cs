@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Anastasia Gonzalez and Aaron Bellis UID: u0985898 & u0981638
+// Code implemented as part of PS7 and PS8: SpaceWars client/Server CS3500 Fall Semester
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpaceWars;
 
