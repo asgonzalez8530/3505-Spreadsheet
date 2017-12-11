@@ -29,9 +29,10 @@ How to Run: Start the server. Once the server is ready, press start on the clien
 SpaceWars Server - PS8
 Created for CS 3500 2017 Fall Semester
 
-Initial Design Ideas: The GUI will need three panels. One panel is the top bar which will be a tableLayoutPanel and  
-the side and center panel will be custom. The side panel will contian the scoreboard and the center one will be the 
-game. The size of the form will resize when the server send the proper information. 
+Initial Design Ideas: Our initial ideas for the server are to have an added feature that is called King of the Hill (more
+details below). Our XML reader also allows for all the settings to be changed... starting hit points, projectile speed,
+engine strength, turning rate, ship size, star size, universe size, time per frame, projectile firing delay, and respawn 
+delay.
 
 What works: We were able to get everything to work. The networking and the updating of the world all works properly. We 
 also handled all the exceptions that we encountered while testing. The hardest part was properly making the extra feature 
@@ -69,8 +70,3 @@ controller when possible.
 How to Run: Press the play button (make sure that the server solution is set as the StartUp project). Once the server is
 ready, wait for a client to connect. 
 
-
-/************************************** REMOVE BELOW *****************************************/
-TODO:
-*	Testing
-*	clients exit and ship stays on screen
