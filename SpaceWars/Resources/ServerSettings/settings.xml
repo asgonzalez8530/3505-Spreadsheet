@@ -3,10 +3,10 @@
   <MSPerFrame>16</MSPerFrame>
   <FramesPerShot>6</FramesPerShot>
   <RespawnRate>300</RespawnRate> 
-  <!-- Uncomment below for King of the hill! 
+  <!-- Uncomment below for King of the hill! -->
   <KingOfTheHill>true</KingOfTheHill>
-  -->
-  
+ 
+
   <Star>
     <x>0</x>
     <y>0</y>
