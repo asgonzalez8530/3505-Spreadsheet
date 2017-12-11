@@ -687,14 +687,6 @@ namespace SpaceWars
         /// </summary>
         private void HitAStar(Ship ship)
         {
-            if (ship == null)
-            {
-                return;
-            }
-
-            // kill the ship
-            ship.SetHP(0);
-
             // if king game mode is turned on 
             if (kingIsOn)
             {
@@ -703,17 +695,16 @@ namespace SpaceWars
                     // make sure that the ship that died is no longer king
                     ship.SetKing(false);
                     ship.SetName(ship.GetName().Substring(5));
-                    // reset health points to original
-                    ship.SetHP(startingHitPoints);
 
                     // select a new king 
                     Ship newKingShip = RandomShip();
                     newKingShip.SetKing(true);
                     newKingShip.SetName("King " + newKingShip.GetName());
-                    // hit points go up beacuse ship is now king
-                    newKingShip.SetHP(startingHitPoints + 3);
                 }
             }
+
+            // kill the ship
+            ship.SetHP(0);
         }
 
         /// <summary>
@@ -752,15 +743,11 @@ namespace SpaceWars
                         // make sure that the ship that died is no longer king
                         ship.SetKing(false);
                         ship.SetName(ship.GetName().Substring(5));
-                        // reset health points to original
-                        ship.SetHP(startingHitPoints);
 
                         // select a new king 
                         Ship newKingShip = RandomShip();
                         newKingShip.SetKing(true);
                         newKingShip.SetName("King " + newKingShip.GetName());
-                        // hit points go up beacuse ship is now king
-                        newKingShip.SetHP(startingHitPoints + 3);
                     }
                 }
                 // set the projectile to dead
@@ -824,9 +811,20 @@ namespace SpaceWars
             // sets a random direction for the ship
             ship.SetDirection(dir);
 
-            // reset ships health and velocity
-            ship.SetHP(startingHitPoints);
+            // reset ship's velocity
             ship.SetVelocity(new Vector2D(0, 0));
+
+            // if dead ship is king
+            if (ship.IsKing())
+            {
+                // hit points go up beacuse ship is now king
+                ship.SetHP(startingHitPoints + 3);
+            }
+            else
+            {
+                // reset the ship's health to original health
+                ship.SetHP(startingHitPoints);
+            }
 
             // reset ships death timer
             ship.ResetRespawnTimer();
