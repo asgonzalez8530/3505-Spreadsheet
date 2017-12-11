@@ -3,8 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpaceWars
 {
@@ -586,9 +584,15 @@ namespace SpaceWars
                     {
                         // subtract a health point from the ship
                         ship.SetHP(ship.GetHP() - 1);
+
+                        if (!ship.IsAlive())
+                        {
+                            // increase the ship's score who shot the projectile by 1
+                            projectileShip.SetScore(projectileShip.GetScore() + 1);
+                        }
                     }
 
-                    if (ship.IsKing() && ship.GetHP() == 0)
+                    if (ship.IsKing() && !ship.IsAlive())
                     {
                         // make sure that the ship that died is no longer king
                         ship.SetKing(false);
@@ -607,6 +611,16 @@ namespace SpaceWars
             {
                 // subtract a health point
                 ship.SetHP(ship.GetHP() - 1);
+
+                if (!ship.IsAlive())
+                {
+                    // find the owner of the projectile
+                    int shipID = projectile.GetOwner();
+                    allShips.TryGetValue(shipID, out Ship projectileShip);
+
+                    // increase the ship's score who shot the projectile by 1
+                    projectileShip.SetScore(projectileShip.GetScore() + 1);
+                }
 
                 // set the projectile to dead
                 projectile.Alive(false);

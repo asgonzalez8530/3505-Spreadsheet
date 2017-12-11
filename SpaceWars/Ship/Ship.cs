@@ -219,6 +219,14 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// Sets the ship's score to be the passed in score
+        /// </summary>
+        public void SetScore(int score)
+        {
+            this.score = score;
+        }
+
+        /// <summary>
         /// Gets the images width in pixels
         /// </summary>
         public int GetWidth()
