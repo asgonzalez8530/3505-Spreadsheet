@@ -44,6 +44,9 @@ After re-evalutating the process we decided set then as dead then send the info 
 go through all ships and projectiles and remove the dead ones from the world. We also had a hard time speeding up the 
 servering while handling 10+ clients so we made some methods asynchronous. 
 
+Areas to improve in: We would imporve the code by having two severs. One that would run when the king of the hill setting
+was on and the other would run when it was just the normal space wars game. 
+
 Notes for the TAs: Our project was setup in an the proper MVC format. We used the proper abstraction so that the 
 different classes could speak to each other and work together to create a fuctional server. We were given an extension 
 by Dr. Kopta to turn in our assignment on Sunday.
