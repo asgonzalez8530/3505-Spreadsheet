@@ -23,8 +23,8 @@ namespace SpaceWarsServer
         private Stopwatch watch; // a timer to update our world;
         private HashSet<int> clientsToCleanUp;
 
-        //TODO: remove when done testing
-        private int frameCounter; // a counter to calculate frame rate
+        // All frame counter code has been commented out in case it would be needed late
+        //private int frameCounter; // a counter to calculate frame rate
 
         public Server()
         {
@@ -42,11 +42,11 @@ namespace SpaceWarsServer
             // get the game settings and pass them to the world
             ReadSettingsXML(filePath + fileName);
 
-            frameCounter = 0;
-            System.Timers.Timer frameRateTimer = new System.Timers.Timer();
-            frameRateTimer.Interval = 5000;
-            frameRateTimer.Elapsed += (x,y) => PrintFrameRate();
-            frameRateTimer.Start();
+            //frameCounter = 0;
+            //System.Timers.Timer frameRateTimer = new System.Timers.Timer();
+            //frameRateTimer.Interval = 5000;
+            //frameRateTimer.Elapsed += (x,y) => PrintFrameRate();
+            //frameRateTimer.Start();
 
         }
 
@@ -209,7 +209,7 @@ namespace SpaceWarsServer
             { /* do nothing */ }
             watch.Restart();
             //TODO: remove before turning in, used to make frame counter
-            Interlocked.Increment(ref frameCounter);
+            //Interlocked.Increment(ref frameCounter);
 
         }
 
@@ -420,12 +420,12 @@ namespace SpaceWarsServer
         /// <summary>
         /// Prints the frame rate to the console
         /// </summary>
-        private void PrintFrameRate()
-        {
-            int rate = Interlocked.Exchange(ref frameCounter, 0);
-            rate = rate / 5;
-            Console.Out.WriteLine("Frames per second: " + rate);
-        }
+        //private void PrintFrameRate()
+        //{
+        //    int rate = Interlocked.Exchange(ref frameCounter, 0);
+        //    rate = rate / 5;
+        //    Console.Out.WriteLine("Frames per second: " + rate);
+        //}
 
         public static void Main(string[] args)
         {
