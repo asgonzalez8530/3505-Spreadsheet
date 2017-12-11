@@ -208,7 +208,7 @@ namespace SpaceWarsServer
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
             { /* do nothing */ }
             watch.Restart();
-            //TODO: remove before turning in, used to make frame counter
+            
             //Interlocked.Increment(ref frameCounter);
 
         }
