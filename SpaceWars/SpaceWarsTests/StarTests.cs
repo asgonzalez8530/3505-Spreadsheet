@@ -27,7 +27,7 @@ namespace SpaceWarsTests
             // make a new star
             Star s = new Star();
 
-            // test defualt settings
+            // test default settings
             Assert.AreEqual(100, s.GetWidth());
             Assert.AreEqual(70, s.GetHeight());
         }

@@ -93,6 +93,7 @@ namespace SpaceWars
         /// </summary>
         public void SetDirection(Vector2D direction)
         {
+            direction.Normalize();
             dir = direction;
         }
 
