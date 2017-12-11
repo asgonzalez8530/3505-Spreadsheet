@@ -457,7 +457,6 @@ namespace Communication
         /// <param name="port">The port number to listen on</param>
         public static void ServerAwaitingClientLoop(NetworkAction action, int port)
         {
-            // TODO: make sure another server is not open
             try
             {
                 // create a new TcpListener and start it listening on the given port

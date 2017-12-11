@@ -43,7 +43,8 @@ What we struggled with: We really struggled with getting the the ships and proje
 proper moment. At the beginning we would remove them from the world before we sent the dead representation to the clients. 
 After re-evalutating the process we decided set then as dead then send the info to the clients. At the very end we would
 go through all ships and projectiles and remove the dead ones from the world. We also had a hard time speeding up the 
-servering while handling 10+ clients so we made some methods asynchronous. 
+servering while handling 10+ clients so we made some methods asynchronous so that now we can handle up 30 clients without
+any problems. 
 
 Areas to improve in: We would imporve the code by having two severs. One that would run when the king of the hill setting
 was on and the other would run when it was just the normal space wars game. 
@@ -67,4 +68,3 @@ ready, wait for a client to connect.
 /************************************** REMOVE BELOW *****************************************/
 TODO:
 *	Testing
-*	Speedup?
