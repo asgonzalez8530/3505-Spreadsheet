@@ -1019,5 +1019,118 @@ namespace SpaceWarsTests
         }
 
 
+        /*************** Test Private Methods **************/
+        [TestMethod]
+        public void TestWraparound_OutOfBounds()
+        {
+            // make a world and set its size
+            World w = new World();
+            w.SetUniverseSize(10);
+
+            // a location outside the edge of the world
+            Vector2D location = new Vector2D(6, 6);
+
+            // a ship positioned at the location outside of world
+            Ship myShip = new Ship("foo", 0, location, new Vector2D(0, 1), 5, 300, 7);
+
+            // invoke method in provate object
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("Wraparound", new Ship[1] { myShip });
+
+            // get x and y coordinates of ship
+            Vector2D shipLocation = myShip.GetLocation();
+            double shipX = shipLocation.GetX();
+            double shipY = shipLocation.GetY();
+
+            // get starting x and y coordinates
+            double startX = location.GetX();
+            double startY = location.GetY();
+
+            // position should have changed
+            Assert.IsFalse(shipX == startX);
+            Assert.IsFalse(shipY == startY);
+        }
+
+        [TestMethod]
+        public void TestWraparound_InBounds()
+        {
+            // make a world and set its size
+            World w = new World();
+            w.SetUniverseSize(10);
+
+            // a location outside the edge of the world
+            Vector2D location = new Vector2D(4, 4);
+
+            // a ship positioned at the location inside of world
+            Ship myShip = new Ship("foo", 0, location, new Vector2D(0, 1), 5, 300, 7);
+
+            // invoke method in provate object
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("Wraparound", new Ship[1] { myShip });
+
+            // get x and y coordinates of ship
+            Vector2D shipLocation = myShip.GetLocation();
+            double shipX = shipLocation.GetX();
+            double shipY = shipLocation.GetY();
+
+            // get starting x and y coordinates
+            double startX = location.GetX();
+            double startY = location.GetY();
+
+            // position should have changed
+            Assert.IsTrue(shipX == startX);
+            Assert.IsTrue(shipY == startY);
+        }
+
+        [TestMethod]
+        public void TestCollisionWithAStar_Hit()
+        {
+            // create world
+            World w = new World();
+            
+            // define location to be center of world
+            Vector2D location = new Vector2D(0, 0);
+
+            // a ship and star with the same location
+            Ship myShip = new Ship("foo", 0, location, new Vector2D(0, 1), 5, 300, 7);
+            Star myStar = new Star(0, 0, 0, 0.1);
+
+            // set king of the hill for more consequences
+            w.SetKingOfTheHill("true");
+
+            // invoke private method
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("CollisionWithAStar", new Object[2] { myShip, myStar });
+
+            // check that hit points have changed
+            Assert.AreEqual(0, myShip.GetHP());
+            
+        }
+
+        [TestMethod]
+        public void TestCollisionWithAStar_Miss()
+        {
+            World w = new World();
+
+            // create a location which should not cause a colision
+            Ship myShip = new Ship("foo", 0, new Vector2D(0, 200), new Vector2D(0, 1), 5, 300, 7);
+            Star myStar = new Star(0, 0, 0, 0.1);
+
+            // turn on king of the hill for more consequences
+            w.SetKingOfTheHill("true");
+
+            // invoke private method
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("CollisionWithAStar", new Object[2] { myShip, myStar });
+
+            // make sure ship missed star
+            Assert.AreEqual(5, myShip.GetHP());
+
+        }
+
+
+
+
+
     }
 }
