@@ -34,9 +34,10 @@ the side and center panel will be custom. The side panel will contian the scoreb
 game. The size of the form will resize when the server send the proper information. 
 We tested part of the network controller when possible.
 
-What works: We were able to get everything to work. We did a lot of troubleshooting and debugging to get everything 
-working. The hardest part to get correct was the GUI. We struggled with updating the information to the GUI correctly 
-without causing problems or errors. 
+What works: We were able to get everything to work. The networking and the updating of the world all works properly. We 
+also handled all the exceptions that we encountered while testing. The hardest part was properly making the extra feature 
+(King of the Hill) to work correclty. We had most of the logic correct except properly setting the king at the correct 
+time. 
 
 What we struggled with: We really struggled with getting the the ships and projectiles to be represented as dead at the
 proper moment. At the beginning we would remove them from the world before we sent the dead representation to the clients. 

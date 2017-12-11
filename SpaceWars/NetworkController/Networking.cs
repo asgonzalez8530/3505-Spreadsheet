@@ -320,7 +320,7 @@ namespace Communication
             {
                 socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
             }
-            catch (SocketException e)
+            catch (SocketException)
             {
                 socket.Close();
             }
@@ -342,11 +342,11 @@ namespace Communication
             {
                 s.EndSend(ar);
             }
-            catch (SocketException e)
+            catch (SocketException)
             {
                 s.Close();
             }
-            catch (ObjectDisposedException e)
+            catch (ObjectDisposedException)
             {
                 // object already disposed dont need to do anything
             }
@@ -457,15 +457,23 @@ namespace Communication
         /// <param name="port">The port number to listen on</param>
         public static void ServerAwaitingClientLoop(NetworkAction action, int port)
         {
-            // create a new TcpListener and start it listening on the given port
-            TcpListener listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
+            // TODO: make sure another server is not open
+            try
+            {
+                // create a new TcpListener and start it listening on the given port
+                TcpListener listener = new TcpListener(IPAddress.Any, port);
+                listener.Start();
 
-            // save the state of our connection allong with its NetworkAction
-            ConnectionState state = new ConnectionState(listener, action);
+                // save the state of our connection allong with its NetworkAction
+                ConnectionState state = new ConnectionState(listener, action);
 
-            // begin accepting incoming connection attempts
-            listener.BeginAcceptSocket(AcceptNewClient, state);
+                // begin accepting incoming connection attempts
+                listener.BeginAcceptSocket(AcceptNewClient, state);
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteLine(e.Message);
+            }
         }
 
         /// <summary>
