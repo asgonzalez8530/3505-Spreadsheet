@@ -1092,11 +1092,16 @@ namespace SpaceWarsTests
             Vector2D location = new Vector2D(0, 0);
 
             // a ship and star with the same location
-            Ship myShip = new Ship("foo", 0, location, new Vector2D(0, 1), 5, 300, 7);
+            Ship myShip = new Ship("King foo", 0, location, new Vector2D(0, 1), 5, 300, 7);
             Star myStar = new Star(0, 0, 0, 0.1);
+
+            myShip.SetKing(true);
+            w.AddShip(myShip);
 
             // set king of the hill for more consequences
             w.SetKingOfTheHill("true");
+
+            
 
             // invoke private method
             PrivateObject worldAccessor = new PrivateObject(w);
@@ -1128,9 +1133,126 @@ namespace SpaceWarsTests
 
         }
 
+        [TestMethod]
+        public void TestCollisionProjectile_KingHit()
+        {
+            // create world
+            World w = new World();
+
+            // define location to be center of world
+            Vector2D location = new Vector2D(0, 0);
+
+            // a ship and star with the same location
+            Ship KingShip = new Ship("King foo", 0, location, new Vector2D(0, 1), 1, 300, 7);
+            Projectile myProjectile = new Projectile(1, 0, location, new Vector2D(0, 1));
+            Ship otherShip = new Ship("foo", 1, location, new Vector2D(0, 1), 1, 300, 7);
+
+            KingShip.SetKing(true);
+            w.AddShip(KingShip);
+            w.AddShip(otherShip);
+            w.AddProjectile(myProjectile);
+
+            // set king of the hill for more consequences
+            w.SetKingOfTheHill("true");
 
 
+            // invoke private method
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("CollisionWithAProjectile", new Object[2] { KingShip, myProjectile });
+
+            // check that hit points have changed
+            Assert.AreEqual(0, KingShip.GetHP());
+
+        }
+
+        [TestMethod]
+        public void TestCollisionProjectile_Hit()
+        {
+            // create world
+            World w = new World();
+
+            // define location to be center of world
+            Vector2D location = new Vector2D(0, 0);
+
+            // a ship and star with the same location
+            Ship KingShip = new Ship("King foo", 0, location, new Vector2D(0, 1), 1, 300, 7);
+            Projectile myProjectile = new Projectile(1, 0, location, new Vector2D(0, 1));
+            Ship otherShip = new Ship("foo", 1, location, new Vector2D(0, 1), 1, 300, 7);
+            w.AddShip(KingShip);
+            w.AddShip(otherShip);
+            w.AddProjectile(myProjectile);
 
 
+            // invoke private method
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("CollisionWithAProjectile", new Object[2] { KingShip, myProjectile });
+
+            // check that hit points have changed
+            Assert.AreEqual(0, KingShip.GetHP());
+
+        }
+
+        [TestMethod]
+        public void TestProjectileOffScreen_InBounds()
+        {
+            // make a world and set its size
+            World w = new World();
+            w.SetUniverseSize(10);
+
+            // a location outside the edge of the world
+            Vector2D location = new Vector2D(4, 4);
+            Vector2D direction = new Vector2D(0, 1);
+
+            // a projectile positioned at the location inside of world
+            Projectile myProjectile = new Projectile(0, 0, location, direction);
+
+            // invoke method in provate object
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("ProjectileOffScreen", new Projectile[1] { myProjectile });
+
+            Assert.IsTrue(myProjectile.IsAlive());
+        }
+
+        [TestMethod]
+        public void TestProjectileOffScreen_OutOfBoundsX()
+        {
+            // make a world and set its size
+            World w = new World();
+            w.SetUniverseSize(10);
+
+            // a location outside the edge of the world
+            Vector2D location = new Vector2D(6, 0);
+            Vector2D direction = new Vector2D(0, 1);
+
+            // a ship projectile at the location outside of world
+            Projectile myProjectile = new Projectile(0, 0, location, direction);
+
+            // invoke method in provate object
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("ProjectileOffScreen", new Projectile[1] { myProjectile });
+
+            Assert.IsFalse(myProjectile.IsAlive());
+        }
+
+        [TestMethod]
+        public void TestProjectileOffScreen_OutOfBoundsY()
+        {
+            // make a world and set its size
+            World w = new World();
+            w.SetUniverseSize(10);
+
+            // a location outside the edge of the world
+            Vector2D location = new Vector2D(0, 6);
+            Vector2D direction = new Vector2D(0, 1);
+
+            // a ship projectile at the location outside of world
+            Projectile myProjectile = new Projectile(0, 0, location, direction);
+
+            // invoke method in provate object
+            PrivateObject worldAccessor = new PrivateObject(w);
+            worldAccessor.Invoke("ProjectileOffScreen", new Projectile[1] { myProjectile });
+
+            Assert.IsFalse(myProjectile.IsAlive());
+        }
     }
 }
