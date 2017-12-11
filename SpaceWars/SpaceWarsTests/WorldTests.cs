@@ -814,5 +814,210 @@ namespace SpaceWarsTests
             // make a star
             w.MakeNewStar(null, null, null);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestUpDateShipCommands_NoShip()
+        {
+            // make a new world 
+            World w = new World();
+
+            string commands = "(TRLF)";
+            int shipID = 1;
+
+            w.UpdateShipCommands(commands, shipID);
+        }
+
+        [TestMethod]
+        public void TestUpDateShipCommands_RightFirst()
+        {
+            // make a new world 
+            World w = new World();
+
+            string shipName = "foo";
+            string commands = "(TRLF)";
+            int shipID = 1;
+            
+            // make a ship
+            w.MakeNewShip(shipName, shipID);
+
+            // pass commands to ship
+            w.UpdateShipCommands(commands, shipID);
+
+            // get the ship back from the world
+            HashSet<Ship> ships = new HashSet<Ship>(w.GetAllShips());
+            Ship s = new Ship();
+            foreach (Ship ship in ships)
+            {
+                if (ship.GetName() == shipName)
+                {
+                    s = ship;
+                }
+            }
+
+            // check ship state for passed in commands
+            Assert.IsTrue(s.Thrust);
+            // only one direction should be turned on
+            Assert.IsTrue(s.TurnLeft || s.TurnRight);
+            Assert.IsFalse(s.TurnLeft && s.TurnRight);
+
+            //Right should be on and left off
+            Assert.IsTrue(s.TurnRight);
+            Assert.IsFalse(s.TurnLeft);
+        }
+
+        [TestMethod]
+        public void TestUpDateShipCommands_LeftFirst()
+        {
+            // make a new world 
+            World w = new World();
+
+            string shipName = "foo";
+            string commands = "(TLRF)";
+            int shipID = 1;
+
+            // make a ship
+            w.MakeNewShip(shipName, shipID);
+
+            // pass commands to ship
+            w.UpdateShipCommands(commands, shipID);
+
+            // get the ship back from the world
+            HashSet<Ship> ships = new HashSet<Ship>(w.GetAllShips());
+            Ship s = new Ship();
+            foreach (Ship ship in ships)
+            {
+                if (ship.GetName() == shipName)
+                {
+                    s = ship;
+                }
+            }
+
+            // check ship state for passed in commands
+            Assert.IsTrue(s.Thrust);
+            // only one direction should be turned on
+            Assert.IsTrue(s.TurnLeft || s.TurnRight);
+            Assert.IsFalse(s.TurnLeft && s.TurnRight);
+
+            //Right should be on and left off
+            Assert.IsFalse(s.TurnRight);
+            Assert.IsTrue(s.TurnLeft);
+        }
+
+        [TestMethod]
+        public void TestAddStar_NullStar()
+        {
+            // make a new world 
+            World w = new World();
+            // add null star, nothing should be added
+            w.AddStar(null);
+
+            List<Star> stars = new List<Star>(w.GetStars());
+            Assert.AreEqual(0, stars.Count);
+
+        }
+
+        [TestMethod]
+        public void TestAddStar_UpdateReference()
+        {
+            // make a new world 
+            World w = new World();
+            
+            int starID = 1;
+            Star star1 = new Star(starID, 0, 0, 0.1);
+            w.AddStar(star1);
+
+            //replace star1 with star2, which has the same ID
+            Star star2 = new Star(starID, 0, 0, 0.1);
+            w.AddStar(star2);
+
+            List<Star> stars = new List<Star>(w.GetStars());
+            Assert.AreEqual(1, stars.Count);
+
+            Star storedStar = stars[0];
+            Assert.AreEqual(star2, storedStar);
+            Assert.AreNotEqual(star1, storedStar);
+
+        }
+
+        [TestMethod]
+        public void TestAddProjectile_NullProjectile()
+        {
+            // make a new world 
+            World w = new World();
+            // add null projectile, nothing should be added
+            w.AddProjectile(null);
+
+            List<Projectile> projectiles = new List<Projectile>(w.GetProjs());
+            Assert.AreEqual(0, projectiles.Count);
+
+        }
+
+        [TestMethod]
+        public void TestAddProjectile_DeadProjectile()
+        {
+            // make a new world 
+            World w = new World();
+           
+            Projectile projectile1 = new Projectile();
+            w.AddProjectile(projectile1);
+
+            // kill projectile
+            projectile1.Alive(false);
+            w.AddProjectile(projectile1);
+
+            List<Projectile> projectiles = new List<Projectile>(w.GetProjs());
+            Assert.AreEqual(0, projectiles.Count);
+
+        }
+
+        [TestMethod]
+        public void TestAddProjectile_ReplaceProjectile()
+        {
+            // make a new world 
+            World w = new World();
+           
+            Projectile projectile1 = new Projectile();
+            w.AddProjectile(projectile1);
+
+            // kill projectile
+            Projectile projectile2 = new Projectile();
+            w.AddProjectile(projectile2);
+
+            List<Projectile> projectiles = new List<Projectile>(w.GetProjs());
+            Assert.AreEqual(1, projectiles.Count);
+
+            Projectile storedProjectile = projectiles[0];
+            Assert.AreEqual(projectile2, storedProjectile);
+            Assert.AreNotEqual(projectile1, storedProjectile);
+
+        }
+
+        [TestMethod]
+        public void TestMotionForProjectiles_DeadProjectile()
+        {
+            // make a new world 
+            World w = new World();
+            // add projectile
+            Projectile projectile1 = new Projectile();
+            w.AddProjectile(projectile1);
+
+            // kill projectile
+            projectile1.Alive(false);
+
+            //move projectile should be skipped
+            w.MotionForProjectiles(projectile1);
+
+            List<Projectile> projectiles = new List<Projectile>(w.GetProjs());
+            Vector2D expectedLocation= new Vector2D();
+            double expectedProjectileLocationX = expectedLocation.GetX();
+            double expectedProjectileLocationY = expectedLocation.GetY();
+
+            Assert.IsTrue(projectile1.GetLocation().GetX() == expectedProjectileLocationX );
+            Assert.IsTrue(projectile1.GetLocation().GetY() == expectedProjectileLocationY);
+
+        }
+
+
     }
 }
