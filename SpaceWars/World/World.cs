@@ -30,6 +30,9 @@ namespace SpaceWars
         private bool kingIsOn;
         private int projectileID;
 
+        /// <summary>
+        /// Constructor for the world 
+        /// </summary>
         public World()
         {
             aliveShips = new Dictionary<int, Ship>();
@@ -53,6 +56,8 @@ namespace SpaceWars
             projectileID = 0;
         }
 
+        //******************** Getters for the world ********************//
+
         /// <summary>
         /// Gets the world size
         /// </summary>
@@ -67,31 +72,6 @@ namespace SpaceWars
         public int GetMSPerFrame()
         {
             return MSPerFrame;
-        }
-
-        /// <summary>
-        /// Sets the worlds size
-        /// </summary>
-        /// <param name="size"> the world's size </param>
-        public void SetUniverseSize(string size)
-        {
-            // make sure that size is not null and can be parsed to an int 
-            if (size == null || !int.TryParse(size, out int s))
-            {
-                throw new ArgumentException("Server Error: Invalid UniverseSize in the XML file was found");
-            }
-            else
-            {
-                universeSize = s;
-            }
-        }
-
-        /// <summary>
-        /// Takes in an int, size and sets the UniverseSize to that value;
-        /// </summary>
-        public void SetUniverseSize(int size)
-        {
-            universeSize = size;
         }
 
         /// <summary>
@@ -124,6 +104,33 @@ namespace SpaceWars
         public IEnumerable<Projectile> GetProjs()
         {
             return projectiles.Values;
+        }
+
+        //******************** Setters for the world ********************//
+
+        /// <summary>
+        /// Takes in an int, size and sets the UniverseSize to that value;
+        /// </summary>
+        public void SetUniverseSize(int size)
+        {
+            universeSize = size;
+        }
+
+        /// <summary>
+        /// Sets the worlds size
+        /// </summary>
+        /// <param name="size"> the world's size </param>
+        public void SetUniverseSize(string size)
+        {
+            // make sure that size is not null and can be parsed to an int 
+            if (size == null || !int.TryParse(size, out int s))
+            {
+                throw new ArgumentException("Server Error: Invalid UniverseSize in the XML file was found");
+            }
+            else
+            {
+                universeSize = s;
+            }
         }
 
         /// <summary>
@@ -239,7 +246,95 @@ namespace SpaceWars
             }
         }
 
-        
+        /// <summary>
+        /// Set how many frames a ship must wait between firing projectiles
+        /// </summary>
+        public void SetProjectileFiringDelay(string firingDelay)
+        {
+            // make sure that firingDelay is not null and can be parsed to an int 
+            if (firingDelay == null || !int.TryParse(firingDelay, out int f))
+            {
+                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
+            }
+            else
+            {
+                projectileFiringDelay = f;
+            }
+
+        }
+
+        /// <summary>
+        /// Sets the amount of frames before a ship respawns
+        /// </summary>
+        public void SetRespawnDelay(string delay)
+        {
+            // make sure that delay is not null and can be parsed to an int 
+            if (delay == null || !int.TryParse(delay, out int d))
+            {
+                throw new ArgumentException("Server Error: Invalid RespawnRate in the XML file was found");
+            }
+            else
+            {
+                respawnDelay = d;
+            }
+        }
+
+        /// <summary>
+        /// Sets the game mode to King Of The Hill
+        /// </summary>
+        public void SetKingOfTheHill(string king)
+        {
+            // make sure that king is not null
+            if (king == null)
+            {
+                kingIsOn = false;
+            }
+            else if (king.ToLower() == "true")
+            {
+                kingIsOn = true;
+            }
+            else
+            {
+                kingIsOn = false;
+            }
+        }
+
+        //******************** World methods for the ship ********************//
+
+        /// <summary>
+        /// Creates a new ship with the given name and id, then adds  it to the
+        /// world
+        /// </summary>
+        public void MakeNewShip(String name, int id)
+        {
+            if (kingIsOn && allShips.Count == 0)
+            {
+                name = "King " + name;
+
+                // make a ship
+                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
+
+                // make ship king
+                s.SetKing(true);
+
+                // find a random location and a random direction
+                Respawn(s);
+
+                // add the ship to the world
+                AddShip(s);
+            }
+            else
+            {
+                // make a ship
+                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
+
+                // find a random location and a random direction
+                Respawn(s);
+
+                // add the ship to the world
+                AddShip(s);
+            }
+        }
 
         /// <summary>
         /// Takes in a string representing a command request and a playerId
@@ -295,60 +390,7 @@ namespace SpaceWars
                 }
             }
         }
-
-        /// <summary>
-        /// Set how many frames a ship must wait between firing projectiles
-        /// </summary>
-        public void SetProjectileFiringDelay(string firingDelay)
-        {
-            // make sure that firingDelay is not null and can be parsed to an int 
-            if (firingDelay == null || !int.TryParse(firingDelay, out int f))
-            {
-                throw new ArgumentException("Server Error: Invalid FramesPerShot in the XML file was found");
-            }
-            else
-            {
-                projectileFiringDelay = f;
-            }
-
-        }
-
-        /// <summary>
-        /// Sets the amount of frames before a ship respawns
-        /// </summary>
-        public void SetRespawnDelay(string delay)
-        {
-            // make sure that delay is not null and can be parsed to an int 
-            if (delay == null || !int.TryParse(delay, out int d))
-            {
-                throw new ArgumentException("Server Error: Invalid RespawnRate in the XML file was found");
-            }
-            else
-            {
-                respawnDelay = d;
-            }
-        }
-
-        /// <summary>
-        /// Sets the game mode to King Of The Hill
-        /// </summary>
-        public void SetKingOfTheHill(string king)
-        {
-            // make sure that king is not null
-            if (king == null)
-            {
-                kingIsOn = false;
-            }
-            else if (king.ToLower() == "true")
-            {
-                kingIsOn = true;
-            }
-            else
-            {
-                kingIsOn = false;
-            }
-        }
-
+        
         /// <summary>
         /// When a ship is added to the game we update the info or add it
         /// to the world 
@@ -400,120 +442,6 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// If Star s does not exist in stars adds it. If the id already exists
-        /// in Star, updates reference in stars to s.
-        /// </summary>
-        public void AddStar(Star star)
-        {
-            // if the star is null then do nothing
-            if (star == null)
-            {
-                return;
-            }
-
-            // if the star is in the world then replace the old star with the passed in star
-            else if (stars.ContainsKey(star.GetID()))
-            {
-                stars[star.GetID()] = star;
-            }
-            // if the star is not in the world then add it to the world
-            else
-            {
-                stars.Add(star.GetID(), star);
-            }
-        }
-
-        /// <summary>
-        /// If Projectile p does not exist in projectiles adds it. If the id already exists
-        /// in projectiles, updates reference in projectiles to p.
-        /// </summary>
-        public void AddProjectile(Projectile projectile)
-        {
-            // if the projectile is null then do nothing
-            if (projectile == null)
-            {
-                return;
-            }
-
-            // if the projectile is dead then remove it fromt he world
-            if (!projectile.IsAlive())
-            {
-                projectiles.Remove(projectile.GetID());
-            }
-            // if the projectile is in the world then replace the old projectile with the 
-            // passed in projectile
-            else if (projectiles.ContainsKey(projectile.GetID()))
-            {
-                projectiles[projectile.GetID()] = projectile;
-            }
-            // if the projectile is not in the world then add it to the world
-            else
-            {
-                projectiles.Add(projectile.GetID(), projectile);
-            }
-        }
-
-        /// <summary>
-        /// Makes a new reference to a star in the world on the servers side at the
-        /// passed in x and y coordinates and the given mass
-        /// </summary>
-        public void MakeNewStar(string x, string y, string mass)
-        {
-            // make sure that all the properties of a star are vaild
-            if (x == null || y == null || mass == null)
-            {
-                throw new ArgumentException("Server Error: Invalid star in the XML file was found");
-            }
-
-            // parse the x, y, and mass
-            int.TryParse(x, out int X);
-            int.TryParse(y, out int Y);
-            double.TryParse(mass, out double Mass);
-
-            // make a new unique ID for the star
-            int id = stars.Count;
-
-            // make a new star and add it to the world dictionary
-            Star s = new Star(id, X, Y, Mass);
-            AddStar(s);
-        }
-
-        /// <summary>
-        /// Creates a new ship with the given name and id, then adds  it to the
-        /// world
-        /// </summary>
-        public void MakeNewShip(String name, int id)
-        {
-            if (kingIsOn && allShips.Count == 0)
-            {
-                name = "King " + name;
-
-                // make a ship
-                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
-
-                // make ship king
-                s.SetKing(true);
-
-                // find a random location and a random direction
-                Respawn(s);
-
-                // add the ship to the world
-                AddShip(s);
-            }
-            else
-            {
-                // make a ship
-                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
-
-                // find a random location and a random direction
-                Respawn(s);
-
-                // add the ship to the world
-                AddShip(s);
-            }
-        }
-
-        /// <summary>
         /// Computes the acceleration, velocity, and position of the passed in ship
         /// </summary>
         public void MotionForShips(Ship ship)
@@ -523,7 +451,7 @@ namespace SpaceWars
             {
                 return;
             }
-            
+
             // handle left turn command
             if (ship.TurnLeft)
             {
@@ -547,8 +475,8 @@ namespace SpaceWars
             }
 
             //get a zero vector
-            Vector2D acceleration = new Vector2D(0.0,0.0);
-            
+            Vector2D acceleration = new Vector2D(0.0, 0.0);
+
             //compute the acceleration caused by the star
             foreach (Star star in stars.Values)
             {
@@ -572,44 +500,18 @@ namespace SpaceWars
             Wraparound(ship);
 
             // check for collisions with any star
-            foreach(Star star in stars.Values)
+            foreach (Star star in stars.Values)
             {
                 CollisionWithAStar(ship, star);
             }
 
             // check for collisions with any projectiles
-            foreach(Projectile proj in projectiles.Values)
+            foreach (Projectile proj in projectiles.Values)
             {
                 CollisionWithAProjectile(ship, proj);
             }
 
             ship.IncrementFireTimer();
-
-        }
-
-        /// <summary>
-        /// Computes the new location for the projectile
-        /// </summary>
-        public void MotionForProjectiles(Projectile projectile)
-        {
-            // if the projectile is not alive, don't move it
-            if (!projectile.IsAlive())
-            {
-                return;
-            }
-
-            // find the velocity with respect to direction
-            Vector2D velocity = projectile.GetDirection() * projectileSpeed;
-
-            // reset the location of the projectile
-            projectile.SetLocation(projectile.GetLocation() + velocity);
-            if (!ProjectileOffScreen(projectile))
-            {
-                foreach (Star star in stars.Values)
-                {
-                    CollisionBetweenAStarAndProjectile(star, projectile);
-                }
-            }
 
         }
 
@@ -638,47 +540,7 @@ namespace SpaceWars
                 // set the ship's new location
                 ship.SetLocation(x, y);
             }
-            
-        }
 
-        /// <summary>
-        /// Checks to see if the passed in ship touched a star
-        /// </summary>
-        private void CollisionWithAStar(Ship ship, Star star)
-        {
-            if (WithinARadius(ship.GetLocation(), star.GetLocation(), shipSize + starSize))
-            {
-                // the passed in ship hit a star so we update the ship's health 
-                HitAStar(ship);
-            }
-        }
-
-        /// <summary>
-        /// Detects whether or not a ship is hit by a projectile
-        /// </summary>
-        private void CollisionWithAProjectile(Ship ship, Projectile projectile)
-        {
-            if (ship.GetID() != projectile.GetOwner() && ship.IsAlive())
-            {
-                if (WithinARadius(ship.GetLocation(), projectile.GetLocation(), shipSize))
-                {
-                    // the passed in ship was hit by a projectile so we update health and remove
-                    // the projectile from the world
-                    HitAProjectile(ship, projectile);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Detects whether or not a ship is hit by a projectile
-        /// </summary>
-        private void CollisionBetweenAStarAndProjectile(Star star, Projectile projectile)
-        {
-            if (WithinARadius(star.GetLocation(), projectile.GetLocation(), starSize))
-            {
-                // the passed in projectile hit a star so we remove it from the world
-                projectile.Alive(false);
-            }
         }
 
         /// <summary>
@@ -705,18 +567,6 @@ namespace SpaceWars
 
             // kill the ship
             ship.SetHP(0);
-        }
-
-        /// <summary>
-        /// Returns a random ship from the world
-        /// </summary>
-        private Ship RandomShip()
-        {
-            Random r = new Random();
-            List<Ship> values = Enumerable.ToList(allShips.Values);
-            int size = allShips.Count;
-            
-            return values[r.Next(size)];
         }
 
         /// <summary>
@@ -764,29 +614,15 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// When the projectile is off the screen then remove the projectile
-        /// from the world and return true. Else, if it was not removed return
-        /// false;
+        /// Returns a random ship from the world
         /// </summary>
-        private bool ProjectileOffScreen(Projectile projectile)
+        private Ship RandomShip()
         {
-            int borderCoordinate = universeSize / 2;
+            Random r = new Random();
+            List<Ship> values = Enumerable.ToList(allShips.Values);
+            int size = allShips.Count;
 
-            // check to see if its on the edge of the world
-            if (Math.Abs(projectile.GetLocation().GetX()) >= borderCoordinate)
-            {
-                projectile.Alive(false);
-                return true;
-            }
-
-            // check to see if its on the edge of the world
-            else if (Math.Abs(projectile.GetLocation().GetY()) >= borderCoordinate)
-            {
-                projectile.Alive(false);
-                return true;
-            }
-
-            return false;
+            return values[r.Next(size)];
         }
 
         /// <summary>
@@ -798,7 +634,7 @@ namespace SpaceWars
             FindRandomLocation(ship);
 
             // make a new normalized direction vector pointing up
-            Vector2D dir = new Vector2D(0,-1);
+            Vector2D dir = new Vector2D(0, -1);
             dir.Normalize();
 
             // make a randomizing object
@@ -830,7 +666,7 @@ namespace SpaceWars
             ship.ResetRespawnTimer();
         }
 
-        
+
         /// <summary>
         /// Finds a random location for the ship that is not near a star
         /// </summary>
@@ -838,7 +674,7 @@ namespace SpaceWars
         {
             // make a randomizing object
             Random r = new Random();
-            
+
             // find a random location
             int x = r.Next(-(universeSize / 2), universeSize / 2);
             int y = r.Next(-(universeSize / 2), universeSize / 2);
@@ -862,52 +698,6 @@ namespace SpaceWars
 
             // sets the random location to the ship 
             ship.SetLocation(location);
-        }
-
-        /// <summary>
-        /// Returns true if the two vectors are within the given radius of each other
-        /// otherwise returns false
-        /// </summary>
-        private bool WithinARadius(Vector2D location1, Vector2D location2, int radius)
-        {
-            if (location1 == null || location2 == null)
-            {
-                throw new ArgumentException("LocationIsNearAStar: one of the parameters is null");
-            }
-
-            double xDifference = location1.GetX() - location2.GetX();
-            double yDifference = location1.GetY() - location2.GetY();
-
-            double distanceBetweenVectors = Math.Sqrt(xDifference * xDifference + yDifference * yDifference);
-
-            if (distanceBetweenVectors < radius)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Clean up the dead projectiles in the world and remove them so 
-        /// that we are not sending uncessary information to the clients
-        /// </summary>
-        public void CleanUpProjectiles()
-        {
-            // get all dead projectiles
-            HashSet<Projectile> deadProj = new HashSet<Projectile>();
-            foreach (Projectile p in projectiles.Values)
-            {
-                if (!p.IsAlive())
-                {
-                    deadProj.Add(p);
-                }
-            }
-
-            // remove dead projectiles from the world
-            foreach (Projectile p in deadProj)
-            {
-                projectiles.Remove(p.GetID());
-            }
         }
 
         /// <summary>
@@ -939,7 +729,7 @@ namespace SpaceWars
                 {
                     s.IncrementRespawnTimer();
                 }
-                    
+
             }
         }
 
@@ -967,6 +757,228 @@ namespace SpaceWars
 
             // reset list of ships that must be cleaned up
             shipsToCleanup.Clear();
+        }
+        
+        //******************** World methods for the star ********************//
+
+        /// <summary>
+        /// Makes a new reference to a star in the world on the servers side at the
+        /// passed in x and y coordinates and the given mass
+        /// </summary>
+        public void MakeNewStar(string x, string y, string mass)
+        {
+            // make sure that all the properties of a star are vaild
+            if (x == null || y == null || mass == null)
+            {
+                throw new ArgumentException("Server Error: Invalid star in the XML file was found");
+            }
+
+            // parse the x, y, and mass
+            int.TryParse(x, out int X);
+            int.TryParse(y, out int Y);
+            double.TryParse(mass, out double Mass);
+
+            // make a new unique ID for the star
+            int id = stars.Count;
+
+            // make a new star and add it to the world dictionary
+            Star s = new Star(id, X, Y, Mass);
+            AddStar(s);
+        }
+
+        /// <summary>
+        /// If Star s does not exist in stars adds it. If the id already exists
+        /// in Star, updates reference in stars to s.
+        /// </summary>
+        public void AddStar(Star star)
+        {
+            // if the star is null then do nothing
+            if (star == null)
+            {
+                return;
+            }
+
+            // if the star is in the world then replace the old star with the passed in star
+            else if (stars.ContainsKey(star.GetID()))
+            {
+                stars[star.GetID()] = star;
+            }
+            // if the star is not in the world then add it to the world
+            else
+            {
+                stars.Add(star.GetID(), star);
+            }
+        }
+
+        //******************** World methods for the projectiles ********************//
+
+        /// <summary>
+        /// If Projectile p does not exist in projectiles adds it. If the id already exists
+        /// in projectiles, updates reference in projectiles to p.
+        /// </summary>
+        public void AddProjectile(Projectile projectile)
+        {
+            // if the projectile is null then do nothing
+            if (projectile == null)
+            {
+                return;
+            }
+
+            // if the projectile is dead then remove it fromt he world
+            if (!projectile.IsAlive())
+            {
+                projectiles.Remove(projectile.GetID());
+            }
+            // if the projectile is in the world then replace the old projectile with the 
+            // passed in projectile
+            else if (projectiles.ContainsKey(projectile.GetID()))
+            {
+                projectiles[projectile.GetID()] = projectile;
+            }
+            // if the projectile is not in the world then add it to the world
+            else
+            {
+                projectiles.Add(projectile.GetID(), projectile);
+            }
+        }
+        
+        /// <summary>
+        /// Computes the new location for the projectile
+        /// </summary>
+        public void MotionForProjectiles(Projectile projectile)
+        {
+            // if the projectile is not alive, don't move it
+            if (!projectile.IsAlive())
+            {
+                return;
+            }
+
+            // find the velocity with respect to direction
+            Vector2D velocity = projectile.GetDirection() * projectileSpeed;
+
+            // reset the location of the projectile
+            projectile.SetLocation(projectile.GetLocation() + velocity);
+            if (!ProjectileOffScreen(projectile))
+            {
+                foreach (Star star in stars.Values)
+                {
+                    CollisionBetweenAStarAndProjectile(star, projectile);
+                }
+            }
+        }
+
+        /// <summary>
+        /// When the projectile is off the screen then remove the projectile
+        /// from the world and return true. Else, if it was not removed return
+        /// false;
+        /// </summary>
+        private bool ProjectileOffScreen(Projectile projectile)
+        {
+            int borderCoordinate = universeSize / 2;
+
+            // check to see if its on the edge of the world
+            if (Math.Abs(projectile.GetLocation().GetX()) >= borderCoordinate)
+            {
+                projectile.Alive(false);
+                return true;
+            }
+
+            // check to see if its on the edge of the world
+            else if (Math.Abs(projectile.GetLocation().GetY()) >= borderCoordinate)
+            {
+                projectile.Alive(false);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Clean up the dead projectiles in the world and remove them so 
+        /// that we are not sending uncessary information to the clients
+        /// </summary>
+        public void CleanUpProjectiles()
+        {
+            // get all dead projectiles
+            HashSet<Projectile> deadProj = new HashSet<Projectile>();
+            foreach (Projectile p in projectiles.Values)
+            {
+                if (!p.IsAlive())
+                {
+                    deadProj.Add(p);
+                }
+            }
+
+            // remove dead projectiles from the world
+            foreach (Projectile p in deadProj)
+            {
+                projectiles.Remove(p.GetID());
+            }
+        }
+
+        //******************** World methods for the collisions ********************//
+
+        /// <summary>
+        /// Checks to see if the passed in ship touched a star
+        /// </summary>
+        private void CollisionWithAStar(Ship ship, Star star)
+        {
+            if (WithinARadius(ship.GetLocation(), star.GetLocation(), shipSize + starSize))
+            {
+                // the passed in ship hit a star so we update the ship's health 
+                HitAStar(ship);
+            }
+        }
+
+        /// <summary>
+        /// Detects whether or not a ship is hit by a projectile
+        /// </summary>
+        private void CollisionWithAProjectile(Ship ship, Projectile projectile)
+        {
+            if (ship.GetID() != projectile.GetOwner() && ship.IsAlive())
+            {
+                if (WithinARadius(ship.GetLocation(), projectile.GetLocation(), shipSize))
+                {
+                    // the passed in ship was hit by a projectile so we update health and remove
+                    // the projectile from the world
+                    HitAProjectile(ship, projectile);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detects whether or not a ship is hit by a projectile
+        /// </summary>
+        private void CollisionBetweenAStarAndProjectile(Star star, Projectile projectile)
+        {
+            if (WithinARadius(star.GetLocation(), projectile.GetLocation(), starSize))
+            {
+                // the passed in projectile hit a star so we remove it from the world
+                projectile.Alive(false);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the two vectors are within the given radius of each other
+        /// otherwise returns false
+        /// </summary>
+        private bool WithinARadius(Vector2D location1, Vector2D location2, int radius)
+        {
+            if (location1 == null || location2 == null)
+            {
+                throw new ArgumentException("LocationIsNearAStar: one of the parameters is null");
+            }
+
+            double xDifference = location1.GetX() - location2.GetX();
+            double yDifference = location1.GetY() - location2.GetY();
+
+            double distanceBetweenVectors = Math.Sqrt(xDifference * xDifference + yDifference * yDifference);
+
+            if (distanceBetweenVectors < radius)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
