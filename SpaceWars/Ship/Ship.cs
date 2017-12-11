@@ -60,7 +60,7 @@ namespace SpaceWars
         /// initializes a Ship object with no parameters set.
         /// </summary>
         public Ship()
-            : this("", 0, new Vector2D(0,0), new Vector2D(0,-1), 5, 300, 16)
+            : this("", 0, new Vector2D(0,0), new Vector2D(0,-1), 5, 300, 6)
         {
         }
         
@@ -99,11 +99,9 @@ namespace SpaceWars
         public bool Thrust { get => thrust; set => thrust = value; }
 
         /// <summary>
-        /// Gets or sets the number of frames that a ship must wait before
-        /// firing again
+        /// If the request passed in is true then it returns true only if fireDelay has elapsed.
+        /// Otherwise if the request is false then it returns false.
         /// </summary>
-        public bool FireLimit { get; set; }
-
         private bool FireRequest(bool request)
         {
             // if trying to set to false, set to false
@@ -164,10 +162,11 @@ namespace SpaceWars
         }
 
         /// <summary>
-        /// Sets the ship's direction
+        /// Sets the ship's direction as a normalized vector
         /// </summary>
         public void SetDirection(Vector2D direction)
         {
+            direction.Normalize();
             dir = direction;
         }
 
@@ -305,7 +304,7 @@ namespace SpaceWars
         /// </summary>
         public bool CanFire()
         {
-            return (fireTimer > fireLimit) && IsAlive();
+            return (fireTimer >= fireLimit) && IsAlive();
         }
 
         /// <summary>
