@@ -40,6 +40,7 @@ namespace SpaceWars
         /// initializes a Ship object with no parameters set.
         /// </summary>
         public Projectile()
+            : this(-1,-1,new Vector2D(),new Vector2D())
         {
         }
 
