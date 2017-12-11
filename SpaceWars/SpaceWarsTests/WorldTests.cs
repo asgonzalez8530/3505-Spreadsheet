@@ -1114,10 +1114,111 @@ namespace SpaceWarsTests
             Assert.AreEqual(1, ships.Count);
         }
 
+        [TestMethod]
+        public void TestRespawnShips()
+        {
+            // make a new world 
+            World w = new World();
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+            // create a ship to clean up and a ship to leave
+            Ship shipToRespawn = new Ship("foo0", 0, location, direction, 5, 1, 7);
+            Ship shipToLeaveDead = new Ship("foo1", 1, location, direction, 5, 2, 7);
+
+            // add ships to world
+            w.AddShip(shipToRespawn);
+            w.AddShip(shipToLeaveDead);
+
+            // kill ships
+            shipToRespawn.SetHP(0);
+            shipToLeaveDead.SetHP(0);
+
+            // try to respawn the ships three times
+            w.RespawnShips();
+            w.RespawnShips();
+            w.RespawnShips();
+
+            // one ship should now be alive and the other should be dead
+            Assert.IsTrue(shipToRespawn.IsAlive());
+            Assert.IsFalse(shipToLeaveDead.IsAlive());
+
+        }
+
+        [TestMethod]
+        public void TestMotionForShips_DeadShip()
+        {
+            // make a new world 
+            World w = new World();
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+            // create a ship to clean up and a ship to leave
+            Ship deadShip = new Ship("foo0", 0, location, direction, 5, 1, 7);
+
+            // kill ships
+            deadShip.SetHP(0);
+
+            w.MotionForShips(deadShip);
+
+        }
+
+        [TestMethod]
+        public void TestMotionForShips_LeftTurnProjectileThrust()
+        {
+            // make a new world 
+            World w = new World();
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+            // create a ship to clean up and a ship to leave
+            Ship deadShip = new Ship("foo0", 0, location, direction, 5, 1, 0);
+
+            // add ship
+            w.AddShip(deadShip);
+
+            w.UpdateShipCommands("(LTF)",0);
+            w.MotionForShips(deadShip);
+
+            w.UpdateShipCommands("(RTF)", 0);
+            w.MotionForShips(deadShip);
+
+            w.UpdateShipCommands("(RTF)", 0);
+            w.MotionForShips(deadShip);
+
+            HashSet<Projectile> projs = new HashSet<Projectile>(w.GetProjs());
+
+            Assert.AreEqual(3,projs.Count);
+
+        }
 
 
+        [TestMethod]
+        public void TestFindRandomLocation_FindLocationNearStar()
+        {
+            // make a world
+            World w = new World();
+            w.SetUniverseSize(4);
+            w.SetShipSize("1");
+            w.SetStarSize("1");
+            // make a star in the center of the world
+            Star s = new Star(0, 0, 0, 0.1);
+            // make a ship
+            for (int i = 0; i < 10; i++)
+            {
+                Ship myShip = new Ship("foo"+i, i, new Vector2D(0, 0), new Vector2D(0, 1), 2, 0, 0);
+                w.AddShip(myShip);
+                w.Respawn(myShip);
+            }
+            
+
+
+
+        }
 
         /*************** Test Private Methods **************/
+
+        #region Private Methods
         [TestMethod]
         public void TestWraparound_OutOfBounds()
         {
@@ -1353,4 +1454,6 @@ namespace SpaceWarsTests
             Assert.IsFalse(myProjectile.IsAlive());
         }
     }
+
+#endregion
 }
