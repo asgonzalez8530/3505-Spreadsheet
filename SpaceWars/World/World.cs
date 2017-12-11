@@ -487,16 +487,30 @@ namespace SpaceWars
             if (kingIsOn && allShips.Count == 0)
             {
                 name = "King " + name;
+
+                // make a ship
+                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
+
+                // make ship king
+                s.SetKing(true);
+
+                // find a random location and a random direction
+                Respawn(s);
+
+                // add the ship to the world
+                AddShip(s);
             }
+            else
+            {
+                // make a ship
+                Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0, -1), startingHitPoints, respawnDelay, projectileFiringDelay);
 
-            // make a ship
-            Ship s = new Ship(name, id, new Vector2D(0, 0), new Vector2D(0,-1), startingHitPoints, respawnDelay, projectileFiringDelay);
+                // find a random location and a random direction
+                Respawn(s);
 
-            // find a random location and a random direction
-            Respawn(s);
-
-            // add the ship to the world
-            AddShip(s);
+                // add the ship to the world
+                AddShip(s);
+            }
         }
 
         /// <summary>

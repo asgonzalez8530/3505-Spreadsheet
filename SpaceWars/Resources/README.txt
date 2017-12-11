@@ -32,6 +32,7 @@ Created for CS 3500 2017 Fall Semester
 Initial Design Ideas: The GUI will need three panels. One panel is the top bar which will be a tableLayoutPanel and  
 the side and center panel will be custom. The side panel will contian the scoreboard and the center one will be the 
 game. The size of the form will resize when the server send the proper information. 
+We tested part of the network controller when possible.
 
 What works: We were able to get everything to work. We did a lot of troubleshooting and debugging to get everything 
 working. The hardest part to get correct was the GUI. We struggled with updating the information to the GUI correctly 
@@ -44,20 +45,23 @@ go through all ships and projectiles and remove the dead ones from the world. We
 servering while handling 10+ clients so we made some methods asynchronous. 
 
 Notes for the TAs: Our project was setup in an the proper MVC format. We used the proper abstraction so that the 
-different classes could speak to each other and work together to create a fuctional server. Our special feature is the
-king of the hill. The rules are as follows:
+different classes could speak to each other and work together to create a fuctional server. We were given an extension 
+by Dr. Kopta to turn in our assignment on Sunday.
+
+Added Feature: Our special feature is the king of the hill. The rules are as follows:
 1) The king is the first player who enters the world
-2) 
+2) The king gets 3 extra hit points
+3) The other players can only fire projectiles to hurt the king
+4) The king can fire at anyone
+5) When the king is dead a new ship is named king randomly
 
-Added Features: Our scoreboard is color coordinated and our GUI has a fun Santa Claus theme. We picked a white 
-background to represent the snow. 
 
-How to Run: Start the server. Once the server is ready, press start on the client code. Enter in a name and press connect.
+How to Run: Press the play button (make sure that the server solution is set as the StartUp project). Once the server is
+ready, wait for a client to connect. 
 
 
 /************************************** REMOVE BELOW *****************************************/
 TODO:
-*	handle network errors
 *	King of the hill?
 *	Testing
 *	Speedup?
