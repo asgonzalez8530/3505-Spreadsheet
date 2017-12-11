@@ -65,6 +65,5 @@ ready, wait for a client to connect.
 
 /************************************** REMOVE BELOW *****************************************/
 TODO:
-*	King of the hill?
 *	Testing
 *	Speedup?
