@@ -964,11 +964,6 @@ namespace SpaceWars
         /// </summary>
         private bool WithinARadius(Vector2D location1, Vector2D location2, int radius)
         {
-            if (location1 == null || location2 == null)
-            {
-                throw new ArgumentException("LocationIsNearAStar: one of the parameters is null");
-            }
-
             double xDifference = location1.GetX() - location2.GetX();
             double yDifference = location1.GetY() - location2.GetY();
 
