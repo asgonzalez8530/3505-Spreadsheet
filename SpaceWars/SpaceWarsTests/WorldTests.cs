@@ -1018,6 +1018,104 @@ namespace SpaceWarsTests
 
         }
 
+        [TestMethod]
+        public void TestCleanupProjectiles_MultipleDeadProjectiles()
+        {
+            // make a new world 
+            World w = new World();
+
+            
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+
+            HashSet<Projectile> deadProjectiles = new HashSet<Projectile>();
+            for (int i = 0; i < 100; i++)
+            {
+                // make and add projectile
+                Projectile deadProj = new Projectile(0, i, location, direction);
+                w.AddProjectile(deadProj);
+                // kill projectile
+                deadProj.Alive(false);
+            }
+
+            HashSet<Projectile> liveProjectiles = new HashSet<Projectile>();
+            for (int i = 100; i < 200; i++)
+            {
+                // make and add projectile
+                Projectile deadProj = new Projectile(0, i, location, direction);
+                w.AddProjectile(deadProj);
+            }
+
+            // call the method
+            w.CleanUpProjectiles();
+            // get the result of cleaning the projectiles
+            HashSet<Projectile> cleanedProjectiles = new HashSet<Projectile>(w.GetProjs());
+
+            Assert.AreEqual(100, cleanedProjectiles.Count);
+
+            foreach (Projectile p in liveProjectiles)
+            {
+                Assert.IsTrue(cleanedProjectiles.Contains(p));
+            }
+
+            foreach (Projectile p in deadProjectiles)
+            {
+                Assert.IsFalse(cleanedProjectiles.Contains(p));
+            }
+
+
+        }
+
+        [TestMethod]
+        public void TestAddShipToCleanup()
+        {
+            // make a new world 
+            World w = new World();
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+
+            Ship myShip = new Ship("foo", 0, location, direction, 5, 300, 7);
+
+            w.AddShip(myShip);
+            w.AddShipToCleanup(myShip.GetID());
+
+            Assert.IsFalse(myShip.IsAlive());
+        }
+
+        [TestMethod]
+        public void TestCleanupShips()
+        {
+            // make a new world 
+            World w = new World();
+
+            Vector2D location = new Vector2D(0, 0);
+            Vector2D direction = new Vector2D(0, 1);
+            // create a ship to clean up and a ship to leave
+            Ship shipToClean = new Ship("foo0", 0, location, direction, 5, 300, 7);
+            Ship shipToLeave = new Ship("foo1", 1, location, direction, 5, 300, 7);
+
+            // add ships to world
+            w.AddShip(shipToClean);
+            w.AddShip(shipToLeave);
+            
+            // make sure ship should be cleaned up
+            w.AddShipToCleanup(shipToClean.GetID());
+            Assert.IsFalse(shipToClean.IsAlive());
+            
+            //ship has been added to cleanup but not removed
+            HashSet<Ship> ships = new HashSet<Ship>(w.GetAllShips());
+            Assert.AreEqual(2, ships.Count);
+
+            //ship should be removed
+            w.CleanupShips();
+            ships = new HashSet<Ship>(w.GetAllShips());
+            Assert.AreEqual(1, ships.Count);
+        }
+
+
+
 
         /*************** Test Private Methods **************/
         [TestMethod]
