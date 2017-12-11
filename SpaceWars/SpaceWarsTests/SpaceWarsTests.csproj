@@ -50,6 +50,9 @@
   <ItemGroup>
     <Compile Include="NetworkControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShipsTests.cs" />
+    <Compile Include="ProjectileTests.cs" />
+    <Compile Include="StarTests.cs" />
     <Compile Include="WorldTests.cs" />
   </ItemGroup>
   <ItemGroup>
