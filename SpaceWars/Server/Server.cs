@@ -23,6 +23,8 @@ namespace SpaceWarsServer
         private Stopwatch watch; // a timer to update our world;
         private HashSet<int> clientsToCleanUp;
 
+        private HashSet<PlayerStats> stats;
+
         // All frame counter code has been commented out in case it would be needed late
         //private int frameCounter; // a counter to calculate frame rate
 
@@ -41,6 +43,9 @@ namespace SpaceWarsServer
 
             // get the game settings and pass them to the world
             ReadSettingsXML(filePath + fileName);
+
+            // stats needed to keep database updated with high scores
+            stats = new HashSet<PlayerStats>();
 
             //frameCounter = 0;
             //System.Timers.Timer frameRateTimer = new System.Timers.Timer();
@@ -248,6 +253,7 @@ namespace SpaceWarsServer
         private void HandleNetworkError(SocketState state)
         {
             int clientID = state.GetID();
+            
             // dispose all resources used by socket
             // state.GetSocket().Dispose();
 
@@ -256,12 +262,31 @@ namespace SpaceWarsServer
                 clients.Remove(state);
             }
 
+            // the ship that needs to be cleaned up
+            // needed to get stats
+            Ship deadShip;
             lock (world)
             {
-                world.AddShipToCleanup(clientID);
+                deadShip = world.AddShipToCleanup(clientID);
+            }
+
+            lock (stats)
+            {
+                // add stats to set of all stats when cleaning up clients
+                AddShipToStats(deadShip);
             }
 
             Console.Out.WriteLine("Player " + clientID + " has left the game");
+        }
+
+        /// <summary>
+        /// Convenient method that takes a Ship playerShip, and adds its information to stats.
+        /// </summary>
+        /// <param name="playerShip"></param>
+        private void AddShipToStats(Ship playerShip)
+        {
+            // add stats to set of all stats
+            stats.Add(new PlayerStats(playerShip.GetName(), playerShip.GetScore(), playerShip.GetAccuracy()));
         }
 
         /// <summary>
@@ -414,6 +439,21 @@ namespace SpaceWarsServer
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adds all ships represented in the world to set of all PlayerStats
+        /// </summary>
+        private void AddAllPlayersToStats ()
+        {
+            // get all the remaining ships in the world
+            IEnumerable<Ship> remainingShips = world.GetAllShips();
+
+            // add info to playerstats.
+            foreach (Ship ship in remainingShips)
+            {
+                AddShipToStats(ship);
             }
         }
 

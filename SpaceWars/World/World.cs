@@ -470,6 +470,9 @@ namespace SpaceWars
                 AddProjectile(p);
                 ship.FireProjectile = false;
                 ship.ResetFireTimer();
+
+                // we just fired a projectile, increment total number of fired projectiles
+                ship.ShotsFired++;
             }
 
             //get a zero vector
@@ -590,6 +593,9 @@ namespace SpaceWars
                             // increase the ship's score who shot the projectile by 1
                             projectileShip.SetScore(projectileShip.GetScore() + 1);
                         }
+
+                        // register that the projectile hit a non-team member
+                        ship.ShotsHit++;
                     }
 
                     if (ship.IsKing() && !ship.IsAlive())
@@ -624,6 +630,8 @@ namespace SpaceWars
 
                 // set the projectile to dead
                 projectile.Alive(false);
+                // register that the projectile hit a ship
+                ship.ShotsHit++;
             }
         }
 
@@ -751,11 +759,12 @@ namespace SpaceWars
         /// Takes in a ship Id and adds it to a list of ships which must be
         /// removed from the world then sets the ships hp to zero
         /// </summary>
-        public void AddShipToCleanup(int shipID)
+        public Ship AddShipToCleanup(int shipID)
         {
             shipsToCleanup.Add(shipID);
             Ship deadShip = allShips[shipID];
             deadShip.SetHP(0);
+            return deadShip;
         }
 
         /// <summary>
