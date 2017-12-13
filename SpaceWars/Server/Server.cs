@@ -560,10 +560,10 @@ namespace SpaceWarsServer
                         // Execute the command
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            if (reader.Read())
                             {
-                                //TODO: may need to parse from a string 
-                                gameID = (int)reader["gameID"];
+                                
+                                gameID = int.Parse(reader["gameID"].ToString());
                             }
                         }
                     }
@@ -574,7 +574,7 @@ namespace SpaceWarsServer
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.Message + " : GameID");
                     return -1;
                 }
             }
@@ -639,10 +639,11 @@ namespace SpaceWarsServer
                         // Execute the command
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            if (reader.Read())
                             {
-                                //TODO: may need to parse from a string 
-                                playerID = (int)reader["playerID"];
+                                
+                                playerID = int.Parse(reader["playerID"].ToString());
+                                
                             }
                         }
                     }
@@ -653,7 +654,7 @@ namespace SpaceWarsServer
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.Message + " : PlayerID");
                     return -1;
                 }
             }
@@ -725,14 +726,14 @@ namespace SpaceWarsServer
 
             // get the duration of the game
             TimeSpan duration = DateTime.UtcNow - startTime;
-            string durationString = duration.ToString("mm:ss");
+            string durationString = duration.ToString(@"mm\:ss");
 
             int gameID = WriteToGameStats(durationString, world.GetKingMode());
 
             // if gameID < 0 there was a problem writing to the db
             if (gameID < 0)
             {
-                Console.Out.WriteLine("There was a problem wring to the database");
+                Console.Out.WriteLine("There was a problem writing to the database");
                 return;
             }
 
