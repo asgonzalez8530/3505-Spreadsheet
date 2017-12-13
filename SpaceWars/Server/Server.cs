@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using MySql.Data.MySqlClient;
 using System.Threading;
 
 namespace SpaceWarsServer
@@ -32,6 +33,14 @@ namespace SpaceWarsServer
 
         // used to calculate duration of the game
         private DateTime startTime;
+
+        /// <summary>
+        /// The connection string to our stats DB.
+        /// </summary>
+        public const string connectionString = "server=atr.eng.utah.edu;" +
+          "database=cs3500_u0981638;" +
+          "uid=cs3500_u0981638;" +
+          "password=AaronAndAnastasia";
 
         // All frame counter code has been commented out in case it would be needed late
         //private int frameCounter; // a counter to calculate frame rate
@@ -132,7 +141,7 @@ namespace SpaceWarsServer
                 HandleNetworkError(state);
                 return;
             }
-            
+
 
             // change the callback to handle incoming commands from the client
             state.SetNetworkAction(HandleClientCommands);
@@ -196,7 +205,7 @@ namespace SpaceWarsServer
         /// </summary>
         private void UpdateWorld()
         {
-           
+
             // update and serialize each object in world
             StringBuilder sb = new StringBuilder();
             lock (world)
@@ -232,7 +241,7 @@ namespace SpaceWarsServer
             while (watch.ElapsedMilliseconds < world.GetMSPerFrame())
             { /* do nothing */ }
             watch.Restart();
-            
+
             //Interlocked.Increment(ref frameCounter);
 
         }
@@ -275,7 +284,7 @@ namespace SpaceWarsServer
         private void HandleNetworkError(SocketState state)
         {
             int clientID = state.GetID();
-            
+
             // dispose all resources used by socket
             // state.GetSocket().Dispose();
 
@@ -468,7 +477,7 @@ namespace SpaceWarsServer
         /// <summary>
         /// Adds all ships represented in the world to set of all PlayerStats
         /// </summary>
-        private void AddAllPlayersToStats ()
+        private void AddAllPlayersToStats()
         {
             lock (world)
             {
@@ -483,25 +492,221 @@ namespace SpaceWarsServer
             }
         }
 
+        #region Methods for writing to SQL tables
+
         /// <summary>
-        /// Takes a PlayerStats object, serializes it as an SQL add command,
-        /// then adds it to the SQL database.
+        /// Writes the game duration and mode to the GameStats table and returns
+        /// the gameID
+        /// 
+        /// If KingModeOn is true writes "King of the Hill" to mode column,
+        /// else writes "Standard"
+        /// 
+        /// duration must be in format mm:ss
+        /// 
+        /// If an error occurs will return a negative number.
         /// </summary>
-        private void AddStatToDataBase(PlayerStats stat)
+        private int WriteToGameStats(string duration, bool KingModeOn)
         {
-            //TODO: implement as described above.
+            // make sure duration length is the correct string length
+            if (duration.Length != 5)
+            {
+                return -1;
+            }
+
+            // set mode for king of the hill
+            string mode;
+            if (KingModeOn)
+            {
+                mode = "King of the Hill";
+            }
+            else
+            {
+                mode = "Standard";
+            }
+
+            // Connect to the DB
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Open a connection
+                    conn.Open();
+
+                    int gameID = -1;
+
+                    // Create a command
+                    using (MySqlCommand command = conn.CreateCommand())
+                    {
+                        // This will be the command that we will execute
+                        string commandString = "insert into GameStats (duration, gameMode) ";
+                        commandString += "values ('" + duration + "', '" + mode + "');";
+
+                        // give our comand to the MySqlCommand object
+                        command.CommandText = commandString;
+
+                        // execute the command
+                        command.ExecuteNonQuery();
+
+                        // now we want the ID for the game we just created
+                        // thanks https://dev.mysql.com/doc/refman/5.7/en/information-functions.html#function_last-insert-id
+                        // this command should return a table with one column titled "last_insert_id();" 
+                        // and one row with the value of the insert ID. 
+                        // (below we are giving it an alias. )
+                        // 
+                        // Must be done in same connection.
+                        commandString = "select last_insert_id() as gameID;";
+                        command.CommandText = commandString;
+
+                        // Execute the command
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                //TODO: may need to parse from a string 
+                                gameID = (int)reader["gameID"];
+                            }
+                        }
+                    }
+
+                    // close our connection
+                    conn.Close();
+                    return gameID;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return -1;
+                }
+            }
+
         }
 
         /// <summary>
-        /// convenient helper method that takes a PlayersStat object and 
-        /// serializes it as an SQL command, then returns that command as a 
-        /// string.
+        /// Writes the playerName, score and accuracy of the provided 
+        /// PlayerStats object to the PlayerStats Table in our 
+        /// database and returns the playerID assigned by the database.
+        ///
+        /// If an error occurs will return a negative number. 
         /// </summary>
-        private string SerializeStatAsSQLCommand()
+        private int WriteToPlayerStats(PlayerStats stat)
         {
-            //TODO: implement as described above.
-            return "";
+            // overloaded method for convenience 
+            return WriteToPlayerStats(stat.Name, stat.Score, stat.Accuracy);
         }
+
+        /// <summary>
+        /// Writes the playerName, score and accuracy to the PlayerStats Table
+        /// in our database and returns the playerID assigned by the database.
+        ///
+        /// If an error occurs will return a negative number. 
+        /// </summary>
+        private int WriteToPlayerStats(string playerName, int score, double accuracy)
+        {
+
+            // Connect to the DB
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Open a connection
+                    conn.Open();
+
+                    int playerID = -1;
+
+                    // Create a command
+                    using (MySqlCommand command = conn.CreateCommand())
+                    {
+                        // This will be the command that we will execute
+                        string commandString = "INSERT into PlayerStats (playerName, score, accuracy) ";
+                        commandString += "values ('" + playerName + "', " + score + ", " + accuracy +");";
+
+                        // give our comand to the MySqlCommand object
+                        command.CommandText = commandString;
+
+                        // execute the command
+                        command.ExecuteNonQuery();
+
+                        // now we want the ID for the game we just created
+                        // thanks https://dev.mysql.com/doc/refman/5.7/en/information-functions.html#function_last-insert-id
+                        // this command should return a table with one column titled "last_insert_id();" 
+                        // and one row with the value of the insert ID. 
+                        // (below we are giving it an alias. )
+                        // 
+                        // Must be done in same connection.
+                        commandString = "select last_insert_id() as playerID;";
+                        command.CommandText = commandString;
+
+                        // Execute the command
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                //TODO: may need to parse from a string 
+                                playerID = (int)reader["playerID"];
+                            }
+                        }
+                    }
+
+                    // close our connection
+                    conn.Close();
+                    return playerID;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return -1;
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Writes the playerID and gameID to the PlayersInGame Table in our 
+        /// database and returns the playerID assigned by the database.
+        ///
+        /// If an error occurs will return a negative number. 
+        /// </summary>
+        private void WriteToPlayersInGame(int playerID, int gameID)
+        {
+
+            // Connect to the DB
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Open a connection
+                    conn.Open();
+
+                    // Create a command
+                    using (MySqlCommand command = conn.CreateCommand())
+                    {
+                        // This will be the command that we will execute
+                        string commandString = "INSERT into PlayersInGame (playerID, gameID) ";
+                        commandString += "values ('" + playerID + "', " + gameID + ");";
+
+                        // give our comand to the MySqlCommand object
+                        command.CommandText = commandString;
+
+                        // execute the command
+                        command.ExecuteNonQuery();
+
+                        
+                    }
+
+                    // close our connection
+                    conn.Close();
+                    
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    
+                }
+            }
+
+        }
+
+        #endregion
 
         //TODO: complete method, may need to be public and may want to store game type
         // in server
@@ -520,17 +725,37 @@ namespace SpaceWarsServer
 
             // get the duration of the game
             TimeSpan duration = DateTime.UtcNow - startTime;
-            
+            string durationString = duration.ToString("mm:ss");
+
+            int gameID = WriteToGameStats(durationString, world.GetKingMode());
+
+            // if gameID < 0 there was a problem writing to the db
+            if (gameID < 0)
+            {
+                Console.Out.WriteLine("There was a problem wring to the database");
+                return;
+            }
+
             // get all the stats
             AddAllPlayersToStats();
 
-            //TODO: add the stats to database then return
             foreach (PlayerStats stat in stats)
             {
-                AddStatToDataBase(stat);
+                // write to PlayerStats table
+                int playerID = WriteToPlayerStats(stat);
+                
+                // check that we haven't encountered an error when writing to 
+                // database
+                if (playerID < 0)
+                {
+                    return;
+                }
+
+                // write to PlayersInGame table
+                WriteToPlayersInGame(playerID, gameID);
             }
 
-           
+
 
         }
 

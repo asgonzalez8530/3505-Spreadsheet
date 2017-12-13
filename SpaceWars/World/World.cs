@@ -73,6 +73,14 @@ namespace SpaceWars
         }
 
         /// <summary>
+        /// returns true if game mode is King of the Hill, else returns false
+        /// </summary>
+        public bool GetKingMode()
+        {
+            return kingIsOn;
+        }
+
+        /// <summary>
         /// Gets a list of all the ships that are alive
         /// </summary>
         public IEnumerable<Ship> GetAliveShips()

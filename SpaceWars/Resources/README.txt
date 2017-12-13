@@ -75,29 +75,30 @@ SpaceWars Server - PS9
 TODO: 
 
 TRACK PLAYER GAME STATS
-* add game duration in Server project
-
-	
 
 * Create method for uploading:
 	1) Name, Score, Accuracy
 	2) Game Duration
 	3) Game Mode
 
+going to:
+	keep a list of Player information, set when a player exits the game or
+	the game is closed
+
 Database Structure:
 
 // Relates games to           // relates games to game stats 
 // players
-+-------------------+         +-----------------------------+
-|  PlayersInGame    |         |           GameStats         |
-+----------+--------+         +--------+----------+---------+
-| playerID | gameID |         | gameID | duration |   mode  |
-+----------+--------+	      +--------+----------+---------+
-|   int    |  int   |         |   int  |   time   | varChar |
-|    NN    |  NN    |         |   NN   |    NN    |   NN    |
-|  unique  |        |         | unique |          |         |
-+----------+--------+         |   AI   |          |         |
-                     	      +--------+----------+---------+
++-------------------+         +---------------------------------+
+|  PlayersInGame    |         |           GameStats             |
++----------+--------+         +--------+----------+-------------+
+| playerID | gameID |         | gameID | duration |   gameMode  |
++----------+--------+	      +--------+----------+-------------+
+|   int    |  int   |         |   int  |   time   |   varChar   |
+|    NN    |  NN    |         |   NN   |    NN    |     NN      |
+|  unique  |        |         | unique |          |             |
++----------+--------+         |   AI   |          |             |
+                     	      +--------+----------+-------------+
 
 // relates players to player stats
 +------------------------------------------+
@@ -105,17 +106,11 @@ Database Structure:
 +----------+------------+-------+----------+
 | playerID | playerName | score | accuracy |
 +----------+------------+-------+----------+
-|   int    |  varChar   |  int  |   float  |
+|   int    |  varChar   |  int  |  double  |
 |    NN    |    NN      |  NN   |    NN    |
 |  unique  |            |       |          |
 |    AI    |            |       |          |
 +----------+------------+-------+----------+
 
 
-* going to:
-	* keep a list of Player information, set when a player exits the game or
-	  the game is closed
-	* new info: 
-		* Shots Fired
-		* Shots Hit
-		
+	
