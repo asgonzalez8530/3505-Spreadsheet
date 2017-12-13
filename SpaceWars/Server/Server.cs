@@ -25,6 +25,14 @@ namespace SpaceWarsServer
 
         private HashSet<PlayerStats> stats;
 
+        /// <summary>
+        /// Reports if at least one player has joined the game
+        /// </summary>
+        private bool FirstPlayerHasJoined { get; set; }
+
+        // used to calculate duration of the game
+        private DateTime startTime;
+
         // All frame counter code has been commented out in case it would be needed late
         //private int frameCounter; // a counter to calculate frame rate
 
@@ -46,6 +54,9 @@ namespace SpaceWarsServer
 
             // stats needed to keep database updated with high scores
             stats = new HashSet<PlayerStats>();
+            FirstPlayerHasJoined = false;
+
+            startTime = DateTime.UtcNow;
 
             //frameCounter = 0;
             //System.Timers.Timer frameRateTimer = new System.Timers.Timer();
@@ -104,7 +115,6 @@ namespace SpaceWarsServer
                 return;
             }
 
-
             // the id and world are being changed by callback methods (different threads)
             int playerID = 0;
             lock (world)
@@ -130,6 +140,15 @@ namespace SpaceWarsServer
             // send the startup info to the client (ID and world size)
             string startupInfo = playerID + "\n" + world.GetSize() + "\n";
             Network.Send(state.GetSocket(), startupInfo);
+
+            // set FirstPlayerHasJoined to true if this is the first player and
+            // get the start time
+            if (!FirstPlayerHasJoined)
+            {
+                FirstPlayerHasJoined = true;
+                // set the start time to now (current value will be server start time)
+                startTime = DateTime.UtcNow;
+            }
 
             // handshake is done print line that someone has connected
             Console.Out.WriteLine("A new Client has contacted the Server.");
@@ -218,6 +237,9 @@ namespace SpaceWarsServer
 
         }
 
+        /// <summary>
+        /// Asyn method for cleaning up projectiles and ships including respawn
+        /// </summary>
         private async Task CleanupWorldAsync()
         {
             lock (world)
@@ -442,19 +464,47 @@ namespace SpaceWarsServer
             }
         }
 
+        //TODO: may need to be public
         /// <summary>
         /// Adds all ships represented in the world to set of all PlayerStats
         /// </summary>
         private void AddAllPlayersToStats ()
         {
-            // get all the remaining ships in the world
-            IEnumerable<Ship> remainingShips = world.GetAllShips();
-
-            // add info to playerstats.
-            foreach (Ship ship in remainingShips)
+            lock (world)
             {
-                AddShipToStats(ship);
+                // get all the remaining ships in the world
+                IEnumerable<Ship> remainingShips = world.GetAllShips();
+
+                // add info to playerstats.
+                foreach (Ship ship in remainingShips)
+                {
+                    AddShipToStats(ship);
+                }
             }
+        }
+
+        //TODO: complete method, may need to be public
+        /// <summary>
+        /// If no player has joined the game, closes the server.
+        /// Else gets the duration of the game and the stats of all players then 
+        /// adds them to the database.
+        /// </summary>
+        private void CloseServer()
+        {
+            // if there was nobody in the game, close server
+            if (!FirstPlayerHasJoined)
+            {
+                return;
+            }
+
+            // get the duration of the game
+            TimeSpan duration = DateTime.UtcNow - startTime;
+            
+            // get all the stats
+            AddAllPlayersToStats();
+
+            //TODO: add the stats to database then return
+
         }
 
         /// <summary>
