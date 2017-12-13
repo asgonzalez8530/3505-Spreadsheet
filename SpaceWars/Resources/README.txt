@@ -76,23 +76,40 @@ TODO:
 
 TRACK PLAYER GAME STATS
 * add game duration in Server project
-* Keep track for each player:
-	1) Name
-	2) Score
-	3) Total Shots Fired
-	4) Total Shots Hit
+
+	
 
 * Create method for uploading:
 	1) Name, Score, Accuracy
 	2) Game Duration
+	3) Game Mode
 
-Database Structure
+Database Structure:
 
-+-----------+   +-------------------+
-|  PLAYERS  |	|    Games          |
-+-----------+   +-------------------+
-| id | name |   | gameID | Duration |
-+----+------+	+--------+----------+
+// Relates games to           // relates games to game stats 
+// players
++-------------------+         +-----------------------------+
+|  PlayersInGame    |         |           GameStats         |
++----------+--------+         +--------+----------+---------+
+| playerID | gameID |         | gameID | duration |   mode  |
++----------+--------+	      +--------+----------+---------+
+|   int    |  int   |         |   int  |   time   | varChar |
+|    NN    |  NN    |         |   NN   |    NN    |   NN    |
+|  unique  |        |         | unique |          |         |
++----------+--------+         |   AI   |          |         |
+                     	      +--------+----------+---------+
+
+// relates players to player stats
++------------------------------------------+
+|               PlayerStats                |
++----------+------------+-------+----------+
+| playerID | playerName | score | accuracy |
++----------+------------+-------+----------+
+|   int    |  varChar   |  int  |   float  |
+|    NN    |    NN      |  NN   |    NN    |
+|  unique  |            |       |          |
+|    AI    |            |       |          |
++----------+------------+-------+----------+
 
 
 * going to:

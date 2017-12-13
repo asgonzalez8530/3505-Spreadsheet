@@ -525,6 +525,12 @@ namespace SpaceWarsServer
             AddAllPlayersToStats();
 
             //TODO: add the stats to database then return
+            foreach (PlayerStats stat in stats)
+            {
+                AddStatToDataBase(stat);
+            }
+
+           
 
         }
 
