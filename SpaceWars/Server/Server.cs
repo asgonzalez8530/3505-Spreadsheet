@@ -483,7 +483,8 @@ namespace SpaceWarsServer
             }
         }
 
-        //TODO: complete method, may need to be public
+        //TODO: complete method, may need to be public and may want to store game type
+        // in server
         /// <summary>
         /// If no player has joined the game, closes the server.
         /// Else gets the duration of the game and the stats of all players then 
