@@ -442,4 +442,71 @@ namespace SpaceWarsServer
             }
         }
     }
+
+    /// <summary>
+    /// PlayerStats class represents an individual Player's stats  in a SpaceWars
+    /// game and contains all data needed to save a players stats in a database. 
+    /// PlayerStats is an immutable class.
+    /// </summary>
+    public class PlayerStats
+    {
+        /// <summary>
+        /// The name which identifies these states
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// The score of this player
+        /// </summary>
+        public int Score { get; private set; }
+
+        /// <summary>
+        /// The accuracy of this player
+        /// </summary>
+        public double Accuracy { get; private set; }
+
+        /// <summary>
+        /// Creates a PlayerStats object with the given playerName, highScore and shotAccuracy
+        /// as its data. If the playerName parameter begins with "King ", will create a PlayerStats
+        /// object which does not contain this string.
+        /// </summary>
+        public PlayerStats(string playerName, int highScore, double shotAccuracy)
+        {
+            Name = GetPlayerName(playerName);
+            Score = highScore;
+            Accuracy = shotAccuracy;
+        }
+
+        /// <summary>
+        /// Takes in a string representing the player name, checks if it is the 
+        /// king. If it is the king returns the name minus "King ", else returns
+        /// name.
+        /// </summary>
+        private string GetPlayerName(string name)
+        {
+            // check if name begins with "King " or any case variation of this 
+            // string
+            if (name.ToLower().StartsWith("king "))
+            {
+                // return substring excluding "King "
+                return name.Substring(5);
+            }
+
+            // player was not the king, return name.
+            return name;
+        }
+
+        /// <summary>
+        /// Returns true if this objects, Name, Score and Accuracy fields are the same
+        /// values as obj's Name, Score and Accuracy fields.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            // cast obj as PlayerStats object
+            PlayerStats stat = obj as PlayerStats;
+            // check is not null and all parameters match
+            return stat != null && stat.Name == Name && stat.Score == Score && stat.Accuracy == Accuracy;
+        }
+
+    }
 }

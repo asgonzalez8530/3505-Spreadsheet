@@ -70,3 +70,35 @@ controller when possible.
 How to Run: Press the play button (make sure that the server solution is set as the StartUp project). Once the server is
 ready, wait for a client to connect. 
 
+SpaceWars Server - PS9
+
+TODO: 
+
+TRACK PLAYER GAME STATS
+* add game duration in Server project
+* Keep track for each player:
+	1) Name
+	2) Score
+	3) Total Shots Fired
+	4) Total Shots Hit
+
+* Create method for uploading:
+	1) Name, Score, Accuracy
+	2) Game Duration
+
+Database Structure
+
++-----------+   +-------------------+
+|  PLAYERS  |	|    Games          |
++-----------+   +-------------------+
+| id | name |   | gameID | Duration |
++----+------+	+--------+----------+
+
+
+* going to:
+	* keep a list of Player information, set when a player exits the game or
+	  the game is closed
+	* new info: 
+		* Shots Fired
+		* Shots Hit
+		

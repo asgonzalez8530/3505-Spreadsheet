@@ -55,6 +55,9 @@ namespace SpaceWars
 
         private int height = 100; // image height in pixel
 
+        
+
+
         /// <summary>
         /// Default construtor, needed to deserialize a ship from Json
         /// initializes a Ship object with no parameters set.
@@ -87,6 +90,10 @@ namespace SpaceWars
             fireTimer = fireDelay;
             fireLimit = fireDelay;
             fireRequest = false;
+
+            // new information needed keep player stats in db
+            ShotsFired = 0;
+            ShotsHit = 0; 
         }
 
         public bool TurnRight { get; set; }
@@ -97,6 +104,37 @@ namespace SpaceWars
         /// </summary>
         public bool FireProjectile { get  => fireRequest; set { fireRequest = FireRequest(value);} }
         public bool Thrust { get => thrust; set => thrust = value; }
+
+        // new information needed keep player stats in db
+        
+        /// <summary>
+        /// The total number of shots fired by this ship
+        /// during a game
+        /// </summary>
+        public int ShotsFired { get; set; }
+
+        /// <summary>
+        /// The total number of shots fired by this ship which have hit another
+        /// ship
+        /// </summary>
+        public int ShotsHit { get; set; }
+
+        /// <summary>
+        /// Returns a double representing the shot accuracy of this ship
+        /// </summary>
+        public double GetAccuracy()
+        {
+            // if no shots have been fired, do not divide by zer0
+            if (ShotsFired == 0)
+            {
+                return 0.0;
+            }
+
+            // do this nonsense so the double we save in database doesn't have extra numbers
+            // (same method from spreadsheet project)
+            double accuracy = Double.Parse((ShotsHit / ShotsFired).ToString());
+            return accuracy;
+        }
 
         /// <summary>
         /// If the request passed in is true then it returns true only if fireDelay has elapsed.
