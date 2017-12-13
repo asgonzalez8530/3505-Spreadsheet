@@ -72,18 +72,7 @@ ready, wait for a client to connect.
 
 SpaceWars Server - PS9
 
-TODO: 
-
-TRACK PLAYER GAME STATS
-
-* Create method for uploading:
-	1) Name, Score, Accuracy
-	2) Game Duration
-	3) Game Mode
-
-going to:
-	keep a list of Player information, set when a player exits the game or
-	the game is closed
+Part 1 TODO: NOTHING
 
 Database Structure:
 
@@ -113,6 +102,13 @@ Database Structure:
 +----------+------------+-------+----------+
 
 
+TODO Part2:
+
+* Rework web server from class to serve up webpage
+	1) Put in different project
+* Lookup info from DB method
+* Serve up some html file + info from db
+	1) Create file in resources project
 
 
 	
