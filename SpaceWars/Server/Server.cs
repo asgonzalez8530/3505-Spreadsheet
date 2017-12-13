@@ -508,5 +508,18 @@ namespace SpaceWarsServer
             return stat != null && stat.Name == Name && stat.Score == Score && stat.Accuracy == Accuracy;
         }
 
+        /// <summary>
+        /// Returns the hash code for this PlayerStat object. 
+        /// 
+        /// If one player stat is equal to another player stat if 
+        /// their fields are the same, then the two hash codes 
+        /// should be the same.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            string statString = Name + Score.ToString() + Accuracy.ToString();
+            return statString.GetHashCode();
+        }
+
     }
 }
