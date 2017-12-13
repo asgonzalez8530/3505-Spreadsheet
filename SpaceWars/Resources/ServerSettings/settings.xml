@@ -4,7 +4,7 @@
   <FramesPerShot>6</FramesPerShot>
   <RespawnRate>300</RespawnRate> 
   <!-- Uncomment below for King of the hill! -->
-  <KingOfTheHill>true</KingOfTheHill>
+  <!--<KingOfTheHill>true</KingOfTheHill> -->
  
 
   <Star>

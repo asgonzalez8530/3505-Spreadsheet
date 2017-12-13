@@ -132,7 +132,7 @@ namespace SpaceWars
 
             // do this nonsense so the double we save in database doesn't have extra numbers
             // (same method from spreadsheet project)
-            double accuracy = Double.Parse((ShotsHit / ShotsFired).ToString());
+            double accuracy = Double.Parse(((double)ShotsHit / ShotsFired).ToString());
             return accuracy;
         }
 
