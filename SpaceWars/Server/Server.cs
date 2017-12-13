@@ -778,10 +778,41 @@ namespace SpaceWarsServer
             // we have successful opened a server... wait for first client
             Console.WriteLine("Server is up. Awaiting first client.");
 
-            while (true)
+            // run our server loop on its own thread so we can get console input
+            Thread busyLoop = new Thread(() =>
             {
-                s.UpdateWorld();
+                while (true)
+                {
+                    s.UpdateWorld();
+                }
+            });
+
+            busyLoop.Start();
+
+            Console.WriteLine("Type 'stop' to close server");
+
+            string closeCommand = "";
+            while (closeCommand != "stop")
+            {
+                closeCommand = Console.In.ReadLine();
+                closeCommand = closeCommand.ToLower();
             }
+
+
+
+            // end our infinite loop
+            try
+            {
+                busyLoop.Abort();
+            }
+            catch (ThreadAbortException)
+            {
+                // need to catch the exception
+            }
+
+            s.CloseServer();
+
+
         }
     }
 
