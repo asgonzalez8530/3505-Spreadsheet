@@ -483,6 +483,26 @@ namespace SpaceWarsServer
             }
         }
 
+        /// <summary>
+        /// Takes a PlayerStats object, serializes it as an SQL add command,
+        /// then adds it to the SQL database.
+        /// </summary>
+        private void AddStatToDataBase(PlayerStats stat)
+        {
+            //TODO: implement as described above.
+        }
+
+        /// <summary>
+        /// convenient helper method that takes a PlayersStat object and 
+        /// serializes it as an SQL command, then returns that command as a 
+        /// string.
+        /// </summary>
+        private string SerializeStatAsSQLCommand()
+        {
+            //TODO: implement as described above.
+            return "";
+        }
+
         //TODO: complete method, may need to be public and may want to store game type
         // in server
         /// <summary>
