@@ -314,7 +314,7 @@ namespace Communication
         /// Takes in a Socket socket, and a String, data and sends the data on that socket.
         /// </summary>
         public static void Send(Socket socket, String data)
-        {            
+        {
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             try
             {
@@ -325,10 +325,10 @@ namespace Communication
                 socket.Close();
             }
             catch (ObjectDisposedException)
-            { 
+            {
                 // object is already disposed don't need to close anything
             }
-            
+
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace Communication
                     ipHostInfo = Dns.GetHostEntry(hostName);
                     bool foundIPV4 = false;
                     foreach (IPAddress addr in ipHostInfo.AddressList)
-                        if (addr.AddressFamily != AddressFamily.InterNetworkV6) 
+                        if (addr.AddressFamily != AddressFamily.InterNetworkV6)
                         {
                             foundIPV4 = true;
                             ipAddress = addr;
@@ -404,7 +404,7 @@ namespace Communication
 
                 // Disable Nagle's algorithm - can speed things up for tiny messages, such as for a game
                 socket.NoDelay = true;
-                
+
             }
             catch (Exception e)
             {
@@ -519,12 +519,11 @@ namespace Communication
         {
             Socket s = (Socket)ar.AsyncState;
             // using notation to ensure socket gets disposed
-            using (s)
-            {
-                // end the feedback loop for the current socket. 
-                s.EndSend(ar);
-                s.Close();
-            }
+
+            // end the feedback loop for the current socket. 
+            s.EndSend(ar);
+            s.Close();
+
         }
 
         #endregion

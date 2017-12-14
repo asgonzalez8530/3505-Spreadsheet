@@ -1,6 +1,6 @@
 ﻿Name: Anastasia Gonzalez and Aaron Bellis
 UID: u0985898 & u0981638
-Last Update: 12/10/17
+Last Update: 12/13/17
 
 SpaceWars Client - PS7 
 Created for CS 3500 2017 Fall Semester
@@ -72,7 +72,14 @@ ready, wait for a client to connect.
 
 SpaceWars Server - PS9
 
-Part 1 TODO: NOTHING
+For the implementation of the web server, we made a new project that dealt only with the web browser portion of the code. 
+Once a connection is made we read the first line of text and decide which table to present to the user. If the connection 
+is fault or the information passed in is incorrect then we report back a web page that has information on the problems that occurred. 
+The hardest part that we were unable to get working was getting the first line of text to read properly. 
+
+Part 1 Complete
+
+Part 2 Basic stats showing, everything else not showing
 
 Database Structure:
 
@@ -102,13 +109,7 @@ Database Structure:
 +----------+------------+-------+----------+
 
 
-TODO Part2:
 
-* Rework web server from class to serve up webpage
-	1) Put in different project
-* Lookup info from DB method
-* Serve up some html file + info from db
-	1) Create file in resources project
 
 
 	
