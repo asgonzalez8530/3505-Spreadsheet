@@ -141,8 +141,10 @@ namespace SpaceWarsServer
                     using (MySqlCommand command = conn.CreateCommand())
                     {
                         // This will be the command that we will execute
-                        string commandString = "select playerName, score, accuracy from PlayersInGame" +
-                                                "natural join PlayerStats;";
+                        string commandString =  "select gameID, duration, playerName, score, accuracy from" + 
+                                                "GameStats natural join PlayersInGame" + 
+                                                "join PlayerStats on PlayersInGame.playerID = PlayerStats.playerID" + 
+                                                "order by score desc;";
 
                         // give our comand to the MySqlCommand object
                         command.CommandText = commandString;
@@ -150,17 +152,39 @@ namespace SpaceWarsServer
                         // execute the command
                         command.ExecuteNonQuery();
 
+                        // make a header for the table
+                        html = "<h2>Overall Stats</h2><table>";
+
                         // Execute the command
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
                                 //TODO: make a table in html
-                                string playerName = reader["playerName"].ToString();
-                                string score = reader["score"].ToString();
-                                string accuracy = reader["accuracy"].ToString();
+                                // make a new row
+                                html += "<tr>";
+
+                                // add the game id
+                                html += "<td>" + reader["gameID"].ToString() + "</td>";
+
+                                // add the game duration
+                                html += "<td>" + reader["duration"].ToString() + "</td>";
+
+                                // add the name of the player
+                                html += "<td>" + reader["playerName"].ToString() + "</td>";
+
+                                // add the score
+                                html += "<td>" + reader["score"].ToString() + "</td>";
+
+                                // add the accuracy
+                                html += "<td>" + reader["accuracy"].ToString() + "</td>";
+
+                                // end the row
+                                html += "</tr>";
                             }
                         }
+
+                        html += "<table border = 1>";
                     }
 
                     // close our connection
@@ -190,8 +214,8 @@ namespace SpaceWarsServer
                     using (MySqlCommand command = conn.CreateCommand())
                     {
                         // This will be the command that we will execute
-                        string commandString = "select playerName, score, accuracy from PlayersInGame" +
-                                                "natural join PlayerStats where gameID=" + playerName + ";";
+                        string commandString =  "select gameID, score, accuracy from PlayersInGame natural join" +
+                                                "PlayerStats where playerName=" + playerName + ";";
 
                         // give our comand to the MySqlCommand object
                         command.CommandText = commandString;
@@ -199,17 +223,33 @@ namespace SpaceWarsServer
                         // execute the command
                         command.ExecuteNonQuery();
 
+                        // make a header for the table
+                        html = "<h2>" + playerName + "'s Stats</h2><table>";
+
                         // Execute the command
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
                                 //TODO: make a table in html
-                                //string playerName = reader["playerName"].ToString();
-                                string score = reader["score"].ToString();
-                                string accuracy = reader["accuracy"].ToString();
+                                // make a new row
+                                html += "<tr>";
+
+                                // add the game id
+                                html += "<td>" + reader["gameID"].ToString() +"</td>";
+
+                                // add the score
+                                html += "<td>" + reader["score"].ToString() + "</td>";
+
+                                // add the accuracy
+                                html += "<td>" + reader["accuracy"].ToString() + "</td>";
+
+                                // end the row
+                                html += "</tr>";
                             }
                         }
+
+                        html += "<table border = 1>";
                     }
 
                     // close our connection
@@ -252,17 +292,33 @@ namespace SpaceWarsServer
                         // execute the command
                         command.ExecuteNonQuery();
 
+                        // make a header for the table
+                        html = "<h2>Game " + gameID + " Stats</h2><table>";
+
                         // Execute the command
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
                                 //TODO: make a table in html
-                                string playerName = reader["playerName"].ToString();
-                                string score = reader["score"].ToString();
-                                string accuracy = reader["accuracy"].ToString();
+                                // make a new row
+                                html += "<tr>";
+
+                                // add the game id
+                                html += "<td>" + reader["playerName"].ToString() + "</td>";
+
+                                // add the score
+                                html += "<td>" + reader["score"].ToString() + "</td>";
+
+                                // add the accuracy
+                                html += "<td>" + reader["accuracy"].ToString() + "</td>";
+
+                                // end the row
+                                html += "</tr>";
                             }
                         }
+
+                        html += "<table border = 1>";
                     }
 
                     // close our connection
