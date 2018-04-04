@@ -76,14 +76,16 @@ int main(int argc, char *argv[])
 	    // if s1 > 0 someone is trying to connect, start a new thread
 	    if (s1 > 0) 
 	    {
-               {
-	        void* conn_fd = (void*)s1;
-		pthread_t new_connection_thread;
-		pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
-		// TODO how to clean up threads
-		pthread_detach(new_connection_thread);
-               }
-	    } 
+		  // Create new client thread in scope
+          {
+			int sock = s1;
+	        void * conn_fd = &sock;
+		    pthread_t new_connection_thread;
+		    pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+		    // Clean up thread resources as they finish
+		    pthread_detach(new_connection_thread);
+          }
+	    }
 	 
 	    // A connection is accepted. The new socket "s1" is created
 	    // for data input/output. The peeraddr structure is filled in with
@@ -93,7 +95,7 @@ int main(int argc, char *argv[])
 		      << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 16) & 0xff ) << "."
 		      << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 8) & 0xff )  << "."
 		      <<   ( ntohl(peeraddr.sin_addr.s_addr) & 0xff ) << ", port "   // Low byte of addr
-		      << ntohs(peeraddr.sin_port);
+		      << ntohs(peeraddr.sin_port) << std::endl;
 	}
 
 	//res = close(s0);    // Close the listen socket 
@@ -108,51 +110,31 @@ int main(int argc, char *argv[])
 */
 void* client_loop(void* conn_fd)
 {
-    int socket = (long)conn_fd; // cast from void* to long? XD
+    int socket = *((int*)conn_fd);
+    //int socket = (long)conn_fd; // cast from void* to long? XD
     write(socket, "Hello!\r\n", 8);
     char buffer[1024];
     int res = 0;
-    //int buffer_indx;
 
 
     while(1)
 	{
 
 	    res = read(socket, buffer, 1023);
-//	    buffer_indx = 0;
 
 	    if (res < 0) {
 		std::cerr << "Error: " << strerror(errno) << std::endl;
 		exit(1);
 	    }
 
-	    // put null terminator in buffer
+	    // Insert null terminator in buffer
 	    buffer[res] = 0;
 
 	    // Print number of received bytes AND the contents of the buffer
 	    std::cout << "Received " << res << " bytes:\n" << buffer;
-	    //return conn_fd;
 
-/*
-	    // clear out the buffer
-	    while(buffer[buffer_indx] != 0) 
-		{
-		    buffer[buffer_indx] = 0;
-		    buffer_indx++;
-		}
-*/
 	}
     
     close(socket); 
  
-} 
- 
-static void usage() {
-    std::cout << "A simple Internet server application.\n"
-              << "It listens to the port written in command line (default 1234),\n"
-              << "accepts a connection, and sends the \"Hello!\" message to a client.\n"
-              << "Then it receives the answer from a client and terminates.\n\n"
-              << "Usage:\n"
-              << "     server [port_to_listen]\n"
-              << "Default is the port 1234.\n";
 }
