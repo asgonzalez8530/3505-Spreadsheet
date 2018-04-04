@@ -1,6 +1,0 @@
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\bin\Debug\HelloWorld.exe.config
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\bin\Debug\HelloWorld.exe
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\bin\Debug\HelloWorld.pdb
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\obj\Debug\HelloWorld.csproj.CoreCompileInputs.cache
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\obj\Debug\HelloWorld.exe
-C:\Users\Aaron\OneDrive\projects\cs3500_F17\Repos\UIDrepo\Lab1\HelloWorld\obj\Debug\HelloWorld.pdb
