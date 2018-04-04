@@ -7,18 +7,18 @@
 #include <netinet/in.h>
  
 static void usage();
+void* client_loop(void* conn_fd);
  
 int main(int argc, char *argv[])
 {
+
     if (argc > 1 && *(argv[1]) == '-')
     {
         usage(); exit(1);
     }
  
     int listenPort = 2112;
-    if (argc > 1)
-        listenPort = atoi(argv[1]);
- 
+
     // Create a socket
     int s0 = socket(AF_INET, SOCK_STREAM, 0);
     if (s0 < 0)
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
  
+    // TODO don't need linger - take it out :D
     // Set the "LINGER" timeout to zero, to close the listen socket
     // immediately at program termination.
     struct linger linger_opt = { 1, 0 }; // Linger active, timeout 0
@@ -49,49 +50,102 @@ int main(int argc, char *argv[])
  
     // Now, listen for a connection
     res = listen(s0, 1);    // "1" is the maximal length of the queue
-    if (res < 0)
-    {
-        std::cerr << "Error: " << strerror(errno) << std::endl;
-        exit(1);
-    }
- 
-    // Accept a connection (the "accept" command waits for a connection with
-    // no timeout limit...)
-    struct sockaddr_in peeraddr;
-    socklen_t peeraddr_len;
-    int s1 = accept(s0, (struct sockaddr*) &peeraddr, &peeraddr_len);
-    if (s1 < 0)
-    {
-        std::cerr << "Error: " << strerror(errno) << std::endl;
-        exit(1);
-    }
- 
-    // A connection is accepted. The new socket "s1" is created
-    // for data input/output. The peeraddr structure is filled in with
-    // the address of connected entity, print it.
-    std::cout << "Connection from IP "
-              << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 24) & 0xff ) << "."  // High byte of address
-              << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 16) & 0xff ) << "."
-              << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 8) & 0xff )  << "."
-              <<   ( ntohl(peeraddr.sin_addr.s_addr) & 0xff ) << ", port "   // Low byte of addr
-              << ntohs(peeraddr.sin_port);
- 
-    res = close(s0);    // Close the listen socket
- 
-    write(s1, "Hello!\r\n", 8);
- 
-    char buffer[1024];
-    res = read(s1, buffer, 1023);
-    if (res < 0) {
-        std::cerr << "Error: " << strerror(errno) << std::endl;
-        exit(1);
-    }
-    buffer[res] = 0;
-    std::cout << "Received " << res << " bytes:\n" << buffer;
- 
-    close(s1); 
-    return 0;
+
+
+    while(1) 
+	{
+	    int s1 = 0;
+	    if (res < 0)
+	    {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		exit(1);
+	    }
+	 
+	    // Accept a connection (the "accept" command waits for a connection with
+	    // no timeout limit...)
+	    struct sockaddr_in peeraddr;
+	    socklen_t peeraddr_len;
+	    s1 = accept(s0, (struct sockaddr*) &peeraddr, &peeraddr_len);
+
+	    if (s1 < 0)
+	    {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		exit(1);
+	    }
+
+	    // if s1 > 0 someone is trying to connect, start a new thread
+	    if (s1 > 0) 
+	    {
+               {
+	        void* conn_fd = (void*)s1;
+		pthread_t new_connection_thread;
+		pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+		// TODO how to clean up threads
+		pthread_detach(new_connection_thread);
+               }
+	    } 
+	 
+	    // A connection is accepted. The new socket "s1" is created
+	    // for data input/output. The peeraddr structure is filled in with
+	    // the address of connected entity, print it.
+	    std::cout << "Connection from IP "
+		      << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 24) & 0xff ) << "."  // High byte of address
+		      << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 16) & 0xff ) << "."
+		      << ( ( ntohl(peeraddr.sin_addr.s_addr) >> 8) & 0xff )  << "."
+		      <<   ( ntohl(peeraddr.sin_addr.s_addr) & 0xff ) << ", port "   // Low byte of addr
+		      << ntohs(peeraddr.sin_port);
+	}
+
+	//res = close(s0);    // Close the listen socket 
+
+	//return 0;
 }
+
+
+/*
+*  Takes a connection file descriptor, aka our client's socket.
+*  Basic loop to print client chat messages.
+*/
+void* client_loop(void* conn_fd)
+{
+    int socket = (long)conn_fd; // cast from void* to long? XD
+    write(socket, "Hello!\r\n", 8);
+    char buffer[1024];
+    int res = 0;
+    //int buffer_indx;
+
+
+    while(1)
+	{
+
+	    res = read(socket, buffer, 1023);
+//	    buffer_indx = 0;
+
+	    if (res < 0) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		exit(1);
+	    }
+
+	    // put null terminator in buffer
+	    buffer[res] = 0;
+
+	    // Print number of received bytes AND the contents of the buffer
+	    std::cout << "Received " << res << " bytes:\n" << buffer;
+	    //return conn_fd;
+
+/*
+	    // clear out the buffer
+	    while(buffer[buffer_indx] != 0) 
+		{
+		    buffer[buffer_indx] = 0;
+		    buffer_indx++;
+		}
+*/
+	}
+    
+    close(socket); 
+ 
+} 
  
 static void usage() {
     std::cout << "A simple Internet server application.\n"
