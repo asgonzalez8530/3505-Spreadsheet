@@ -21,6 +21,7 @@ namespace cs3505
         // data structure to store the clients that are no longer connected (not_connected)
         // data structure (queue?) to store the incoming messages (incoming_messages)
         // boolean that tells you if the server was asked to terminate (terminate)
+        bool terminate;
 
         public:
             // constructor
@@ -36,6 +37,7 @@ namespace cs3505
             void verify_connections();
             bool process_message();
             void check_for_shutdown();
+            void shutdown();
             std::string parse_message(std::string message);
 
 

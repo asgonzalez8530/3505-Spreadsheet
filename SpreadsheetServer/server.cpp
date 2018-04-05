@@ -11,6 +11,7 @@
 
 #include "server.h"
 #include <string>
+#include <iostream>
 
 namespace cs3505
 {
@@ -19,6 +20,9 @@ namespace cs3505
     // constructor
     server::server()
     {
+        // this boolean will tell us when we want to shut down the server
+        terminate = false;
+
         // may not want this here unless we make a server object on a seperate thread
         // most likely will want to just call the master server loop on a seperate thread 
         // rather than initializing it when the server object is made
@@ -28,6 +32,8 @@ namespace cs3505
 
         // new thread were we start listening for multiple clients
 
+        // server shutdown listener
+
     }
 
     server::master_server_loop()
@@ -36,12 +42,11 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool sleeping = false;
 
-        while (!sleeping)
+        while (!terminate && !sleeping)
         {
             check_for_new_clients();
             verify_connections();
             sleeping = process_message();
-            check_for_shutdown();
             
             // if no new message then we sleep for 10ms
             if (sleeping)
@@ -50,6 +55,8 @@ namespace cs3505
                 sleeping = false;
             }
         }
+
+        shutdown();
     }
 
     //**** private & helper methods ****//
@@ -124,28 +131,42 @@ namespace cs3505
     }
 
     /**
+     * waits and listens for the "quit" keyword to tell the server to terminate the program
+     */
+    void server::check_for_shutdown()
+    {
+        while (true)
+        {
+            std::string input = "";
+            std::getline(std::cin, input);
+
+            if (input.equals("quit"))
+            {
+                // lock terminate
+
+                // flip the boolean flag terminate to tell the program to terminate
+                terminate = true;
+            }
+        }
+    }
+
+    /**
      * checks if the server was asked to shut down.
      * if the boolean terminate is true then we shut down then we clean up the spreadsheet messages (stop receiving messages). 
      * We propogate the appropriate messages. We then proceed to disconnect all the clients, save the spreadsheet, and close 
      * our program in a clean manner.
      */
-    void server::check_for_shutdown()
+    void server::shutdown()
     {
-        //TODO: remove this declaration for terminate
-        // terminate should be a global variable that is used as a flag 
-        bool terminate = false;
-        if (terminate)
-        {
-            // stop receiving messages and propogate appropriate changes
-            // (i.e. call the process message method to process all previous messages)
+        // stop receiving messages and propogate appropriate changes
+        // (i.e. call the process message method to process all previous messages)
 
-            // disconnect all clients
+        // disconnect all clients
 
-            // save the spreadsheet
+        // save the spreadsheet
 
-            // close our out of this program in a clean way
+        // close our out of this program in a clean way
 
-        }
     }
 
     /**
