@@ -48,7 +48,8 @@ namespace SpreadsheetGUI
 
             window.SaveFileAction += Save;
             window.OpenFileAction += Open;
-            window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            //TODO: we do probably want to have a Closing action, just not this one!
+            //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
 

@@ -20,15 +20,6 @@ namespace SpreadsheetGUI
         public event Action AboutText;
         public event Action HowToUseText;
 
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e) { }
-
-        private void Form1_Load(object sender, EventArgs e) { }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
-
-        private void label1_Click(object sender, EventArgs e) { }
-
         /// <summary>
         /// Gets the spreadsheet panel component in this window
         /// </summary>
