@@ -1,9 +1,11 @@
 
 #include <iostream>
+#include "server.h"
 
 int main(){
 
-	std::cout << "Hello World!!" << std::endl;
+	Server serv();
+	beginListeningLoop();
 
 	return 1;
 }
