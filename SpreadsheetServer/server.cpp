@@ -34,6 +34,8 @@ namespace cs3505
 
         // server shutdown listener
 
+        // initailize interface
+
     }
 
     server::master_server_loop()
@@ -182,6 +184,8 @@ namespace cs3505
         std::string response = NULL;
 
         // TODO: parse message here
+        // register message will add the client to the new clients list
+
 
         return response;
     }
