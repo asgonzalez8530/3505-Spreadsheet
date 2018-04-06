@@ -12,16 +12,15 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <string>
+
 namespace cs3505
 {
     class server
     {
-        // private variables (still need getters and setters for all)
-        // data structure to store the new client sockets (new_clients)
-        // data structure to store the clients that are no longer connected (not_connected)
-        // data structure (queue?) to store the incoming messages (incoming_messages)
-        // boolean that tells you if the server was asked to terminate (terminate)
-        bool terminate;
+        private:
+            // private variables
+            bool terminate;
 
         public:
             // constructor
@@ -42,9 +41,6 @@ namespace cs3505
 
 
     };
-}
-
+} // end of class
 
 #endif
-
-// end of class

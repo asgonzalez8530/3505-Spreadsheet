@@ -7,9 +7,11 @@
  *
  * Pineapple upside down cake
  * v1: April 4, 2018
+ * v2: April 5, 2018
  */
 
 #include "server.h"
+#include "interface.h"
 #include <string>
 #include <iostream>
 
@@ -190,4 +192,4 @@ namespace cs3505
         return response;
     }
 
-}
+} // end of class
