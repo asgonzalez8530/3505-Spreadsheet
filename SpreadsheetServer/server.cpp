@@ -12,13 +12,20 @@
 
 #include "server.h"
 #include "interface.h"
-#include <string>
+#include <string.h>
 #include <iostream>
+#include <errno.h> // includes for networking
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+void* client_loop(void * connection_file_descriptor);
+
+
 
 namespace cs3505
 {
-    // int main(){return 0;}
-
     //**** public methods ****//
 
     // constructor
@@ -27,17 +34,7 @@ namespace cs3505
         // this boolean will tell us when we want to shut down the server
         terminate = false;
 
-        // may not want this here unless we make a server object on a seperate thread
-        // most likely will want to just call the master server loop on a seperate thread 
-        // rather than initializing it when the server object is made
-        // server::master_server_loop();
-
-        // new thread were we start the ping loop
-
-        // new thread were we start listening for multiple clients
-
-        // server shutdown listener
-
+	// TODO moved stubs relating to starting new threads to master_server_loop()
     }
 
     void server::master_server_loop()
@@ -46,6 +43,14 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool sleeping = false;
 
+
+        // new thread were we start the ping loop
+
+        // new thread were we start listening for multiple clients
+
+        // server shutdown listener
+
+	// run the main server loop
         while (!terminate && !sleeping)
         {
             check_for_new_clients();
@@ -64,6 +69,94 @@ namespace cs3505
     }
 
     //**** private & helper methods ****//
+
+    /**
+     *
+     */
+    void* client_loop(void * connection_file_descriptor)
+    {
+	//return connection_file_descriptor;
+    }
+
+    /**
+     * This is a loop that listens for new TCP connections and processes those new
+     * connections by connecting and initiating the Protocol Handshake.
+     */
+    void server::server_awaiting_client_loop()
+    {
+	// the default port we'll listen on
+	int listenPort = 2112;
+
+	// Create a socket
+        int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+	// if the socket value is negative, there was an error
+        if (serverSocket < 0)
+        {
+            std::cerr << "Error: " << strerror(errno) << std::endl;
+            exit(1);
+        }
+
+	// Fill in the address structure
+	struct sockaddr_in myaddr;
+	memset(&myaddr, 0, sizeof(struct sockaddr_in)); //allocate the memory
+	myaddr.sin_family = AF_INET; // using IPv4
+	myaddr.sin_port = htons(listenPort);        // Port to listen
+	myaddr.sin_addr.s_addr = htonl(INADDR_ANY); // ?
+
+	// Bind a socket to the address
+	int bindResult = bind(serverSocket, (struct sockaddr*) &myaddr, sizeof(myaddr));
+	
+	// if the bind result value is negative, there was an error
+	if (bindResult < 0)
+	{
+	    std::cerr << "Error: " << strerror(errno) << std::endl;
+	    exit(1);
+	}
+
+	// Now, listen for a connection (reusing "bindResult" - consider renaming?)
+	bindResult = listen(serverSocket, 1);    // "1" is the maximal length of the queue
+
+	// if the listen result value is negative, there was an error
+	if (bindResult < 0)
+	{
+	    std::cerr << "Error: " << strerror(errno) << std::endl;
+	    exit(1);
+	}
+
+	while(true)
+	{
+	    int newClient = 0;
+    	    
+	    // Accept a connection (the "accept" command waits for a connection with
+	    // no timeout limit...)
+	    struct sockaddr_in peeraddr;
+	    socklen_t peeraddr_len;
+	    newClient = accept(serverSocket, (struct sockaddr*) &peeraddr, &peeraddr_len);
+
+	    // if the accept result value is negative, there was an error
+	    if (newClient < 0)
+	    {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		exit(1);
+	    }
+
+	    // if the accept result value is positive, we have a new client!
+	    if (newClient > 0)
+	    {
+		int sock = newClient; // copy the new client
+	        void* conn_fd = &sock; // store as a void * so it can be passed to client_loop
+		pthread_t new_connection_thread;
+		pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+		
+		// Clean up thread resources as they finish
+		pthread_detach(new_connection_thread);
+	    }	    
+	}
+    }
+
+
+
     
     /**
      * checks if the client list has a new client.
