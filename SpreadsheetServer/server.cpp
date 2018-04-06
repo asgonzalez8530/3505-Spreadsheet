@@ -36,8 +36,8 @@ namespace cs3505
 
         // server shutdown listener
 
-        // initailize interface
-
+        // initailize interface that contains all the data structures and logic for the server
+        data;
     }
 
     server::master_server_loop()
@@ -74,16 +74,9 @@ namespace cs3505
     void server::check_for_new_clients()
     {
         // there are new clients 
-        if (new_clients.size() != 0)
+        if (!data.new_clients_isempty())
         {
-            // lock the new_clients list 
-
-            // for each socket in the list
-            
-            // make a new connection
-
-            // make new thread?
-            // finish TCP and spreadsheet handshake
+            data.new_clients_finish_handshake();
         } 
     }
 
@@ -95,11 +88,9 @@ namespace cs3505
     void server::verify_connections()
     {
         // clients have disconnected from the server
-        if (not_connected.size() != 0)
+        if (!data.disconnect_isempty())
         {
-            // lock the not connected list
-
-            // for each client not connected remove them from being connected to the server and spreadsheet
+            data.disconnect_clients();
         }
     }
 
@@ -118,7 +109,7 @@ namespace cs3505
         if (!incoming_messages.empty())
         {
             // pop the message off the stack
-            std::string message = incoming_message.get();
+            std::string message = data.get_message();
 
             // parse the message
             std::string response = parse_message(message);  

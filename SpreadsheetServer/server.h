@@ -21,6 +21,7 @@ namespace cs3505
         private:
             // private variables
             bool terminate;
+            interface data;
 
         public:
             // constructor
