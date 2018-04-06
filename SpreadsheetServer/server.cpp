@@ -17,6 +17,8 @@
 
 namespace cs3505
 {
+    int main(){return 0;}
+
     //**** public methods ****//
 
     // constructor
@@ -36,11 +38,9 @@ namespace cs3505
 
         // server shutdown listener
 
-        // initailize interface that contains all the data structures and logic for the server
-        data;
     }
 
-    server::master_server_loop()
+    void server::master_server_loop()
     {   
         // this boolean will determine whether or not the loop will run immediatily 
         // after execution or it will sleep 10 ms before running again
@@ -106,7 +106,7 @@ namespace cs3505
     {
         // incoming messages will most likely be an object of interface so we will be using the getter here
         // there are messages to process
-        if (!incoming_messages.empty())
+        if (!data.messages_isempty())
         {
             // pop the message off the stack
             std::string message = data.get_message();
@@ -114,7 +114,7 @@ namespace cs3505
             // parse the message
             std::string response = parse_message(message);  
 
-            if (response != NULL)
+            if (!response.empty())
             {
                 // propogate the message on new thread 
             }
@@ -135,7 +135,7 @@ namespace cs3505
             std::string input = "";
             std::getline(std::cin, input);
 
-            if (input.equals("quit"))
+            if (input.compare("quit") == 0)
             {
                 // lock terminate
 
@@ -173,8 +173,8 @@ namespace cs3505
      */
     std::string server::parse_message(std::string message)
     {
-        // response message that the server will propogate if not null
-        std::string response = NULL;
+        // response message that the server will propogate if not an empty string
+        std::string response = "";
 
         // TODO: parse message here
         // register message will add the client to the new clients list

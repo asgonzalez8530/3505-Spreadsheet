@@ -13,6 +13,7 @@
 #define SERVER_H
 
 #include <string>
+#include "interface.h"
 
 namespace cs3505
 {

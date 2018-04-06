@@ -19,21 +19,7 @@
 
 namespace cs3505
 {
-    interface::interface()
-    {
-        // initialize the data structures
-        // new clients (queue)
-        new_clients;
-
-        // map < spreadsheet, set of clients connected to spreadsheet >
-        map_of_clients;
-
-        // disconnect (set)
-        disconnect;
-
-        // messages (queue)
-        messages;
-    }
+    interface::interface() {}
 
     /**
      * Returns true if there are clients to client. Otherwise returns false. 
@@ -105,13 +91,13 @@ namespace cs3505
      */
     std::string interface::get_message()
     {
-        return messages.pop();
+        return messages.front();
     }
 
     /**
      * Adds the inputted message to the message queue
      */
-    void interface::messages_add(std:string message)
+    void interface::messages_add(std::string message)
     {
         messages.push(message);
     }
