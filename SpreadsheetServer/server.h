@@ -20,8 +20,10 @@ namespace cs3505
     class server
     {
         private:
-            // private variables
+            // track whether the "quit" command has been issued
             bool terminate;
+
+	    // the hub for server-client interactions
             interface data;
 
         public:

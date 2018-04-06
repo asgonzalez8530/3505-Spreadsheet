@@ -19,7 +19,13 @@
 
 namespace cs3505
 {
-    interface::interface() {}
+    interface::interface() 
+    {
+	new_clients = std::queue<int>() ;
+        map_of_clients = std::map<int, int>();
+        disconnect = std::set<int>();
+        messages = std::queue<std::string>();
+    }
 
     /**
      * Returns true if there are clients to client. Otherwise returns false. 

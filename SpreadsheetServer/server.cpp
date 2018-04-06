@@ -17,7 +17,7 @@
 
 namespace cs3505
 {
-    int main(){return 0;}
+    // int main(){return 0;}
 
     //**** public methods ****//
 
@@ -30,7 +30,7 @@ namespace cs3505
         // may not want this here unless we make a server object on a seperate thread
         // most likely will want to just call the master server loop on a seperate thread 
         // rather than initializing it when the server object is made
-        server::master_server_loop();
+        // server::master_server_loop();
 
         // new thread were we start the ping loop
 

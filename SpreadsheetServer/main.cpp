@@ -4,8 +4,9 @@
 
 int main(){
 
-	Server serv();
-	beginListeningLoop();
+	cs3505::server mainServer();
+	//mainServer.master_server_loop();
+	std::cout << "Sweet sweet success." << std::endl;
 
 	return 1;
 }
