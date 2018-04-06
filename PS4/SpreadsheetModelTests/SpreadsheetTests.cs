@@ -1141,12 +1141,14 @@ namespace SpreadsheetModelTests
         /// Check the proper exception is thrown when null formula is passed to method
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException))]
+        //[ExpectedException(typeof(FormulaFormatException))] changed for 3505
         public void SetCellContentsNullFormula()
         {
             Spreadsheet sheet = new Spreadsheet();
             string formula = "=";
             sheet.SetContentsOfCell("A1", formula);
+            Object val = sheet.GetCellValue("A1");
+            Assert.IsTrue(val is FormatError);
         }
 
         /// <summary>

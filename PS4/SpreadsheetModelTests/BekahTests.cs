@@ -67,11 +67,13 @@ namespace SpreadsheetModelTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException))]
+        //[ExpectedException(typeof(FormulaFormatException))] changed for 3505
         public void TestFormulaFormatException()
         {
             Spreadsheet sheet = new Spreadsheet();
             sheet.SetContentsOfCell("g5", "=((42*h4)");
+            Object val = sheet.GetCellValue("g5");
+            Assert.IsTrue(val is FormatError);
         }
 
         [TestMethod]

@@ -859,6 +859,10 @@ namespace SS
                         {
                             return (FormulaError)cellValue;
                         }
+                        else if (cellValue.GetType() == typeof(FormatError))
+                        {
+                            return (FormatError)cellValue;
+                        }
                         else
                         {
                             return (double)cellValue;
