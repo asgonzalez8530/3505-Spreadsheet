@@ -23,6 +23,12 @@
             or digits.)  Their use is described in detail in the constructor and method comments.
             </summary>
         </member>
+        <member name="F:SpreadsheetUtilities.Formula.fe">
+            <summary>
+            If there is a format error, this will contain 
+            the correct string contents, and the reason.
+            </summary>
+        </member>
         <member name="M:SpreadsheetUtilities.Formula.#ctor(System.String)">
             <summary>
             Creates a Formula from a string that consists of an infix expression written as
@@ -273,7 +279,7 @@
             or underscore followed by zero or more letters, underscores,
             or digits or is a valid floating point number.
             </summary>
-            <param name="s"></param>
+            <param name="token"></param>
             <returns></returns>
         </member>
         <member name="T:SpreadsheetUtilities.FormulaFormatException">
@@ -300,6 +306,30 @@
         <member name="P:SpreadsheetUtilities.FormulaError.Reason">
             <summary>
              The reason why this FormulaError was created.
+            </summary>
+        </member>
+        <member name="T:SpreadsheetUtilities.FormatError">
+            <summary>
+            Used as a possible return value of the Formula.Evaluate method.
+            
+            ADDED for CS 3505 (as a substitute for FormulaFormatException)
+            </summary>
+        </member>
+        <member name="M:SpreadsheetUtilities.FormatError.#ctor(System.String,System.String)">
+            <summary>
+            Constructs a FormatError containing the explanatory reason.
+            </summary>
+            <param name="reason"></param>
+            <param name="contents"></param>
+        </member>
+        <member name="P:SpreadsheetUtilities.FormatError.Reason">
+            <summary>
+             The reason why this FormatError was created.
+            </summary>
+        </member>
+        <member name="P:SpreadsheetUtilities.FormatError.Contents">
+            <summary>
+             The contents of this bad Formula.
             </summary>
         </member>
         <member name="M:SpreadsheetUtilities.ExtensionMethods.StartsWithNumber(System.String)">

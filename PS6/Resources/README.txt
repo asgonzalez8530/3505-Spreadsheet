@@ -1,4 +1,10 @@
-﻿Name: Anastasia Gonzalez and Aaron Bellis
+﻿Authors: Rebekah Peterson
+Update: 4/6/2018
+
+Formulas can now evaluate to FormatError, so the Formula.dll and Spreadsheet.dll have been updated.
+/////////////////////////////////////////////////
+
+Name: Anastasia Gonzalez and Aaron Bellis
 UID: u0985898 & u0981638
 Last Update: 10/27/17
 

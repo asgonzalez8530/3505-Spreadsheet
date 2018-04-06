@@ -1,4 +1,10 @@
-﻿Spreadsheet solution implemented by Aaron Bellis U0981638 for CS3500 2017 Fall Semester
+﻿Updated by Rebekah Peterson for CS3505
+Last Updated: 4/6/18
+Uses a new version of Formula (that includes FormatError)
+
+//////////////////////////////////////////////
+
+Spreadsheet solution implemented by Aaron Bellis U0981638 for CS3500 2017 Fall Semester
 10/11/2017
 
 Spreadsheet project is a strait forward implementation of the AbstractSpreadsheet class.

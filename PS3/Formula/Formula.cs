@@ -54,6 +54,12 @@ namespace SpreadsheetUtilities
         // normalized form. 
         private HashSet<string> variables;
 
+        /// <summary>
+        /// If there is a format error, this will contain 
+        /// the correct string contents, and the reason.
+        /// </summary>
+        private FormatError fe = null;
+
 
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -92,16 +98,22 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
-            variables = new HashSet<string>();
-            // clean, validate and normalize tokens. And since we are checking variables, we may as well add them to
-            // the variables set.
-            List<string> validCleanedTokens = CleanAndValidate(GetTokens(formula), normalize, isValid);
+            try
+            {
+                variables = new HashSet<string>();
+                // clean, validate and normalize tokens. And since we are checking variables, we may as well add them to
+                // the variables set.
+                List<string> validCleanedTokens = CleanAndValidate(GetTokens(formula), normalize, isValid);
+                // verify correct syntax
+                VerifySyntaxAndGetVariables(validCleanedTokens);
 
-            // verify correct syntax
-            VerifySyntaxAndGetVariables(validCleanedTokens);
-
-            // store valid function
-            tokens = validCleanedTokens;
+                // store valid function
+                tokens = validCleanedTokens;
+            }
+            catch (FormulaFormatException ffe)
+            {
+                fe = new FormatError(formula, ffe.Message);
+            }
         }
 
 
@@ -199,6 +211,10 @@ namespace SpreadsheetUtilities
             Stack<double> values = new Stack<double>();
             Stack<string> operators = new Stack<string>();
 
+            if (fe != null)
+            {
+                return fe;
+            }
 
 
 
@@ -406,6 +422,11 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override string ToString()
         {
+            if (fe != null)
+            {
+                return fe.Contents;
+            }
+
             string s = "";
             foreach(string t in tokens)
             {
@@ -713,7 +734,7 @@ namespace SpreadsheetUtilities
         /// or underscore followed by zero or more letters, underscores,
         /// or digits or is a valid floating point number.
         /// </summary>
-        /// <param name="s"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
         private static bool IsValidToken(string token)
         {
@@ -757,6 +778,35 @@ namespace SpreadsheetUtilities
         ///  The reason why this FormulaError was created.
         /// </summary>
         public string Reason { get; private set; }
+    }
+
+    /// <summary>
+    /// Used as a possible return value of the Formula.Evaluate method.
+    /// 
+    /// ADDED for CS 3505 (as a substitute for FormulaFormatException)
+    /// </summary>
+    public class FormatError
+    {
+        /// <summary>
+        /// Constructs a FormatError containing the explanatory reason.
+        /// </summary>
+        /// <param name="reason"></param>
+        /// <param name="contents"></param>
+        public FormatError(String contents, String reason)
+        {
+            Reason = reason;
+            Contents = contents;
+        }
+
+        /// <summary>
+        ///  The reason why this FormatError was created.
+        /// </summary>
+        public string Reason { get; private set; }
+
+        /// <summary>
+        ///  The contents of this bad Formula.
+        /// </summary>
+        public string Contents { get; private set; }
     }
 
     internal static class ExtensionMethods

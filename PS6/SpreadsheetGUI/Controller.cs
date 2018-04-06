@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SpreadsheetUtilities;
 
 
 namespace SpreadsheetGUI
@@ -48,7 +49,8 @@ namespace SpreadsheetGUI
 
             window.SaveFileAction += Save;
             window.OpenFileAction += Open;
-            window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            //TODO: we do probably want to have a Closing action, just not this one!
+            //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
 
@@ -144,10 +146,14 @@ namespace SpreadsheetGUI
             {
                 window.ValueBoxText = value.ToString();
             }
-            // else text box value will be set to FormulaError
-            else
+            // else text box value will be set to Error
+            else if (value is FormulaError)
             {
                 window.ValueBoxText = "FormulaError";
+            }
+            else
+            {
+                window.ValueBoxText = "FormatError";
             }
         }
 
@@ -243,11 +249,16 @@ namespace SpreadsheetGUI
             {
                 window.SetCellText(row, col, value.ToString());
             }
-            // else text box value will be set to FormulaError
-            else
+            // else text box value will be set to Error
+            else if (value is FormulaError)
             {
                 window.SetCellText(row, col, "FormulaError");
             }
+            else
+            {
+                window.SetCellText(row, col, "FormatError");
+            }
+
 
         }
 
