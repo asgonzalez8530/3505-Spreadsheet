@@ -8,6 +8,7 @@
  * Pineapple upside down cake
  * v1: April 4, 2018
  * v2: April 5, 2018
+ * v3: April 6, 2018
  */
 
 #include "server.h"
@@ -19,15 +20,14 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-
-
-
+#include <ctime>
 
 namespace cs3505
 {
     // forward declare delegate for thread
     void* client_loop(void * connection_file_descriptor);
+    double getTime(clock_t startTime, clock_t testTime);
+    bool parseBuffer(int size, char buff[]);
 
     // forward declare listener initializer and listener_loop helper
     int init_listener();
@@ -120,10 +120,39 @@ namespace cs3505
 	write(socket, "Hello!\r\n", 8);
 	char buffer[1024];
 	int result = 0;
+    double secondsToPing = 10;
+    double secondsToTimeout = 60;
+
+    clock_t timeOutTimer, pingTimer, timePassed;
+
+    // begin ping timer
+    timeOutTimer = clock();
+    pingTimer = clock();
 
 
 	while(true)
 	{
+        timePassed = clock();
+        std::cout << "timePassed Updated\n";
+
+        // check for timeout
+        if (getTime(timeOutTimer, timePassed) >= secondsToTimeout)
+        {
+            // add client to the disconnect list
+            std::cout << "Hit timeout!!\n";
+
+            break;
+        }
+
+        // check for ping
+        else if(getTime(pingTimer, timePassed) >= secondsToPing)
+        {
+            // ping client
+            std::cout << "You've been pinged!!" << "\n";
+ 
+            // reset timer clock
+            pingTimer = clock();
+        }
 
 	    // print for debugging
 	    std::cout << "Waiting to read reply from client." << std::endl;
@@ -137,6 +166,16 @@ namespace cs3505
 
 	    // Insert null terminator in buffer
 	    buffer[result] = 0;
+
+        // parse buffer message
+        bool resetTimer = parseBuffer(result, buffer);
+
+        if (resetTimer)
+        {
+            timeOutTimer = clock();
+        }
+
+        
 
 	    // Print number of received bytes AND the contents of the buffer
 	    std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
@@ -356,5 +395,36 @@ namespace cs3505
 
         return response;
     }
+
+    /**
+     * This method takes two clock times and returns the difference
+     * 
+     * startTime - The starting time to test against
+     * testTime - The current time to compare
+     * 
+     * Returns a double value of seconds passed
+     */
+    double getTime(clock_t startTime, clock_t testTime)
+    {
+        clock_t timePassed = startTime - testTime;
+        // extract time passed based on clock speed
+        double secondsPassed = timePassed / (double)CLOCKS_PER_SEC;
+        return secondsPassed;
+    }
+
+    /**
+     * This method parses a buffer for a client command
+     * 
+     * size - the size of the buffer
+     * buff - the buffer to parse
+     *  
+     * Returns true if client command was ping response or disconnect
+     */
+    bool parseBuffer(int size, char buff[])
+    {
+      //TO DO   
+    }
+
+
 
 } // end of class

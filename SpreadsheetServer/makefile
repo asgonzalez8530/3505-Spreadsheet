@@ -4,7 +4,7 @@ a.out: main.o server.o interface.o
 main.o: main.cpp server.h
 	g++ -c main.cpp
 
-server.o: server.cpp server.h
+server.o: server.cpp server.h interface.h
 	g++ -c server.cpp
 
 interface.o: interface.cpp interface.h
