@@ -56,10 +56,7 @@ namespace cs3505
         // new thread were we start listening for multiple clients
 	server_awaiting_client_loop();
 
-        check_for_new_clients();
-
-
-	std::cout << "Entering check_for_new_clients().\n";
+	std::cout << "Entering main server loop.\n";
 
         // server shutdown listener
 
