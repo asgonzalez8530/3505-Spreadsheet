@@ -20,12 +20,19 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void* client_loop(void * connection_file_descriptor);
+
 
 
 
 namespace cs3505
 {
+    // forward declare delegate for thread
+    void* client_loop(void * connection_file_descriptor);
+
+    // forward declare listener initializer and listener_loop helper
+    int init_listener();
+    void* listener_loop(void*);
+
     //**** public methods ****//
 
     // constructor
@@ -47,12 +54,22 @@ namespace cs3505
         // new thread were we start the ping loop
 
         // new thread were we start listening for multiple clients
+	server_awaiting_client_loop();
+
+        check_for_new_clients();
+
+
+	std::cout << "Entering check_for_new_clients().\n";
 
         // server shutdown listener
+
+	// TODO the "endl" here leads to an error in the listener loop, it's interpreted as a socket operation.
+	// std::cout << "Entering main server loop." << std::endl; 
 
 	// run the main server loop
         while (!terminate && !sleeping)
         {
+
             check_for_new_clients();
             verify_connections();
             sleeping = process_message();
@@ -68,15 +85,9 @@ namespace cs3505
         shutdown();
     }
 
+
     //**** private & helper methods ****//
 
-    /**
-     *
-     */
-    void* client_loop(void * connection_file_descriptor)
-    {
-	//return connection_file_descriptor;
-    }
 
     /**
      * This is a loop that listens for new TCP connections and processes those new
@@ -84,7 +95,68 @@ namespace cs3505
      */
     void server::server_awaiting_client_loop()
     {
-	// the default port we'll listen on
+
+	// initialize listener socket
+	int serverSocket = init_listener();
+
+	// print for debugging
+	std::cout << "Finished listener initialize." << std::endl;
+
+	// set up a new thread for the listener loop()
+        void* server = &serverSocket; // store as a void * so it can be passed to listener_loop()
+	pthread_t new_connection_thread;
+	pthread_create(&new_connection_thread, NULL, listener_loop, server);
+	
+	// Clean up thread resources as they finish
+	pthread_detach(new_connection_thread);
+    }
+
+
+    /**
+     * Takes a connection file descriptor, aka our client's socket.
+     *  Basic loop to print client chat messages.
+     */
+    void* client_loop(void * connection_file_descriptor)
+    {
+	int socket = *((int*)connection_file_descriptor);
+
+	write(socket, "Hello!\r\n", 8);
+	char buffer[1024];
+	int result = 0;
+
+
+	while(true)
+	{
+
+	    // print for debugging
+	    std::cout << "Waiting to read reply from client." << std::endl;
+
+	    result = read(socket, buffer, 1023);
+
+	    if (result < 0) {
+		std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
+		exit(1);
+	    }
+
+	    // Insert null terminator in buffer
+	    buffer[result] = 0;
+
+	    // Print number of received bytes AND the contents of the buffer
+	    std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
+	}
+    
+    close(socket); 
+    }
+
+
+    /**
+     * A helper to abstract away the setup for the server's listening socket.
+     * Creates a socket, binds it to the listenPort, and begins listening.
+     * Returns the listening socket.
+     */
+    int init_listener()
+    {
+        // the default port we'll listen on
 	int listenPort = 2112;
 
 	// Create a socket
@@ -93,7 +165,7 @@ namespace cs3505
 	// if the socket value is negative, there was an error
         if (serverSocket < 0)
         {
-            std::cerr << "Error: " << strerror(errno) << std::endl;
+            std::cerr << "Error: " << strerror(errno) << " Error in init_listener()" <<std::endl;
             exit(1);
         }
 
@@ -110,7 +182,7 @@ namespace cs3505
 	// if the bind result value is negative, there was an error
 	if (bindResult < 0)
 	{
-	    std::cerr << "Error: " << strerror(errno) << std::endl;
+	    std::cerr << "Error: " << strerror(errno) << " Error in init_listener() bind" << std::endl;
 	    exit(1);
 	}
 
@@ -120,13 +192,26 @@ namespace cs3505
 	// if the listen result value is negative, there was an error
 	if (bindResult < 0)
 	{
-	    std::cerr << "Error: " << strerror(errno) << std::endl;
+	    std::cerr << "Error: " << strerror(errno) << " Error in init_listener() listen" << std::endl;
 	    exit(1);
 	}
+
+	return serverSocket;
+    }
+
+    /**
+     * The server's listening loop.
+     * Accepts new connections, starting a new thread for each one.
+     */
+    void* listener_loop(void * server)
+    {
+	// print for debugging
+	std::cout << "Begin listening." << std::endl;
 
 	while(true)
 	{
 	    int newClient = 0;
+	    int serverSocket = *((int*)server);
     	    
 	    // Accept a connection (the "accept" command waits for a connection with
 	    // no timeout limit...)
@@ -137,7 +222,7 @@ namespace cs3505
 	    // if the accept result value is negative, there was an error
 	    if (newClient < 0)
 	    {
-		std::cerr << "Error: " << strerror(errno) << std::endl;
+		std::cerr << "Error: " << strerror(errno) << " Error in listener_loop()" << std::endl;
 		exit(1);
 	    }
 
@@ -155,8 +240,6 @@ namespace cs3505
 	}
     }
 
-
-
     
     /**
      * checks if the client list has a new client.
@@ -166,6 +249,7 @@ namespace cs3505
      */
     void server::check_for_new_clients()
     {
+
         // there are new clients 
         if (!data.new_clients_isempty())
         {
