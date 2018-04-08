@@ -825,8 +825,15 @@ namespace SS
                 Type = CellType.formulaType;
 
                 cellContents = contents;
-                cellValue = contents.Evaluate(lookup);
-            }
+                try
+                {
+                    cellValue = contents.Evaluate(lookup);
+                }
+                catch (CircularException)
+                {
+                    cellValue = new CircularError("");
+                }
+    }
 
             /// <summary>
             /// Gets the contents of this cell. The contents can be a string, double or a formula.
@@ -863,6 +870,10 @@ namespace SS
                         {
                             return (FormatError)cellValue;
                         }
+                        else if (cellValue.GetType() == typeof(CircularError))
+                        {
+                            return (CircularError)cellValue;
+                        }
                         else
                         {
                             return (double)cellValue;
@@ -878,7 +889,14 @@ namespace SS
                 if (Type == CellType.formulaType)
                 {
                     Formula f = (Formula)cellContents;
-                    cellValue = f.Evaluate(lookup);
+                    try
+                    {
+                        cellValue = f.Evaluate(lookup);
+                    }
+                    catch (CircularException)
+                    {
+                        cellValue = new CircularError("");
+                    }
                 }
 
             }
@@ -886,6 +904,27 @@ namespace SS
 
         }
 
+    }
+
+    /// <summary>
+    /// Circular errors are stored when a formula cannot evaluate because of dependency.
+    /// </summary>
+    public struct CircularError
+    {
+        /// <summary>
+        /// Constructs a CircErr containing the explanatory reason.
+        /// </summary>
+        /// <param name="reason"></param>
+        public CircularError(String reason)
+            : this()
+        {
+            Reason = reason;
+        }
+
+        /// <summary>
+        ///  The reason why this CircErr was created.
+        /// </summary>
+        public string Reason { get; private set; }
     }
 
     //------------------------------Extension Methods----------------------------------//

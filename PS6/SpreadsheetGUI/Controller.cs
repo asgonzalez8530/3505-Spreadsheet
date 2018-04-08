@@ -205,7 +205,7 @@ namespace SpreadsheetGUI
             {
                 window.ShowErrorMessageBox("Circular dependency detected");
             }
-            catch (Exception e)
+            catch (Exception e) // TODO take this out
             {
                 window.ShowErrorMessageBox(e.Message);
             }

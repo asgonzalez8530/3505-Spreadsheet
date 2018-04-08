@@ -1,6 +1,7 @@
 ﻿Updated by Rebekah Peterson for CS3505
 Last Updated: 4/6/18
 Uses a new version of Formula (that includes FormatError)
+Also returns CircularError objects for GetCellValue
 
 //////////////////////////////////////////////
 
