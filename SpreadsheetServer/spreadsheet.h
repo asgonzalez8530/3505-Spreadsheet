@@ -1,4 +1,4 @@
-/*
+/**
  * This class represents the SpreadSheet model for the Server.
  * The responsibilities of this class are:
  *  1) represent the current state of this spreadsheet  
@@ -30,14 +30,14 @@ namespace 3505
 	    // cell's stack
 
 
-	    /*
+	    /**
 	     * "sheet" is a map of cell names (strings) to a stack of changes
 	     * for that cell (stack<string>)
 	     */
 	    std::map<std::string, std::stack<std::string>> sheet;
 
 
-	    /* 
+	    /** 
 	     * stack of edits (used for undo)
  	     *
 	     * when a cell change comes in from the Server:
@@ -61,16 +61,59 @@ namespace 3505
 
 
 	    /*
-	     * read, write
+	     * Change cellName's contents to cellContents. Counts as an edit.
 	     */
+	    std::string edit(std::string cellName, std::string cellContents);
 
+	    /*
+	     * Revert cellName's contents. Counts as an edit.
+	     */
+	    std::string revert(std::string cellName);
+
+	    /*
+	     * Undo the last edit made to this spreadsheet. Not an edit.
+	     */
+	    std::string undo();
+
+	    /*
+	     * Write the current state of the spreadsheet to file.
+	     */
+	    void save();
 
 	public: 
-		//update (edit, revert, undo helpers)
-		// full state
 
+	    /*
+	     * Construct a spreadsheet from the given file.
+	     */
+	    spreadsheet(std::string fileName);
 
+	    /*
+	     * Construct an empty spreadsheet.
+	     */
+	    spreadsheet();
+
+	    /*
+	     * Driver method for updating this spreadsheet.
+	     *
+	     * Takes a Edit, Revert, or Undo message (see page 5 of protocol for examples) 
+	     * as an argument.
+	     *
+	     * Returns a Change message.
+	     *
+	     */
+	    std::string update(std::string);
+
+	    /*
+	     * Process a Full_State message by returning this spreadsheet
+	     * as a string of newline-separated values.
+	     *
+	     */
+	    std::string full_state();
+
+	    /*
+	     * Destroy this spreadsheet.
+	     */
+	    ~spreadsheet();
     };
-
 }
 
