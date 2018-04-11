@@ -20,7 +20,7 @@
 #include <map>
 #include <stack>
 
-namespace 3505
+namespace cs3505
 {
     class spreadsheet
     {
@@ -34,7 +34,7 @@ namespace 3505
 	     * "sheet" is a map of cell names (strings) to a stack of changes
 	     * for that cell (stack<string>)
 	     */
-	    std::map<std::string, std::stack<std::string>> sheet;
+	    std::map<std::string, std::stack<std::string> > sheet;
 
 
 	    /** 
@@ -57,7 +57,7 @@ namespace 3505
 	     *  3) peek the cell's stack (if empty, use empty string)
 	     *  4) send Server the Change data (from step 3)
 	     */
-	    std::stack<string> edits // example value: "A36:I <3 dogs"
+	    std::stack<std::string> edits; // example value: "A36:I <3 dogs"
 
 
 	    /*
@@ -116,4 +116,5 @@ namespace 3505
 	    ~spreadsheet();
     };
 }
+#endif
 
