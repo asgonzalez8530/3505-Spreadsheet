@@ -26,6 +26,7 @@ namespace cs3505
 {
     // forward declare delegate for thread
     void* client_loop(void * connection_file_descriptor);
+	void * ping_loop(void * connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     bool parseBuffer(int size, char buff[]);
 
