@@ -26,6 +26,7 @@ namespace cs3505
 {
     // forward declare delegate for thread
     void* client_loop(void * connection_file_descriptor);
+	void * ping_loop(void * connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     bool parseBuffer(int size, char buff[]);
 
@@ -103,12 +104,81 @@ namespace cs3505
         void* server = &serverSocket; // store as a void * so it can be passed to listener_loop()
 	pthread_t new_connection_thread;
 	pthread_create(&new_connection_thread, NULL, listener_loop, server);
+	pthread_create(&new_connection_thread, NULL, ping_loop, server);
 	
 	// Clean up thread resources as they finish
 	pthread_detach(new_connection_thread);
     }
 
 
+	/**
+	* This method controls pings and initiates disconnect of unresponsive clients
+	*
+	* connection_file_descriptor - The socket to ping
+	*/
+	void * ping_loop(void * connection_file_descriptor)
+	{
+		int socket = *((int*)connection_file_descriptor);
+		int failed_pings = 0;
+		double secondsToPing = 10;
+		double secondsToTimeout = 60;    
+		clock_t pingTimer, timePassed;
+
+		// begin ping timer
+		pingTimer = clock();
+		
+		while(true)
+		{
+			timePassed = clock();
+
+			// check for timeout
+			if (failed_pings >= 5)
+			{
+				// add client to the disconnect list
+				write(socket, "Timeout!!\r\n", 8);
+
+				break;
+			}
+
+			// check for ping
+			else if(getTime(pingTimer, timePassed) >= secondsToPing)
+			{
+				//TODO
+				/*
+				 * if(ping_response)
+				 * {
+				 *  pingTimer = clock();
+				 *  failed_pings = 0;
+				 * }
+				 * else
+				 * {
+				 * 	failed_pings += 1;
+				 * }
+				 */
+				
+				if(failed_pings >= 5)
+				{
+					failed_pings = 0;
+				}
+				else
+				{
+					failed_pings += 1;
+				}
+				
+				write(socket, "Ping\r\n", 8);
+				
+				// ping client
+				std::cout << "You've been pinged!!" << "\n";
+	 
+				// reset timer clock
+				pingTimer = clock();
+			}
+			
+		}
+	}
+	
+	
+	
     /**
      * Takes a connection file descriptor, aka our client's socket.
      *  Basic loop to print client chat messages.
@@ -120,40 +190,9 @@ namespace cs3505
 	write(socket, "Hello!\r\n", 8);
 	char buffer[1024];
 	int result = 0;
-    double secondsToPing = 10;
-    double secondsToTimeout = 60;
-
-    clock_t timeOutTimer, pingTimer, timePassed;
-
-    // begin ping timer
-    timeOutTimer = clock();
-    pingTimer = clock();
-
 
 	while(true)
 	{
-        timePassed = clock();
-        std::cout << "timePassed Updated\n";
-
-        // check for timeout
-        if (getTime(timeOutTimer, timePassed) >= secondsToTimeout)
-        {
-            // add client to the disconnect list
-            std::cout << "Hit timeout!!\n";
-
-            break;
-        }
-
-        // check for ping
-        else if(getTime(pingTimer, timePassed) >= secondsToPing)
-        {
-            // ping client
-            std::cout << "You've been pinged!!" << "\n";
- 
-            // reset timer clock
-            pingTimer = clock();
-        }
-
 	    // print for debugging
 	    std::cout << "Waiting to read reply from client." << std::endl;
 
@@ -166,16 +205,6 @@ namespace cs3505
 
 	    // Insert null terminator in buffer
 	    buffer[result] = 0;
-
-        // parse buffer message
-        bool resetTimer = parseBuffer(result, buffer);
-
-        if (resetTimer)
-        {
-            timeOutTimer = clock();
-        }
-
-        
 
 	    // Print number of received bytes AND the contents of the buffer
 	    std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
