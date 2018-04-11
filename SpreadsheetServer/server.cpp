@@ -129,13 +129,12 @@ namespace cs3505
 		while(true)
 		{
 			timePassed = clock();
-			std::cout << "timePassed Updated\n";
 
 			// check for timeout
 			if (failed_pings >= 5)
 			{
 				// add client to the disconnect list
-				std::cout << "Hit timeout!!\n";
+				write(socket, "Timeout!!\r\n", 8);
 
 				break;
 			}
@@ -156,7 +155,16 @@ namespace cs3505
 				 * }
 				 */
 				
-				write(socket, "Ping\3\r\n", 8);
+				if(failed_pings >= 5)
+				{
+					failed_pings = 0;
+				}
+				else
+				{
+					failed_pings += 1;
+				}
+				
+				write(socket, "Ping\r\n", 8);
 				
 				// ping client
 				std::cout << "You've been pinged!!" << "\n";
