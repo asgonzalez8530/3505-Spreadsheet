@@ -58,12 +58,12 @@ namespace cs3505
     /*
      * Change cellName's contents to cellContents. Counts as an edit.
      */
-    std::string spreadsheet::edit(std::string cellName, std::string cellContents){}
+    std::string spreadsheet::edit(std::string & cellName, std::string & cellContents){}
 
     /*
      * Revert cellName's contents. Counts as an edit.
      */
-    std::string spreadsheet::revert(std::string cellName){}
+    std::string spreadsheet::revert(std::string & cellName){}
 
     /*
      * Undo the last edit made to this spreadsheet. Not an edit.
@@ -96,14 +96,58 @@ namespace cs3505
      * Returns a Change message.
      *
      */
-    std::string spreadsheet::update(std::string){}
+    std::string spreadsheet::update(std::string update)
+    {
+	try
+	{
+	    if(update.find("edit ") == 0)
+	    {
+		int colon = update.find(":"); // useful index to know
+		std::string name = update.substr(5, colon - 5); // TODO check for fencepost errors
+		std::string value = update.substr(colon + 1, update.length() - colon - 1);
+		
+		edit(name, value);
+	    }
+
+	    else if(update.find("revert ") == 0)
+	    {
+		std::string name = update.substr(7, update.length() - 1);
+
+		revert(name);
+	    }
+	    
+	    else if(update.find("undo ") == 0)
+	    {
+		undo();
+	    }
+
+	    else return NULL; // we didn't find a message that we know how to process :(
+	}
+
+	catch(const std::out_of_range& outOfRange)
+	{
+	    return NULL; // the message was not a protocol match
+	}
+    }
 
     /*
-     * Process a Full_State message by returning this spreadsheet
-     * as a string of newline-separated values.
+     * Process a Full_State message by returning a pair of iterators.
+     *
+     * Example of use in another class:
+     *	pair<iterator, iterator> rators = mySheet.full_state()
+     *  for (; rators.first != rators.second; rators.first++)
+     * 	{
+     *		string cellName = rators.first->first;
+     *		string cellContents = rators.first->second.peek();
+     *		// send this info to client	
+     * 	}
      *
      */
-    std::string spreadsheet::full_state(){}
+    std::pair<std::map<std::string, std::stack<std::string> >::iterator,
+	      std::map<std::string, std::stack<std::string> >::iterator> spreadsheet::full_state()
+    {
+	return std::make_pair(sheet.begin(), sheet.end());
+    }
 
     /*
      * Destroy this spreadsheet.

@@ -19,6 +19,7 @@
 #include <string>
 #include <map>
 #include <stack>
+#include <stdexcept>
 
 namespace cs3505
 {
@@ -63,12 +64,12 @@ namespace cs3505
 	    /*
 	     * Change cellName's contents to cellContents. Counts as an edit.
 	     */
-	    std::string edit(std::string cellName, std::string cellContents);
+	    std::string edit(std::string & cellName, std::string & cellContents);
 
 	    /*
 	     * Revert cellName's contents. Counts as an edit.
 	     */
-	    std::string revert(std::string cellName);
+	    std::string revert(std::string & cellName);
 
 	    /*
 	     * Undo the last edit made to this spreadsheet. Not an edit.
@@ -108,7 +109,8 @@ namespace cs3505
 	     * as a string of newline-separated values.
 	     *
 	     */
-	    std::string full_state();
+	    std::pair<std::map<std::string, std::stack<std::string> >::iterator,
+	      	      std::map<std::string, std::stack<std::string> >::iterator> full_state();
 
 	    /*
 	     * Destroy this spreadsheet.
