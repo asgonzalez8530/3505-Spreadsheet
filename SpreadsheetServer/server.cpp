@@ -24,127 +24,123 @@
 
 namespace cs3505
 {
-    // forward declare delegate for thread
-    void* client_loop(void * connection_file_descriptor);
-	void * ping_loop(void * connection_file_descriptor);
-    double getTime(clock_t startTime, clock_t testTime);
-    bool parseBuffer(int size, char buff[]);
+// forward declare delegate for thread
+void *client_loop(void *connection_file_descriptor);
+void *ping_loop(void *connection_file_descriptor);
+double getTime(clock_t startTime, clock_t testTime);
+bool parseBuffer(int size, char buff[]);
 
-    // forward declare listener initializer and listener_loop helper
-    int init_listener();
-    void* listener_loop(void*);
+// forward declare listener initializer and listener_loop helper
+int init_listener();
+void *listener_loop(void *);
 
-    //**** public methods ****//
+//**** public methods ****//
 
-    // constructor
-    server::server()
+// constructor
+server::server()
+{
+    // this boolean will tell us when we want to shut down the server
+    terminate = false;
+
+    // TODO moved stubs relating to starting new threads to master_server_loop()
+}
+
+void server::master_server_loop()
+{
+    // this boolean will determine whether or not the loop will run immediatily
+    // after execution or it will sleep 10 ms before running again
+    bool sleeping = false;
+
+    // new thread were we start the ping loop
+
+    // new thread were we start listening for multiple clients
+    server_awaiting_client_loop();
+
+    std::cout << "Entering main server loop.\n";
+
+    // server shutdown listener
+
+    // TODO the "endl" here leads to an error in the listener loop, it's interpreted as a socket operation.
+    // std::cout << "Entering main server loop." << std::endl;
+
+    // run the main server loop
+    while (!terminate && !sleeping)
     {
-        // this boolean will tell us when we want to shut down the server
-        terminate = false;
 
-	// TODO moved stubs relating to starting new threads to master_server_loop()
-    }
+        check_for_new_clients();
+        verify_connections();
+        sleeping = process_message();
 
-    void server::master_server_loop()
-    {   
-        // this boolean will determine whether or not the loop will run immediatily 
-        // after execution or it will sleep 10 ms before running again
-        bool sleeping = false;
-
-
-        // new thread were we start the ping loop
-
-        // new thread were we start listening for multiple clients
-	server_awaiting_client_loop();
-
-	std::cout << "Entering main server loop.\n";
-
-        // server shutdown listener
-
-	// TODO the "endl" here leads to an error in the listener loop, it's interpreted as a socket operation.
-	// std::cout << "Entering main server loop." << std::endl; 
-
-	// run the main server loop
-        while (!terminate && !sleeping)
+        // if no new message then we sleep for 10ms
+        if (sleeping)
         {
-
-            check_for_new_clients();
-            verify_connections();
-            sleeping = process_message();
-            
-            // if no new message then we sleep for 10ms
-            if (sleeping)
-            {
-                //sleep(10ms);
-                sleeping = false;
-            }
+            //sleep(10ms);
+            sleeping = false;
         }
-
-        shutdown();
     }
 
+    shutdown();
+}
 
-    //**** private & helper methods ****//
+//**** private & helper methods ****//
 
-
-    /**
+/**
      * This is a loop that listens for new TCP connections and processes those new
      * connections by connecting and initiating the Protocol Handshake.
      */
-    void server::server_awaiting_client_loop()
-    {
+void server::server_awaiting_client_loop()
+{
 
-	// initialize listener socket
-	int serverSocket = init_listener();
+    // initialize listener socket
+    int serverSocket = init_listener();
 
-	// print for debugging
-	std::cout << "Finished listener initialize." << std::endl;
+    // print for debugging
+    std::cout << "Finished listener initialize." << std::endl;
 
-	// set up a new thread for the listener loop()
-        void* server = &serverSocket; // store as a void * so it can be passed to listener_loop()
-	pthread_t new_connection_thread;
-	pthread_create(&new_connection_thread, NULL, listener_loop, server);
-	pthread_create(&new_connection_thread, NULL, ping_loop, server);
-	
-	// Clean up thread resources as they finish
-	pthread_detach(new_connection_thread);
-    }
+    // set up a new thread for the listener loop()
+    void *server = &serverSocket; // store as a void * so it can be passed to listener_loop()
+    pthread_t new_connection_thread;
+    pthread_create(&new_connection_thread, NULL, listener_loop, server);
+    pthread_create(&new_connection_thread, NULL, ping_loop, server);
 
+    // Clean up thread resources as they finish
+    pthread_detach(new_connection_thread);
+}
 
-	/**
+/**
 	* This method controls pings and initiates disconnect of unresponsive clients
 	*
 	* connection_file_descriptor - The socket to ping
 	*/
-	void * ping_loop(void * connection_file_descriptor)
-	{
-		int socket = *((int*)connection_file_descriptor);
-		int failed_pings = 0;
-		double secondsToPing = 10;
-		double secondsToTimeout = 60;    
-		clock_t pingTimer, timePassed;
+void *ping_loop(void *connection_file_descriptor)
+{
+    int socket = *((int *)connection_file_descriptor);
+    int failed_pings = 0;
+    double secondsToPing = 10;
+    double secondsToTimeout = 60;
+    clock_t pingTimer, timePassed;
 
-		// begin ping timer
-		pingTimer = clock();
-		
-		while(true)
-		{
-			timePassed = clock();
+    // begin ping timer
+    pingTimer = clock();
 
-			// check for timeout
-			if (failed_pings >= 5)
-			{
-				// add client to the disconnect list
-				write(socket, "Timeout!!\r\n", 8);
+    while (true)
+    {
+        timePassed = clock();
 
-				break;
-			}
+        // check for timeout
+        if (failed_pings >= 5)
+        {
+            // add client to the disconnect list
+            write(socket, "Timeout!!\r\n", 8);
 
-			// check for ping
-			else if(getTime(pingTimer, timePassed) >= secondsToPing)
-			{
-				//TODO
-				/*
+            break;
+        }
+
+        // check for ping
+        else if (getTime(pingTimer, timePassed) >= secondsToPing)
+        {
+            //TODO
+            /*
 				 * if(ping_response)
 				 * {
 				 *  pingTimer = clock();
@@ -155,188 +151,186 @@ namespace cs3505
 				 * 	failed_pings += 1;
 				 * }
 				 */
-				
-				if(failed_pings >= 5)
-				{
-					failed_pings = 0;
-				}
-				else
-				{
-					failed_pings += 1;
-				}
-				
-				write(socket, "Ping\r\n", 8);
-				
-				// ping client
-				std::cout << "You've been pinged!!" << "\n";
-	 
-				// reset timer clock
-				pingTimer = clock();
-			}
-			
-		}
-	}
-	
-	
-	
-    /**
+
+            if (failed_pings >= 5)
+            {
+                failed_pings = 0;
+            }
+            else
+            {
+                failed_pings += 1;
+            }
+
+            write(socket, "Ping\r\n", 8);
+
+            // ping client
+            std::cout << "You've been pinged!!"
+                      << "\n";
+
+            // reset timer clock
+            pingTimer = clock();
+        }
+    }
+}
+
+/**
      * Takes a connection file descriptor, aka our client's socket.
      *  Basic loop to print client chat messages.
      */
-    void* client_loop(void * connection_file_descriptor)
+void *client_loop(void *connection_file_descriptor)
+{
+    int socket = *((int *)connection_file_descriptor);
+
+    write(socket, "Hello!\r\n", 8);
+    char buffer[1024];
+    int result = 0;
+
+    while (true)
     {
-	int socket = *((int*)connection_file_descriptor);
+        // print for debugging
+        std::cout << "Waiting to read reply from client." << std::endl;
 
-	write(socket, "Hello!\r\n", 8);
-	char buffer[1024];
-	int result = 0;
+        result = read(socket, buffer, 1023);
 
-	while(true)
-	{
-	    // print for debugging
-	    std::cout << "Waiting to read reply from client." << std::endl;
+        if (result < 0)
+        {
+            std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
+            exit(1);
+        }
 
-	    result = read(socket, buffer, 1023);
+        // Insert null terminator in buffer
+        buffer[result] = 0;
 
-	    if (result < 0) {
-		std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
-		exit(1);
-	    }
-
-	    // Insert null terminator in buffer
-	    buffer[result] = 0;
-
-	    // Print number of received bytes AND the contents of the buffer
-	    std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
-	}
-    
-    close(socket); 
+        // Print number of received bytes AND the contents of the buffer
+        std::cout << "Received " << result << " bytes:\n"
+                  << buffer << std::endl;
     }
 
+    close(socket);
+}
 
-    /**
+/**
      * A helper to abstract away the setup for the server's listening socket.
      * Creates a socket, binds it to the listenPort, and begins listening.
      * Returns the listening socket.
      */
-    int init_listener()
+int init_listener()
+{
+    // the default port we'll listen on
+    int listenPort = 2112;
+
+    // Create a socket
+    int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+    // if the socket value is negative, there was an error
+    if (serverSocket < 0)
     {
-        // the default port we'll listen on
-	int listenPort = 2112;
-
-	// Create a socket
-        int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-	// if the socket value is negative, there was an error
-        if (serverSocket < 0)
-        {
-            std::cerr << "Error: " << strerror(errno) << " Error in init_listener()" <<std::endl;
-            exit(1);
-        }
-
-	// Fill in the address structure
-	struct sockaddr_in myaddr;
-	memset(&myaddr, 0, sizeof(struct sockaddr_in)); //allocate the memory
-	myaddr.sin_family = AF_INET; // using IPv4
-	myaddr.sin_port = htons(listenPort);        // Port to listen
-	myaddr.sin_addr.s_addr = htonl(INADDR_ANY); // ?
-
-	// Bind a socket to the address
-	int bindResult = bind(serverSocket, (struct sockaddr*) &myaddr, sizeof(myaddr));
-	
-	// if the bind result value is negative, there was an error
-	if (bindResult < 0)
-	{
-	    std::cerr << "Error: " << strerror(errno) << " Error in init_listener() bind" << std::endl;
-	    exit(1);
-	}
-
-	// Now, listen for a connection (reusing "bindResult" - consider renaming?)
-	bindResult = listen(serverSocket, 1);    // "1" is the maximal length of the queue
-
-	// if the listen result value is negative, there was an error
-	if (bindResult < 0)
-	{
-	    std::cerr << "Error: " << strerror(errno) << " Error in init_listener() listen" << std::endl;
-	    exit(1);
-	}
-
-	return serverSocket;
+        std::cerr << "Error: " << strerror(errno) << " Error in init_listener()" << std::endl;
+        exit(1);
     }
 
-    /**
+    // Fill in the address structure
+    struct sockaddr_in myaddr;
+    memset(&myaddr, 0, sizeof(struct sockaddr_in)); //allocate the memory
+    myaddr.sin_family = AF_INET;                    // using IPv4
+    myaddr.sin_port = htons(listenPort);            // Port to listen
+    myaddr.sin_addr.s_addr = htonl(INADDR_ANY);     // ?
+
+    // Bind a socket to the address
+    int bindResult = bind(serverSocket, (struct sockaddr *)&myaddr, sizeof(myaddr));
+
+    // if the bind result value is negative, there was an error
+    if (bindResult < 0)
+    {
+        std::cerr << "Error: " << strerror(errno) << " Error in init_listener() bind" << std::endl;
+        exit(1);
+    }
+
+    // Now, listen for a connection (reusing "bindResult" - consider renaming?)
+    bindResult = listen(serverSocket, 1); // "1" is the maximal length of the queue
+
+    // if the listen result value is negative, there was an error
+    if (bindResult < 0)
+    {
+        std::cerr << "Error: " << strerror(errno) << " Error in init_listener() listen" << std::endl;
+        exit(1);
+    }
+
+    return serverSocket;
+}
+
+/**
      * The server's listening loop.
      * Accepts new connections, starting a new thread for each one.
      */
-    void* listener_loop(void * server)
+void *listener_loop(void *server)
+{
+    // print for debugging
+    std::cout << "Begin listening." << std::endl;
+
+    while (true)
     {
-	// print for debugging
-	std::cout << "Begin listening." << std::endl;
+        int newClient = 0;
+        int serverSocket = *((int *)server);
 
-	while(true)
-	{
-	    int newClient = 0;
-	    int serverSocket = *((int*)server);
-    	    
-	    // Accept a connection (the "accept" command waits for a connection with
-	    // no timeout limit...)
-	    struct sockaddr_in peeraddr;
-	    socklen_t peeraddr_len;
-	    newClient = accept(serverSocket, (struct sockaddr*) &peeraddr, &peeraddr_len);
+        // Accept a connection (the "accept" command waits for a connection with
+        // no timeout limit...)
+        struct sockaddr_in peeraddr;
+        socklen_t peeraddr_len;
+        newClient = accept(serverSocket, (struct sockaddr *)&peeraddr, &peeraddr_len);
 
-	    // if the accept result value is negative, there was an error
-	    if (newClient < 0)
-	    {
-		std::cerr << "Error: " << strerror(errno) << " Error in listener_loop()" << std::endl;
-		exit(1);
-	    }
+        // if the accept result value is negative, there was an error
+        if (newClient < 0)
+        {
+            std::cerr << "Error: " << strerror(errno) << " Error in listener_loop()" << std::endl;
+            exit(1);
+        }
 
-	    // if the accept result value is positive, we have a new client!
-	    if (newClient > 0)
-	    {
-		int sock = newClient; // copy the new client
-	        void* conn_fd = &sock; // store as a void * so it can be passed to client_loop
-		pthread_t new_connection_thread;
-		pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
-		
-		// Clean up thread resources as they finish
-		pthread_detach(new_connection_thread);
-	    }	    
-	}
+        // if the accept result value is positive, we have a new client!
+        if (newClient > 0)
+        {
+            int sock = newClient;  // copy the new client
+            void *conn_fd = &sock; // store as a void * so it can be passed to client_loop
+            pthread_t new_connection_thread;
+            pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+
+            // Clean up thread resources as they finish
+            pthread_detach(new_connection_thread);
+        }
     }
+}
 
-    
-    /**
+/**
      * checks if the client list has a new client.
      * if the new_client list size is not zero (there is/are new client/s) then it locks the list and 
      * removes each client (socket) from the list and connects the client to the server. It then 
      * proceeds to finish the TCP and spreadsheet handshake. (may do the handshake stuff on a seperate thread???)
      */
-    void server::check_for_new_clients()
+void server::check_for_new_clients()
+{
+
+    // there are new clients
+    if (!data.new_clients_isempty())
     {
-
-        // there are new clients 
-        if (!data.new_clients_isempty())
-        {
-            data.new_clients_finish_handshake();
-        } 
+        data.new_clients_finish_handshake();
     }
+}
 
-    /**
+/**
      * checks if the not_connectioned list to see if there are any clients who are no longer connected.
      * if the not_connected list size is not zero (there is/are disconnected client/s) then it locks the list and 
      * removes each client from the list and from being connected to the server and spreadsheet. 
      */
-    void server::verify_connections()
+void server::verify_connections()
+{
+    // clients have disconnected from the server
+    if (!data.disconnect_isempty())
     {
-        // clients have disconnected from the server
-        if (!data.disconnect_isempty())
-        {
-            data.disconnect_clients();
-        }
+        data.disconnect_clients();
     }
+}
 
-    /**
+/**
      * THIS METHODS WAY OF PARSING/PROPOGATING MESSAGES MAY NEED TO CHANGE
      * 
      * checks if there is a new message to process.
@@ -344,88 +338,86 @@ namespace cs3505
      * it then proceeds to parse and process the message.
      * if the message needs to be propagated to the other clients then it propagates the message on a new thread
      */
-    bool server::process_message()
+bool server::process_message()
+{
+    // incoming messages will most likely be an object of interface so we will be using the getter here
+    // there are messages to process
+    if (!data.messages_isempty())
     {
-        // incoming messages will most likely be an object of interface so we will be using the getter here
-        // there are messages to process
-        if (!data.messages_isempty())
+        // pop the message off the stack
+        std::string message = data.get_message();
+
+        // parse the message
+        std::string response = parse_message(message);
+
+        if (!response.empty())
         {
-            // pop the message off the stack
-            std::string message = data.get_message();
-
-            // parse the message
-            std::string response = parse_message(message);  
-
-            if (!response.empty())
-            {
-                // propogate the message on new thread 
-            }
-
-            return true;
+            // propogate the message on new thread
         }
 
-        return false;
+        return true;
     }
 
-    /**
+    return false;
+}
+
+/**
      * waits and listens for the "quit" keyword to tell the server to terminate the program
      */
-    void server::check_for_shutdown()
+void server::check_for_shutdown()
+{
+    while (true)
     {
-        while (true)
+        std::string input = "";
+        std::getline(std::cin, input);
+
+        if (input.compare("quit") == 0)
         {
-            std::string input = "";
-            std::getline(std::cin, input);
+            // lock terminate
 
-            if (input.compare("quit") == 0)
-            {
-                // lock terminate
-
-                // flip the boolean flag terminate to tell the program to terminate
-                terminate = true;
-            }
+            // flip the boolean flag terminate to tell the program to terminate
+            terminate = true;
         }
     }
+}
 
-    /**
+/**
      * checks if the server was asked to shut down.
      * if the boolean terminate is true then we shut down then we clean up the spreadsheet messages (stop receiving messages). 
      * We propogate the appropriate messages. We then proceed to disconnect all the clients, save the spreadsheet, and close 
      * our program in a clean manner.
      */
-    void server::shutdown()
-    {
-        // stop receiving messages and propogate appropriate changes
-        // (i.e. call the process message method to process all previous messages)
+void server::shutdown()
+{
+    // stop receiving messages and propogate appropriate changes
+    // (i.e. call the process message method to process all previous messages)
 
-        // disconnect all clients
+    // disconnect all clients
 
-        // save the spreadsheet
+    // save the spreadsheet
 
-        // close our out of this program in a clean way
+    // close our out of this program in a clean way
+}
 
-    }
-
-    /**
+/**
      * THIS METHODS FUNCTIONALITY WILL MOST LIKELY NEED TO CHANGE
      * 
      * parses the inputted message and if the message requires a server response then we return the server's response as a string
      * 
      * the following messages should be parsed by this message and result in the following response
      */
-    std::string server::parse_message(std::string message)
-    {
-        // response message that the server will propogate if not an empty string
-        std::string response = "";
+std::string server::parse_message(std::string message)
+{
+    // response message that the server will propogate if not an empty string
+    std::string response = "";
 
-        // TODO: parse message here
-        // register message will add the client to the new clients list
+    // TODO: parse message here
+    // register message will add the client to the new clients list
 
+    return response;
+}
 
-        return response;
-    }
-
-    /**
+/**
      * This method takes two clock times and returns the difference
      * 
      * startTime - The starting time to test against
@@ -433,15 +425,15 @@ namespace cs3505
      * 
      * Returns a double value of seconds passed
      */
-    double getTime(clock_t startTime, clock_t testTime)
-    {
-        clock_t timePassed = startTime - testTime;
-        // extract time passed based on clock speed
-        double secondsPassed = timePassed / (double)CLOCKS_PER_SEC;
-        return secondsPassed;
-    }
+double getTime(clock_t startTime, clock_t testTime)
+{
+    clock_t timePassed = startTime - testTime;
+    // extract time passed based on clock speed
+    double secondsPassed = timePassed / (double)CLOCKS_PER_SEC;
+    return secondsPassed;
+}
 
-    /**
+/**
      * This method parses a buffer for a client command
      * 
      * size - the size of the buffer
@@ -449,11 +441,9 @@ namespace cs3505
      *  
      * Returns true if client command was ping response or disconnect
      */
-    bool parseBuffer(int size, char buff[])
-    {
-      //TODO   
-    }
-
-
+bool parseBuffer(int size, char buff[])
+{
+    //TODO
+}
 
 } // end of class
