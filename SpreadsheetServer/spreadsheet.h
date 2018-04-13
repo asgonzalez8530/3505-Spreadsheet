@@ -106,11 +106,10 @@ namespace cs3505
 
 	    /*
 	     * Process a Full_State message by returning this spreadsheet
-	     * as a string of newline-separated values.
+	     * as a map
 	     *
 	     */
-	    std::pair<std::map<std::string, std::stack<std::string> >::iterator,
-	      	      std::map<std::string, std::stack<std::string> >::iterator> full_state();
+	    std::map<std::string, std::string> full_state();
 
 	    /*
 	     * Destroy this spreadsheet.

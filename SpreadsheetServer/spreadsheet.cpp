@@ -131,22 +131,22 @@ namespace cs3505
     }
 
     /*
-     * Process a Full_State message by returning a pair of iterators.
-     *
-     * Example of use in another class:
-     *	pair<iterator, iterator> rators = mySheet.full_state()
-     *  for (; rators.first != rators.second; rators.first++)
-     * 	{
-     *		string cellName = rators.first->first;
-     *		string cellContents = rators.first->second.peek();
-     *		// send this info to client	
-     * 	}
+     * Process a Full_State message by returning a map.
      *
      */
-    std::pair<std::map<std::string, std::stack<std::string> >::iterator,
-	      std::map<std::string, std::stack<std::string> >::iterator> spreadsheet::full_state()
+    std::map<std::string, std::string> spreadsheet::full_state()
     {
-	return std::make_pair(sheet.begin(), sheet.end());
+	std::map<std::string, std::string> fullState;
+	std::map<std::string, std::stack<std::string> >::iterator sheetRator;
+ 
+	for(sheetRator = sheet.begin(); sheetRator != sheet.end(); sheetRator++)
+	{
+	    std::string cellName = sheetRator->first;
+	    std::string cellContents = sheetRator->second.top();
+
+	    fullState.insert(std::pair<std::string, std::string>(cellName, cellContents));
+	}
+	return fullState;
     }
 
     /*
