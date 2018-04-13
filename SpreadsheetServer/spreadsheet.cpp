@@ -34,41 +34,53 @@ namespace cs3505
 
     /** 
      * stack of edits (used for undo)
-     *
-     * when a cell change comes in from the Server:
-     *	1) peek the cell's stack (if empty, use empty string)
-     *	2) push that value and the cell name onto the stack of edits
-     *  3) send Server the Change data (from step 2)
-     *
-     * when a cell revert comes in from the Server:
-     *	1) pop the cell's stack (if empty, use empty string)
-     *	2) push that value and the cell name onto the stack of edits
-     *  3) peek the cell's stack (if empty, use empty string)
-     *  4) send Server the Change data (from step 3)
-     *
-     * when a cell undo comes in from the Server:
-     *	1) pop the cell's stack (if empty, use empty string)
-     *	2) pop the stack of edits
-     *  3) peek the cell's stack (if empty, use empty string)
-     *  4) send Server the Change data (from step 3)
-     *
     std::stack<string> edits // example value: "A36:I <3 dogs"
 	*/
 
     /*
      * Change cellName's contents to cellContents. Counts as an edit.
      */
-    std::string spreadsheet::edit(std::string & cellName, std::string & cellContents){}
+    std::string spreadsheet::edit(std::string & cellName, std::string & cellContents)
+    {
+	// peek the cell's stack (if empty, use empty string)
+	if(sheet[cellName].empty()) // TODO checking if it's empty, but may actually need to check if it's NULL too 
+	{
+	    edits.push(cellName + ":");
+	}
+	else
+	{
+	    std::string oldContents = sheet[cellName].top();
+	    edits.push(cellName + ":" + oldContents); // push the old value onto edits
+	}
+	
+	sheet[cellName].push(cellContents); // update sheet TODO NULL check here?
+
+	return "change " + cellName + ":" + cellContents; // return the change message
+   }
 
     /*
      * Revert cellName's contents. Counts as an edit.
      */
-    std::string spreadsheet::revert(std::string & cellName){}
+    std::string spreadsheet::revert(std::string & cellName)
+    {
+     /* 1) pop the cell's stack (if empty, use empty string)
+     *	2) push that value and the cell name onto the stack of edits
+     *  3) peek the cell's stack (if empty, use empty string)
+     *  4) send Server the Change data (from step 3)
+     */
+    }
 
     /*
      * Undo the last edit made to this spreadsheet. Not an edit.
      */
-    std::string spreadsheet::undo(){}
+    std::string spreadsheet::undo()
+    {
+/*
+     *	1) pop the stack of edits, grab cell name, grab old value (if empty, quit here)
+     *	2) pop the cell's stack (if empty, use empty string)
+     *  3) send Server the Change data (from step 1)
+*/
+    }
 
     /*
      * Write the current state of the spreadsheet to file.
@@ -106,19 +118,19 @@ namespace cs3505
 		std::string name = update.substr(5, colon - 5); // TODO check for fencepost errors
 		std::string value = update.substr(colon + 1, update.length() - colon - 1);
 		
-		edit(name, value);
+		return edit(name, value);
 	    }
 
-	    else if(update.find("revert ") == 0)
+	    if(update.find("revert ") == 0)
 	    {
 		std::string name = update.substr(7, update.length() - 1);
 
-		revert(name);
+		return revert(name);
 	    }
 	    
-	    else if(update.find("undo ") == 0)
+	    if(update.find("undo ") == 0)
 	    {
-		undo();
+		return undo();
 	    }
 
 	    else return NULL; // we didn't find a message that we know how to process :(

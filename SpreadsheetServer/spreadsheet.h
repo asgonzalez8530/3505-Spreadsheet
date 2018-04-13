@@ -41,22 +41,6 @@ namespace cs3505
 	    /** 
 	     * stack of edits (used for undo)
  	     *
-	     * when a cell change comes in from the Server:
-	     *	1) peek the cell's stack (if empty, use empty string)
-	     *	2) push that value and the cell name onto the stack of edits
-	     *  3) send Server the Change data (from step 2)
- 	     *
- 	     * when a cell revert comes in from the Server:
-	     *	1) pop the cell's stack (if empty, use empty string)
-	     *	2) push that value and the cell name onto the stack of edits
-	     *  3) peek the cell's stack (if empty, use empty string)
-	     *  4) send Server the Change data (from step 3)
- 	     *
- 	     * when a cell undo comes in from the Server:
-	     *	1) pop the cell's stack (if empty, use empty string)
-	     *	2) pop the stack of edits
-	     *  3) peek the cell's stack (if empty, use empty string)
-	     *  4) send Server the Change data (from step 3)
 	     */
 	    std::stack<std::string> edits; // example value: "A36:I <3 dogs"
 
