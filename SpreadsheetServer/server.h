@@ -44,7 +44,8 @@ namespace cs3505
             bool process_message();
             void check_for_shutdown();
             void shutdown();
-            std::string parse_message(std::string message);
+            std::string parseBuffer(std::string * message)
+            void parse_and__message(std::string message)
 
 
     };

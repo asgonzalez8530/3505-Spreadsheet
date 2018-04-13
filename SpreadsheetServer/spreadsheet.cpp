@@ -27,19 +27,19 @@ namespace cs3505
 // cell's stack
 
 /**
-     * "sheet" is a map of cell names (strings) to a stack of changes
-     * for that cell (stack<string>)
-     *
-    std::map<std::string, std::stack<std::string>> sheet;
-
-    /** 
-     * stack of edits (used for undo)
-    std::stack<string> edits // example value: "A36:I <3 dogs"
-	*/
-
+ * "sheet" is a map of cell names (strings) to a stack of changes
+ * for that cell (stack<string>)
+ *
+ std::map<std::string, std::stack<std::string>> sheet;
+ 
+ /** 
+  * stack of edits (used for undo)
+ std::stack<string> edits // example value: "A36:I <3 dogs"
+ */
+ 
 /*
-     * Change cellName's contents to cellContents. Counts as an edit.
-     */
+ * Change cellName's contents to cellContents. Counts as an edit.
+ */
 std::string spreadsheet::edit(std::string &cellName, std::string &cellContents)
 {
     // peek the cell's stack (if empty, use empty string)
@@ -59,8 +59,8 @@ std::string spreadsheet::edit(std::string &cellName, std::string &cellContents)
 }
 
 /*
-     * Revert cellName's contents. Counts as an edit.
-     */
+ * Revert cellName's contents. Counts as an edit.
+ */
 std::string spreadsheet::revert(std::string &cellName)
 {
     /* 1) pop the cell's stack (if empty, use empty string)
@@ -71,8 +71,8 @@ std::string spreadsheet::revert(std::string &cellName)
 }
 
 /*
-     * Undo the last edit made to this spreadsheet. Not an edit.
-     */
+ * Undo the last edit made to this spreadsheet. Not an edit.
+ */
 std::string spreadsheet::undo()
 {
     /*
@@ -83,31 +83,31 @@ std::string spreadsheet::undo()
 }
 
 /*
-     * Write the current state of the spreadsheet to file.
-     */
+ * Write the current state of the spreadsheet to file.
+ */
 void spreadsheet::save() {}
 
 //public:
 
 /*
-     * Construct a spreadsheet from the given file.
-     */
+ * Construct a spreadsheet from the given file.
+ */
 spreadsheet::spreadsheet(std::string fileName) {}
 
 /*
-     * Construct an empty spreadsheet.
-     */
+ * Construct an empty spreadsheet.
+ */
 spreadsheet::spreadsheet() {}
 
 /*
-     * Driver method for updating this spreadsheet.
-     *
-     * Takes a Edit, Revert, or Undo message (see page 5 of protocol for examples) 
-     * as an argument.
-     *
-     * Returns a Change message.
-     *
-     */
+ * Driver method for updating this spreadsheet.
+ *
+ * Takes a Edit, Revert, or Undo message (see page 5 of protocol for examples) 
+ * as an argument.
+ *
+ * Returns a Change message.
+ *
+ */
 std::string spreadsheet::update(std::string update)
 {
     try
@@ -144,9 +144,9 @@ std::string spreadsheet::update(std::string update)
 }
 
 /*
-     * Process a Full_State message by returning a map.
-     *
-     */
+ * Process a Full_State message by returning a map.
+ *
+ */
 std::map<std::string, std::string> spreadsheet::full_state()
 {
     std::map<std::string, std::string> fullState;
@@ -163,7 +163,7 @@ std::map<std::string, std::string> spreadsheet::full_state()
 }
 
 /*
-     * Destroy this spreadsheet.
-     */
+ * Destroy this spreadsheet.
+ */
 spreadsheet::~spreadsheet() {}
 }
