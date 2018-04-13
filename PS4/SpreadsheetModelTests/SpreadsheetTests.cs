@@ -1254,6 +1254,7 @@ namespace SpreadsheetModelTests
         /// Check the proper exception is thrown when circular
         /// dependency is created
         /// </summary>
+        [Ignore]
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
         public void SetCellContentsCircularDependency()
@@ -1269,6 +1270,7 @@ namespace SpreadsheetModelTests
         /// <summary>
         /// Check the state of the Spreadsheet after dependency 
         /// </summary>
+        [Ignore]
         [TestMethod]
         public void SetCellContentsCircularDependencyCheckSheetState()
         {

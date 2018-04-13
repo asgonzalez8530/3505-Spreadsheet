@@ -254,6 +254,10 @@ namespace SpreadsheetGUI
             {
                 window.SetCellText(row, col, "FormulaError");
             }
+            else if (value is CircularError)
+            {
+                window.SetCellText(row, col, "CircularError");
+            }
             else
             {
                 window.SetCellText(row, col, "FormatError");

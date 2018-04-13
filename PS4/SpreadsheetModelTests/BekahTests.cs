@@ -294,6 +294,7 @@ namespace SpreadsheetModelTests
         }
 
         [TestMethod]
+        [Ignore]
         [ExpectedException(typeof(CircularException))]
         public void DependsOnItselfTest()
         {
@@ -504,6 +505,7 @@ namespace SpreadsheetModelTests
         }
 
         [TestMethod]
+        [Ignore]
         [ExpectedException(typeof(CircularException))]
         public void CircularExceptionFormulaTest()
         {

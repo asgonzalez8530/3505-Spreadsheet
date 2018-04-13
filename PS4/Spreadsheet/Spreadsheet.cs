@@ -364,7 +364,7 @@ namespace SS
                 // set to empty string
                 string formulaString = content.Length > 1 ? content.Substring(1) : "";
                 Formula formula = new Formula(formulaString, Normalize, Validator);
-                return SetCellContents(name, formula);
+                return SetCellContents(name, formula); // TODO this is where to start next time... (also I have a pending change for CircularError...
             }
 
             return SetCellContents(name, content);
@@ -480,19 +480,30 @@ namespace SS
             // validate the cell name
             CellNameValidator(name);
 
-            // update dependencies and check circular exception
-            IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
+            try
+            {
+                // update dependencies and check circular exception
+                IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
+                // TODO the above line is bad
 
+            }
+            catch (CircularException)
+            {
+                
+            }
             Changed = true;
 
             // set the cell contents
             if (cells.ContainsKey(name))
             {
                 cells[name] = new Cell(formula, LookupCellValue);
+                // TODO: this argument exception needs to disappear
             }
             else
             {
                 cells.Add(name, new Cell(formula, LookupCellValue));
+                // TODO: this argument exception needs to disappear
+
             }
 
             // we need to update the value of cells whos value depends on this cell
@@ -889,14 +900,9 @@ namespace SS
                 if (Type == CellType.formulaType)
                 {
                     Formula f = (Formula)cellContents;
-                    try
-                    {
-                        cellValue = f.Evaluate(lookup);
-                    }
-                    catch (CircularException)
-                    {
-                        cellValue = new CircularError("");
-                    }
+                    
+                    cellValue = f.Evaluate(lookup);
+                    
                 }
 
             }
