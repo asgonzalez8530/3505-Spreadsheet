@@ -39,13 +39,14 @@ namespace cs3505
         private:
             // helper methods
 	        void server_awaiting_client_loop();
-	        // void* client_loop(void * conn_fd); // TODO not sure why, but pthread_create doesn't seem to like this being a member function...
             void check_for_new_clients();
             void verify_connections();
             bool process_message();
             void check_for_shutdown();
             void shutdown();
-            std::string parse_message(std::string message);
+            std::string parseBuffer(std::string * message);
+            void parse_and__message(std::string message);
+			std::string parse_message(std::string message);
 
 
     };
