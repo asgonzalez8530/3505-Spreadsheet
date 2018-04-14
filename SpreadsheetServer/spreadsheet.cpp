@@ -150,7 +150,7 @@ std::string spreadsheet::update(std::string update)
 std::map<std::string, std::string> spreadsheet::full_state()
 {
     std::map<std::string, std::string> fullState;
-    std::map<std::string, std::stack<std::string>>::iterator sheetRator;
+    std::map<std::string, std::stack<std::string> >::iterator sheetRator;
 
     for (sheetRator = sheet.begin(); sheetRator != sheet.end(); sheetRator++)
     {
