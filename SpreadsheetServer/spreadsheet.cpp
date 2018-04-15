@@ -63,11 +63,20 @@ std::string spreadsheet::edit(std::string &cellName, std::string &cellContents)
  */
 std::string spreadsheet::revert(std::string &cellName)
 {
-    /* 1) pop the cell's stack (if empty, use empty string)
-     *	2) push that value and the cell name onto the stack of edits
-     *  3) peek the cell's stack (if empty, use empty string)
-     *  4) send Server the Change data (from step 3)
-     */
+	// TODO checking if it's empty, but may actually need to check if it's NULL too
+
+    if (sheet[cellName].empty()) return NULL; // nothing to revert, return null
+
+    else
+    {
+        std::string oldContents = sheet[cellName].top(); // grab the old value
+		sheet[cellName].pop(); // revert the value by popping
+        edits.push(cellName + ":" + oldContents); // store the old value onto edits
+    }
+
+	std::string cellContents = sheet[cellName].empty() ? "" : sheet[cellName].top(); // grab the current contents		
+	
+	return "change " + cellName + ":" + cellContents; // return the change message
 }
 
 /*
@@ -75,11 +84,21 @@ std::string spreadsheet::revert(std::string &cellName)
  */
 std::string spreadsheet::undo()
 {
-    /*
-     *	1) pop the stack of edits, grab cell name, grab old value (if empty, quit here)
-     *	2) pop the cell's stack (if empty, use empty string)
-     *  3) send Server the Change data (from step 1)
-*/
+	// TODO checking if it's empty, but may actually need to check if it's NULL too
+
+	if(edits.empty()) return NULL; //nothing to undo
+
+	else
+	{
+		std::string undo = edits.top(); // grab the last edit
+		edits.pop(); // undo the last edit
+		std::string cellName = undo.substr(0, undo.find(":") - 1); // grab the cell name
+		sheet[cellName].pop(); // undo the last edit to this cell
+
+		return "change " + undo; // return the change message
+	}
+
+	return "change A1:This should not be happening."; // should never reach this. . .
 }
 
 /*
