@@ -17,8 +17,6 @@
 #include <string>
 #include <map>
 #include <stack>
-#include <fstream>
-#include <sstream>
 
 /*
  * Boost libraries used for reading and writing.
@@ -184,6 +182,7 @@ namespace cs3505
 	 * Construct an empty spreadsheet.
 	 */
 	spreadsheet::spreadsheet() {}
+
 
 	/*
 	 * Driver method for updating this spreadsheet.
