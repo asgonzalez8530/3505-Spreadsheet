@@ -41,9 +41,11 @@ namespace cs3505
  * Change cellName's contents to cellContents. Counts as an edit.
  */
 std::string spreadsheet::edit(std::string &cellName, std::string &cellContents)
-{
-    // peek the cell's stack (if empty, use empty string)
-    if (sheet[cellName].empty()) // TODO checking if it's empty, but may actually need to check if it's NULL too
+{	
+	// TODO checking if it's empty, but may actually need to check if it's NULL too
+
+    // peek the cell's stack, preserve the old value 
+    if (sheet[cellName].empty()) 
     {
         edits.push(cellName + ":");
     }
@@ -104,7 +106,24 @@ std::string spreadsheet::undo()
 /*
  * Write the current state of the spreadsheet to file.
  */
-void spreadsheet::save() {}
+void spreadsheet::save() 
+{
+	/*
+	 * Save edits as csv
+	 * Save map as xml? or csv?
+	 * then, reading would go something like this:
+	 *
+	 * while !in.fail()
+	 * grab cell name and number of elements, make entry in "sheet"
+	 * // A1:2,
+	 *
+	 * loop over elements, adding them to the sheet entry's stack
+	 * // "dogs",
+	 * // "=1+1",
+	 *
+	 * resume while loop
+	 */
+}
 
 //public:
 
