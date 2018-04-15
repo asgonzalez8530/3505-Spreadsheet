@@ -31,16 +31,16 @@ namespace cs3505
 		socket_connection(int socket);
 
 		// Enqueue this message to send to the client later.
-		void add_to_outbound(std::string message);
+		void add_to_outbound(std::string& message);
 
 		// Return the next message to send.
-		std::string next_to_send(std::string message);
+		std::string next_to_send(std::string& message);
 
 		// Enqueue this message parse and process later.
-		void add_to_inbound(std::string message);
+		void add_to_inbound(std::string& message);
 
 		// Return the next message to process.
-		std::string next_to_process(std::string message);
+		std::string next_to_process(std::string& message);
 	};
 }
 
