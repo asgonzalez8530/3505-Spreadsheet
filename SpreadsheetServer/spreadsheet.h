@@ -30,6 +30,11 @@ namespace cs3505
 	    // to send full state, just popping top cell change off of each
 	    // cell's stack
 
+		/*
+		 * The name of this spreadsheet. Used for saving and identification.
+		 *
+		 */	
+		std::string myName;
 
 	    /**
 	     * "sheet" is a map of cell names (strings) to a stack of changes
