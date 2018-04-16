@@ -53,24 +53,26 @@ namespace cs3505
 	    /*
 	     * Change cellName's contents to cellContents. Counts as an edit.
 	     */
-	    std::string edit(std::string & cellName, std::string & cellContents);
+	    std::string edit(std::string cellName, std::string cellContents);
 
 	    /*
 	     * Revert cellName's contents. Counts as an edit.
 	     */
-	    std::string revert(std::string & cellName);
+	    std::string revert(std::string cellName);
 
 	    /*
 	     * Undo the last edit made to this spreadsheet. Not an edit.
 	     */
 	    std::string undo();
 
+
+	public: 
+
+
 	    /*
 	     * Write the current state of the spreadsheet to file.
 	     */
 	    void save();
-
-	public: 
 
 	    /*
 	     * Construct a spreadsheet from the given file.

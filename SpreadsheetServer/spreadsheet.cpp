@@ -18,6 +18,7 @@
 #include <map>
 #include <stack>
 
+
 /*
  * Boost libraries used for reading and writing.
  */
@@ -34,9 +35,14 @@ namespace cs3505
 	/*
 	 * Change cellName's contents to cellContents. Counts as an edit.
 	 */
-	std::string spreadsheet::edit(std::string &cellName, std::string &cellContents)
+	std::string spreadsheet::edit(std::string cellName, std::string cellContents)
 	{	
 		// TODO checking if it's empty, but may actually need to check if it's NULL too
+
+		std::cout << "Hello from edit." << std::endl;
+
+
+		sheet[cellName];
 
 		// peek the cell's stack, preserve the old value 
 		if (sheet[cellName].empty()) 
@@ -57,7 +63,7 @@ namespace cs3505
 	/*
 	 * Revert cellName's contents. Counts as an edit.
 	 */
-	std::string spreadsheet::revert(std::string &cellName)
+	std::string spreadsheet::revert(std::string cellName)
 	{
 		// TODO checking if it's empty, but may actually need to check if it's NULL too
 
@@ -102,23 +108,48 @@ namespace cs3505
 	 */
 	void spreadsheet::save() 
 	{
-		// build file path to sheet map
-		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_sheet.sprd");
 
-		// build file path to edits stack
-		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits.sprd");
+		if(!edits.empty())
+		{
+		
+			std::cout << "I don't even know." << std::endl;	
+			std::cout << edits.top() << std::endl;	
+			std::cout << sheet["A1"].top() << std::endl;
+			//std::stack<std::string> temp(edits);
+			
+			// build file path to edits stack
+			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits.sprd");
 
-		boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams
-		boost::filesystem::ofstream editsOut(myEdits);
 
-		boost::archive::text_oarchive sheetArchive(sheetOut); // set up out archives
-		boost::archive::text_oarchive editsArchive(editsOut);
+			std::cout << "Set up path." << std::endl;	
 
-		sheetArchive << sheet; // write to archives
-		editsArchive << edits;
+			boost::filesystem::ofstream  editsOut(myEdits); // set up out file streams
+			std::cout << "Made filestream. " << editsOut.good() << std::endl;	
+			boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
+			std::cout << "Made edits archive." << std::endl;	
+
+			std::cout << "Writing edits. Edits size = " << edits.size() << std::endl;
+			editsArchive << edits;
+			std::cout << "Wrote edits." << std::endl;	
+		}
+
+		if(!sheet.empty())
+		{
+			std::map<std::string, std::stack<std::string> > temp(sheet);
+			
+			// build file path to sheet map
+			boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_sheet.sprd");
+
+			boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams		
+			boost::archive::text_oarchive sheetArchive(sheetOut); // set up out archives
+
+			sheetOut.close();
+
+			std::cout << "Writing sheet." << std::endl;
+			sheetArchive << temp; // write to archives
+		}
+
 	}
-
-	//public:
 
 	/*
 	 * Construct a spreadsheet from the given file.
@@ -132,7 +163,6 @@ namespace cs3505
 		
 		this->myName = fileName;
 
-		try {
 		// build file path to sheet map
 		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_sheet.sprd");
 
@@ -147,7 +177,7 @@ namespace cs3505
 			boost::filesystem::ifstream in(mySheet);
 			boost::archive::text_iarchive meArchive(in);
 
-			meArchive >> sheet; // populate this->sheet
+			//meArchive >> sheet; // populate this->sheet
 
 			// archive AND ifstream are closed when we leave scope 
 			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
@@ -166,7 +196,7 @@ namespace cs3505
 			boost::filesystem::ifstream in(myEdits);
 			boost::archive::text_iarchive meArchive(in);
 
-			meArchive >> edits; // populate this->edits
+			//meArchive >> edits; // populate this->edits
 
 			// archive AND ifstream are closed when we leave scope 
 			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
@@ -178,8 +208,6 @@ namespace cs3505
 			boost::filesystem::ofstream out(myEdits);
 			out.close();
 		}
-		}
-		catch(const std::exception& except){}
 	}
 
 
@@ -202,6 +230,8 @@ namespace cs3505
 	{
 		try
 		{
+			std::cout << "Hello from update." << std::endl;
+			
 		    if (update.find("edit ") == 0)
 		    {
 		        int colon = update.find(":");                   // useful index to know
