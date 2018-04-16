@@ -103,10 +103,10 @@ namespace cs3505
 	void spreadsheet::save() 
 	{
 		// build file path to sheet map
-		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_sheet");
+		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_sheet.sprd");
 
 		// build file path to edits stack
-		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits");
+		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits.sprd");
 
 		boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams
 		boost::filesystem::ofstream editsOut(myEdits);
@@ -130,10 +130,10 @@ namespace cs3505
 	spreadsheet::spreadsheet(std::string fileName)
 	{
 		// build file path to sheet map
-		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_sheet");
+		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_sheet.sprd");
 
 		// build file path to edits stack
-		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_edits");
+		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_edits.sprd");
 
 		this->myName = fileName;
 
