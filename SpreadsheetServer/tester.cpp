@@ -1,6 +1,6 @@
 // tests.cpp
 #include "testThis.cpp"
-#include "spreadsheet.cpp"
+#include "spreadsheet.h"
 #include <gtest/gtest.h>
 
 
@@ -12,7 +12,7 @@ TEST(SquareRootTest, PositiveNos)
 
 TEST(SpreadsheetTests, Constructor)
 {
-	cs3505::spreadsheet("MyBrandNewFile");
+	cs3505::spreadsheet brandNewSheet("MyBrandNewFile");
 }
 
 

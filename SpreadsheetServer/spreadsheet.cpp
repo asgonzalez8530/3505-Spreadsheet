@@ -129,17 +129,20 @@ namespace cs3505
 	 */
 	spreadsheet::spreadsheet(std::string fileName)
 	{
+		
+		this->myName = fileName;
+
+		try {
 		// build file path to sheet map
 		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_sheet.sprd");
 
 		// build file path to edits stack
 		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_edits.sprd");
 
-		this->myName = fileName;
 
-
+		
 		// if the "sheet" file exists, read from it
-		if (boost::filesystem::exists(mySheet))
+		if (boost::filesystem::exists(mySheet) && boost::filesystem::file_size(mySheet) > 0)
 		{
 			boost::filesystem::ifstream in(mySheet);
 			boost::archive::text_iarchive meArchive(in);
@@ -158,7 +161,7 @@ namespace cs3505
 		}
 
 		// if the "edits" file exists, read from it
-		if (boost::filesystem::exists(myEdits))
+		if (boost::filesystem::exists(myEdits) && boost::filesystem::file_size(myEdits) > 0)
 		{
 			boost::filesystem::ifstream in(myEdits);
 			boost::archive::text_iarchive meArchive(in);
@@ -175,6 +178,8 @@ namespace cs3505
 			boost::filesystem::ofstream out(myEdits);
 			out.close();
 		}
+		}
+		catch(const std::exception& except){}
 	}
 
 

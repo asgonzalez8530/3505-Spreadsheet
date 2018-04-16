@@ -1,8 +1,8 @@
 a.out: makefile main.o server.o interface.o spreadsheet.o socket_connection.o tester
-	g++ main.o server.o interface.o -lpthread
+	g++ main.o server.o interface.o spreadsheet.o socket_connection.o /usr/lib64/libboost_system.so.1.53.0 /usr/lib64/libboost_serialization.so.1.53.0 /usr/lib64/libboost_filesystem.so.1.53.0 -lpthread
 
 tester: makefile tester.o server.o interface.o spreadsheet.o socket_connection.o
-	g++ -L/usr/local/include -o tester server.o interface.o tester.o /usr/lib64/libboost_system.so.1.53.0 /usr/lib64/libboost_serialization.so.1.53.0 /usr/lib64/libboost_filesystem.so.1.53.0 -lgtest -lpthread
+	g++ -L/usr/local/include -o tester server.o interface.o tester.o spreadsheet.o socket_connection.o /usr/lib64/libboost_system.so.1.53.0 /usr/lib64/libboost_serialization.so.1.53.0 /usr/lib64/libboost_filesystem.so.1.53.0 -lgtest -lpthread
 
 main.o: main.cpp server.h
 	g++ -c main.cpp
