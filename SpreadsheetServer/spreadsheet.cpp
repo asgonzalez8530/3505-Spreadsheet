@@ -115,10 +115,12 @@ namespace cs3505
 			std::cout << "I don't even know." << std::endl;	
 			std::cout << edits.top() << std::endl;	
 			std::cout << sheet["A1"].top() << std::endl;
-			//std::stack<std::string> temp(edits);
+			
+			std::stack<std::string> temp(edits);
 			
 			// build file path to edits stack
 			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits.sprd");
+
 
 
 			std::cout << "Set up path." << std::endl;	
@@ -129,7 +131,7 @@ namespace cs3505
 			std::cout << "Made edits archive." << std::endl;	
 
 			std::cout << "Writing edits. Edits size = " << edits.size() << std::endl;
-			editsArchive << edits;
+			editsArchive << temp;
 			std::cout << "Wrote edits." << std::endl;	
 		}
 
@@ -142,8 +144,6 @@ namespace cs3505
 
 			boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams		
 			boost::archive::text_oarchive sheetArchive(sheetOut); // set up out archives
-
-			sheetOut.close();
 
 			std::cout << "Writing sheet." << std::endl;
 			sheetArchive << temp; // write to archives
@@ -177,7 +177,7 @@ namespace cs3505
 			boost::filesystem::ifstream in(mySheet);
 			boost::archive::text_iarchive meArchive(in);
 
-			//meArchive >> sheet; // populate this->sheet
+			meArchive >> sheet; // populate this->sheet
 
 			// archive AND ifstream are closed when we leave scope 
 			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
@@ -196,7 +196,7 @@ namespace cs3505
 			boost::filesystem::ifstream in(myEdits);
 			boost::archive::text_iarchive meArchive(in);
 
-			//meArchive >> edits; // populate this->edits
+			meArchive >> edits; // populate this->edits
 
 			// archive AND ifstream are closed when we leave scope 
 			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
