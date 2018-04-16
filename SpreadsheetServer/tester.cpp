@@ -26,6 +26,7 @@ TEST(SpreadsheetTests, SaveEmpty)
 TEST(SpreadsheetTests, SaveOneCell)
 {
 
+	std::cout << "Hello for commit from test." << std::endl;
 	std::cout << "Hello from test." << std::endl;
 	cs3505::spreadsheet otherNewSheet("MyOtherNewSaveFile");
 	std::cout << "Hello again." << std::endl;
