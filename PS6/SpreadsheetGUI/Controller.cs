@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpreadsheetUtilities;
 
+// TODO: check for TODO in formula and spreadsheet
+// TODO: take out print statement from setcellcontents in spreadsheet
 
 namespace SpreadsheetGUI
 {

@@ -211,6 +211,10 @@ namespace SpreadsheetGUI
             HowToUseText();
         }
 
-        
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            // try connecting -> fires off event
+            // error message or choose spreadsheet
+        }
     }
 }
