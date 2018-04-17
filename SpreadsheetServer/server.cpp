@@ -14,13 +14,14 @@
 
 #include "server.h"
 #include "interface.h"
-#include <string.h>
-#include <iostream>
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string.h>
+#include <string>
+#include <iostream>
 #include <ctime>
 
 namespace cs3505
@@ -30,6 +31,7 @@ namespace cs3505
     void *ping_loop(void *connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     bool parseBuffer(int size, char buff[]);
+	void client_timeout(int socket);
 
     // forward declare listener initializer and listener_loop helper
     int init_listener();
@@ -132,9 +134,9 @@ namespace cs3505
             if (failed_pings >= 5)
             {
                 // add client to the disconnect list
-                write(socket, "Timeout!!\r\n", 8);
+				client_timeout(socket);
 
-                break;
+                pthread_exit(0);
             }
 
             // check for ping
@@ -142,31 +144,16 @@ namespace cs3505
             {
                 //TODO
                 /*
-                    * if(ping_response)
-                    * {
-                    *  pingTimer = clock();
-                    *  failed_pings = 0;
-                    * }
-                    * else
-                    * {
-                    * 	failed_pings += 1;
-                    * }
-                    */
-
-                if (failed_pings >= 5)
-                {
-                    failed_pings = 0;
-                }
-                else
-                {
-                    failed_pings += 1;
-                }
-
-                write(socket, "Ping\r\n", 8);
-
-                // ping client
-                std::cout << "You've been pinged!!"
-                        << "\n";
+                 * if(ping_response)
+                 * {
+                 *   pingTimer = clock();
+                 *   failed_pings = 0;
+                 * }
+                 * else
+                 * {
+                 * 	 failed_pings += 1;
+                 * }
+                 */
 
                 // reset timer clock
                 pingTimer = clock();
@@ -203,8 +190,7 @@ namespace cs3505
             buffer[result] = 0;
 
             // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << result << " bytes:\n"
-                    << buffer << std::endl;
+            std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
         }
 
         close(socket);
@@ -418,23 +404,21 @@ namespace cs3505
         return response;
     }
 
-    /**
-     * This method takes two clock times and returns the difference
-     * 
-     * startTime - The starting time to test against
-     * testTime - The current time to compare
-     * 
-     * Returns a double value of seconds passed
-     */
-    double getTime(clock_t startTime, clock_t testTime)
+  /**
+   * This method takes two clock times and returns the difference
+   * 
+   * startTime - The current clock time
+   * testTime - The initial clock time
+   * 
+   * Returns a double value of seconds passed
+   */
+  double getTime(clock_t currentTime, clock_t initialTime)
     {
-        clock_t timePassed = startTime - testTime;
-        // extract time passed based on clock speed
-        double secondsPassed = timePassed / (double)CLOCKS_PER_SEC;
-        return secondsPassed;
+      clock_t timeDiff = currentTime - initialTime;
+      // extract time passed based on clock speed
+      double seconds = timeDiff / (double)CLOCKS_PER_SEC;
+      return seconds;
     }
-
-    #include <string>
 
 /**
  * This method parses the inputted message to make sure that it is complete and valid.
@@ -551,5 +535,20 @@ void parse_and__message(std::string message)
 
     // else not a valid message so we do nothing
 }
+
+
+  void client_timeout(int socket)
+  {
+    data->disconnect_add(socket);
+  }
+
+
+  bool check_ping_response()
+  {
+	//TODO Return ping response flag from interface
+    return true;
+  }
+
+
 
 } // end of class

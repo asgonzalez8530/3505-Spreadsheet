@@ -18,6 +18,11 @@
 #include <queue>
 #include <set>
 #include <map>
+#include <list>
+
+typedef std::list<int> socket_list;
+typedef std::map<std::string, socket_list> client_map;
+typedef std::map<int, int> ping_f;
 
 namespace cs3505
 {
@@ -25,6 +30,17 @@ namespace cs3505
     {
         private:
             // private variables (still need getters and setters for all)
+
+
+			/* TODO: Do we want to use something like this instead? */
+			 // list of all client sockets for a spreadsheet
+			socket_list clients;
+			 // map of client lists for spreadsheets
+			client_map map_of_spreadsheets;
+			
+			ping_f ping_flags;
+
+
             std::queue<int> new_clients;
             std::map<int, int> map_of_clients;
             std::set<int> disconnect;
