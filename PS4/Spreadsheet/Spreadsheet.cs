@@ -480,15 +480,13 @@ namespace SS
             // validate the cell name
             CellNameValidator(name);
 
-            try
-            {
-                // update dependencies and check circular exception
-                IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
-            }
-            catch (CircularException)
-            {
-                // TODO: 4/14 I think this is where I would mark the formula as a circular error   
-            }
+
+            // update dependencies and check circular exception
+            IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
+
+            Console.WriteLine("************PRINT CHECK***************");
+
+
             Changed = true;
 
             // set the cell contents
@@ -832,15 +830,10 @@ namespace SS
                 Type = CellType.formulaType;
 
                 cellContents = contents;
-                try
-                {
-                    cellValue = contents.Evaluate(lookup);
-                }
-                catch (CircularException)
-                {
-                    cellValue = new CircularError("");
-                }
-    }
+                
+                cellValue = contents.Evaluate(lookup);
+                
+            }
 
             /// <summary>
             /// Gets the contents of this cell. The contents can be a string, double or a formula.
@@ -908,26 +901,6 @@ namespace SS
 
     }
 
-    /// <summary>
-    /// Circular errors are stored when a formula cannot evaluate because of dependency.
-    /// </summary>
-    public struct CircularError
-    {
-        /// <summary>
-        /// Constructs a CircErr containing the explanatory reason.
-        /// </summary>
-        /// <param name="reason"></param>
-        public CircularError(String reason)
-            : this()
-        {
-            Reason = reason;
-        }
-
-        /// <summary>
-        ///  The reason why this CircErr was created.
-        /// </summary>
-        public string Reason { get; private set; }
-    }
 
     //------------------------------Extension Methods----------------------------------//
 
