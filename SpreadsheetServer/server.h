@@ -47,8 +47,6 @@ namespace cs3505
             std::string parseBuffer(std::string * message);
             void parse_and__message(std::string message);
 			std::string parse_message(std::string message);
-			bool check_ping_response();
-			friend void client_timeout(int socket);
 
 
     };

@@ -32,12 +32,12 @@ namespace cs3505
             // private variables (still need getters and setters for all)
 
 
-			/* TODO: Do we want to use something like this instead? */
+			/* TODO: Do we want to use data structures like these? */
 			 // list of all client sockets for a spreadsheet
 			socket_list clients;
 			 // map of client lists for spreadsheets
 			client_map map_of_spreadsheets;
-			
+			// map of ping flags for sockets
 			ping_f ping_flags;
 
 
@@ -58,7 +58,7 @@ namespace cs3505
             bool messages_isempty();
             std::string get_message();
             void messages_add(std::string);
-            
+			bool check_ping_response(int socket);
 
 
         private:

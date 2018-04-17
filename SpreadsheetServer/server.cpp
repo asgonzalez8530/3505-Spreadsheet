@@ -31,11 +31,16 @@ namespace cs3505
     void *ping_loop(void *connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     bool parseBuffer(int size, char buff[]);
-	void client_timeout(int socket);
 
     // forward declare listener initializer and listener_loop helper
     int init_listener();
     void *listener_loop(void *);
+
+	typedef struct _ThreadData
+	{
+		int socket;
+		interface * data;
+	} ThreadData;
 
     //**** public methods ****//
 
@@ -100,11 +105,15 @@ namespace cs3505
         // print for debugging
         std::cout << "Finished listener initialize." << std::endl;
 
+		ThreadData * args = new ThreadData();
+		args->socket = serverSocket;
+		args->data = &data;
+
         // set up a new thread for the listener loop()
         void *server = &serverSocket; // store as a void * so it can be passed to listener_loop()
         pthread_t new_connection_thread;
         pthread_create(&new_connection_thread, NULL, listener_loop, server);
-        pthread_create(&new_connection_thread, NULL, ping_loop, server);
+        pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
         // Clean up thread resources as they finish
         pthread_detach(new_connection_thread);
@@ -117,7 +126,8 @@ namespace cs3505
      */
     void *ping_loop(void *connection_file_descriptor)
     {
-        int socket = *((int *)connection_file_descriptor);
+		ThreadData * args = (ThreadData*)connection_file_descriptor;
+        int socket = args->socket;
         int failed_pings = 0;
         double secondsToPing = 10;
         double secondsToTimeout = 60;
@@ -134,7 +144,7 @@ namespace cs3505
             if (failed_pings >= 5)
             {
                 // add client to the disconnect list
-				client_timeout(socket);
+				(args->data)->disconnect_add(socket);
 
                 pthread_exit(0);
             }
@@ -142,18 +152,16 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
-                //TODO
-                /*
-                 * if(ping_response)
-                 * {
-                 *   pingTimer = clock();
-                 *   failed_pings = 0;
-                 * }
-                 * else
-                 * {
-                 * 	 failed_pings += 1;
-                 * }
-                 */
+
+				if((args->data)->check_ping_response))
+                {
+                    pingTimer = clock();
+                    failed_pings = 0;
+                }
+                else
+                {
+                    failed_pings += 1;
+                }
 
                 // reset timer clock
                 pingTimer = clock();
@@ -535,20 +543,6 @@ void parse_and__message(std::string message)
 
     // else not a valid message so we do nothing
 }
-
-
-  void client_timeout(int socket)
-  {
-    data->disconnect_add(socket);
-  }
-
-
-  bool check_ping_response()
-  {
-	//TODO Return ping response flag from interface
-    return true;
-  }
-
 
 
 } // end of class

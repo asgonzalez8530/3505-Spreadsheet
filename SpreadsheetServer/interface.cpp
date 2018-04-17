@@ -107,6 +107,14 @@ namespace cs3505
     {
         messages.push(message);
     }
+
+    /**
+     * Checks ping_flags for a response
+     */
+    bool check_ping_response(int socket)
+	{
+		return true;
+	}
     
 
 } // end of class
