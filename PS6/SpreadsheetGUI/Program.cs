@@ -52,10 +52,6 @@ namespace SpreadsheetGUI
             // Run the form
             form.Show();
         }
-
-
-        
-
     }
 
 

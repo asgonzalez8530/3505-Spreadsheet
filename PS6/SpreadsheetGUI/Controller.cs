@@ -59,7 +59,7 @@ namespace SpreadsheetGUI
             //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
-            window.Startup += MyDialogBox;
+            window.Startup += IPInputBox;
 
             // set default locations
             panel.SetSelection(0, 0);
@@ -421,11 +421,13 @@ namespace SpreadsheetGUI
             }
         }
 
+        /*************************************Connecting to Server and NETWORKING*****************************************/
+
 
         /// <summary>
         /// Shows a dialog box for getting the IP address of the spreadsheet server, and connecting appropriately.
         /// </summary>
-        private void MyDialogBox()
+        private void IPInputBox()
         {
             Form2 getIP = new Form2();
 
@@ -440,17 +442,22 @@ namespace SpreadsheetGUI
                 catch (Exception)
                 {
                     MessageBox.Show("There was a connection error, please try again.", "Error");
-                    MyDialogBox();
+                    IPInputBox();
                 }
             }
             else
             {
-                MyDialogBox();
+                IPInputBox();
             }
             
             getIP.Dispose();
         }
 
+        /// <summary>
+        /// Called Asynchronously by the Networking Library.
+        /// Send "register \3" message according to protocol.
+        /// </summary>
+        /// <param name="state"></param>
         private void FirstContact(SocketState state)
         {
             if (theServer.Connected && !state.hasError)
@@ -462,17 +469,22 @@ namespace SpreadsheetGUI
             else
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
-                MyDialogBox();
+                IPInputBox();
             }
         }
 
+        /// <summary>
+        /// Called Asynchronously by the Networking library.
+        /// Retrieves list of available spreadsheets and sends load message.
+        /// </summary>
+        /// <param name="state"></param>
         private void ReceiveStartup(SocketState state)
         {
             // state error or sbuilder null
             if (state.hasError)
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
-                MyDialogBox();
+                IPInputBox();
             }
             if (state.sBuilder == null)
             {
@@ -510,6 +522,7 @@ namespace SpreadsheetGUI
             window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
+            // TODO: could this clear too much?
             // clear sbuilder
             state.sBuilder.Clear();
 
@@ -517,14 +530,22 @@ namespace SpreadsheetGUI
             Networking.GetData(state);
         }
 
+        /// <summary>
+        /// Parse data and ...
+        /// </summary>
+        /// <param name="state"></param>
         private void ProcessMessage(SocketState state)
         {
+            // TODO: test up to this point? Make a fake server?
             throw new NotImplementedException();
+            // parse data and do the appropriate thing with each message.
         }
 
-        // meatAndPotatoes
-        // parse data, decide what to do with it
-
+        /// <summary>
+        /// Displays a Dialog box for choosing/ creating a new spreadsheet to connect to.
+        /// </summary>
+        /// <param name="sheetChoices"></param>
+        /// <returns></returns>
         private string ChooseSpreadsheetBox(string[] sheetChoices)
         {
             
