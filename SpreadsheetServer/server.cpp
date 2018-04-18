@@ -497,49 +497,49 @@ std::string parse_message(spreadsheet s, std::string message)
     if (message.find("register ") > 0)
     {
         int p = message.find("register ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // load
     else if (message.find("load ") > 0)
     {
         int p = message.find("load ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // edit
     else if (message.find("edit ") > 0)
     {
         int p = message.find("edit ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // focus
     else if (message.find("focus ") > 0)
     {
         int p = message.find("focus ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // unfocus
     else if (message.find("unfocus ") > 0)
     {
         int p = message.find("unfocus ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // undo
     else if (message.find("undo ") > 0)
     {
         int p = message.find("undo ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // revert
     else if (message.find("revert ") > 0)
     {
         int p = message.find("revert ");
-        message.substr(p, message.length - 1);
+        message.substr(p, message.length() - 1);
     }
 
     // else not a valid message so we do nothing
