@@ -401,16 +401,16 @@ namespace cs3505
      * 
      * the following messages should be parsed by this message and result in the following response
      */
-    std::string server::parse_message(std::string message)
-    {
-        // response message that the server will propogate if not an empty string
-        std::string response = "";
+    // std::string server::parse_message(std::string message)
+    // {
+    //     // response message that the server will propogate if not an empty string
+    //     std::string response = "";
 
-        // TODO: parse message here
-        // register message will add the client to the new clients list
+    //     // TODO: parse message here
+    //     // register message will add the client to the new clients list
 
-        return response;
-    }
+    //     return response;
+    // }
 
   /**
    * This method takes two clock times and returns the difference
@@ -486,11 +486,11 @@ std::string parseBuffer(std::string * message)
 }
 
 /**
- * parses the inputted message. And determine if its a valid message.
+ * parses the inputted message. And determines if its a valid message.
  * Implements the servers response to the message.
  * TODO: Still need to implement
  */
-void parse_and__message(std::string message)
+std::string parse_message(std::string message)
 {
     // register
     if (message.find("register ") > 0)
@@ -542,6 +542,7 @@ void parse_and__message(std::string message)
     }
 
     // else not a valid message so we do nothing
+    return NULL;
 }
 
 
