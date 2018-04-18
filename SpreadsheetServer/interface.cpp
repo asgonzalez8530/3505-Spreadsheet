@@ -128,7 +128,9 @@ namespace cs3505
     /**
      * Send a ping to the passed socket
      */
-	void send_ping(int socket);
+	void interface::send_ping(int socket)
+{
+}
     
 
 } // end of class
