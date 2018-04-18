@@ -21,7 +21,7 @@ namespace cs3505
 {
     interface::interface() 
     {
-	new_clients = std::queue<int>() ;
+		new_clients = std::queue<int>();
         map_of_clients = std::map<int, int>();
         disconnect = std::set<int>();
         messages = std::queue<std::string>();
@@ -107,6 +107,14 @@ namespace cs3505
     {
         messages.push(message);
     }
+
+    /**
+     * Checks ping_flags for a response
+     */
+    bool check_ping_response(int socket)
+	{
+		return true;
+	}
     
 
 } // end of class

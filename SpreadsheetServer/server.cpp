@@ -14,13 +14,14 @@
 
 #include "server.h"
 #include "interface.h"
-#include <string.h>
-#include <iostream>
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string.h>
+#include <string>
+#include <iostream>
 #include <ctime>
 
 namespace cs3505
@@ -34,6 +35,12 @@ namespace cs3505
     // forward declare listener initializer and listener_loop helper
     int init_listener();
     void *listener_loop(void *);
+
+	typedef struct _ThreadData
+	{
+		int socket;
+		interface * data;
+	} ThreadData;
 
     //**** public methods ****//
 
@@ -98,11 +105,15 @@ namespace cs3505
         // print for debugging
         std::cout << "Finished listener initialize." << std::endl;
 
+		ThreadData * args = new ThreadData();
+		args->socket = serverSocket;
+		args->data = &data;
+
         // set up a new thread for the listener loop()
         void *server = &serverSocket; // store as a void * so it can be passed to listener_loop()
         pthread_t new_connection_thread;
         pthread_create(&new_connection_thread, NULL, listener_loop, server);
-        pthread_create(&new_connection_thread, NULL, ping_loop, server);
+        pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
         // Clean up thread resources as they finish
         pthread_detach(new_connection_thread);
@@ -115,7 +126,8 @@ namespace cs3505
      */
     void *ping_loop(void *connection_file_descriptor)
     {
-        int socket = *((int *)connection_file_descriptor);
+		ThreadData * args = (ThreadData*)connection_file_descriptor;
+        int socket = args->socket;
         int failed_pings = 0;
         double secondsToPing = 10;
         double secondsToTimeout = 60;
@@ -132,41 +144,24 @@ namespace cs3505
             if (failed_pings >= 5)
             {
                 // add client to the disconnect list
-                write(socket, "Timeout!!\r\n", 8);
+				(args->data)->disconnect_add(socket);
 
-                break;
+                pthread_exit(0);
             }
 
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
-                //TODO
-                /*
-                    * if(ping_response)
-                    * {
-                    *  pingTimer = clock();
-                    *  failed_pings = 0;
-                    * }
-                    * else
-                    * {
-                    * 	failed_pings += 1;
-                    * }
-                    */
-
-                if (failed_pings >= 5)
+                //Check for a ping response
+				if((args->data)->check_ping_response))
                 {
+                    pingTimer = clock();
                     failed_pings = 0;
                 }
                 else
                 {
                     failed_pings += 1;
                 }
-
-                write(socket, "Ping\r\n", 8);
-
-                // ping client
-                std::cout << "You've been pinged!!"
-                        << "\n";
 
                 // reset timer clock
                 pingTimer = clock();
@@ -203,8 +198,7 @@ namespace cs3505
             buffer[result] = 0;
 
             // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << result << " bytes:\n"
-                    << buffer << std::endl;
+            std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
         }
 
         close(socket);
@@ -418,23 +412,21 @@ namespace cs3505
         return response;
     }
 
-    /**
-     * This method takes two clock times and returns the difference
-     * 
-     * startTime - The starting time to test against
-     * testTime - The current time to compare
-     * 
-     * Returns a double value of seconds passed
-     */
-    double getTime(clock_t startTime, clock_t testTime)
+  /**
+   * This method takes two clock times and returns the difference
+   * 
+   * startTime - The current clock time
+   * testTime - The initial clock time
+   * 
+   * Returns a double value of seconds passed
+   */
+  double getTime(clock_t currentTime, clock_t initialTime)
     {
-        clock_t timePassed = startTime - testTime;
-        // extract time passed based on clock speed
-        double secondsPassed = timePassed / (double)CLOCKS_PER_SEC;
-        return secondsPassed;
+      clock_t timeDiff = currentTime - initialTime;
+      // extract time passed based on clock speed
+      double seconds = timeDiff / (double)CLOCKS_PER_SEC;
+      return seconds;
     }
-
-    #include <string>
 
 /**
  * This method parses the inputted message to make sure that it is complete and valid.
@@ -551,5 +543,6 @@ void parse_and__message(std::string message)
 
     // else not a valid message so we do nothing
 }
+
 
 } // end of class
