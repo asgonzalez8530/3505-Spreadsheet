@@ -63,6 +63,7 @@ namespace cs3505
 			int check_ping_response(int socket);
 			void send_ping(int socket);
             void propogate_to_spreadsheet(spreadsheet * s, std::string message);
+            void propogate_to_client(int client, std::string message);
 
 
         private:

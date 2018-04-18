@@ -80,6 +80,7 @@ namespace cs3505
      */
     void interface::disconnect_add(int client)
     {
+        // lock
         disconnect.insert(client);
     }
 
@@ -115,6 +116,7 @@ namespace cs3505
      */
     void interface::messages_add(std::string message)
     {
+        // lock 
         messages.push(message);
     }
 
@@ -148,8 +150,17 @@ namespace cs3505
 
         // get the client list using the spreadsheet and map_of_clients 
 
+        // lock
         // add the message to outgoing messages of the client
     }
     
+    /**
+     * Propogate the inputted message to the clients passed in
+     */
+	void interface::propogate_to_client(int client, std::string message)
+    {
+        // lock
+        // add the message to outgoing messages of the client
+    }
 
 } // end of class

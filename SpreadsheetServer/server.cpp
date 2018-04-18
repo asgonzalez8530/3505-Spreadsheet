@@ -75,7 +75,6 @@ namespace cs3505
         // run the main server loop
         while (!terminate && !sleeping)
         {
-
             check_for_new_clients();
             verify_connections();
             sleeping = process_message();
@@ -186,26 +185,49 @@ namespace cs3505
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
-        int result = 0;
+        int size = 0;
 
         while (true)
         {
             // print for debugging
             std::cout << "Waiting to read reply from client." << std::endl;
 
-            result = read(socket, buffer, 1023);
+            size = read(socket, buffer, 1023);
 
-            if (result < 0)
+            if (size < 0)
             {
                 std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
                 exit(1);
             }
 
             // Insert null terminator in buffer
-            buffer[result] = 0;
+            buffer[size] = 0;
+
+            std::string result = parseBuffer(size, buffer);
+
+            if (result == null)
+            else if (result == "1")
+            {
+                // current client pinged a response so we flag ping as true
+            }
+            else if (result == "2")
+            {
+                // ping the client back 
+                // data.propogate_to_client(socket, result);
+            }
+            else if (result == "3")
+            {
+                // add the client to the disconnect list
+                // data.disconnect_add(socket)
+            }
+            else
+            {
+                // add message to the list of messages that needs to be processed
+                //data.messages_add(result);
+            }
 
             // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << result << " bytes:\n" << buffer << std::endl;
+            std::cout << "Received " << size << " bytes:\n" << buffer << std::endl;
         }
 
         close(socket);
@@ -497,15 +519,21 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     // register
     if (message.find("register ") > 0)
     {
+        // find where the message begins
         int p = message.find("register ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
     }
 
     // load
     else if (message.find("load ") > 0)
     {
+        // find where the message begins
         int p = message.find("load ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
     }
 
     // edit
@@ -527,15 +555,21 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     // focus
     else if (message.find("focus ") > 0)
     {
+        // find where the message begins
         int p = message.find("focus ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
     }
 
     // unfocus
     else if (message.find("unfocus ") > 0)
     {
+        // find where the message begins
         int p = message.find("unfocus ");
-        message.substr(p, message.length() - 1);
+       
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
     }
 
     // undo
