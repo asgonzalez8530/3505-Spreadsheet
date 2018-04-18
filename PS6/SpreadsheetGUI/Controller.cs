@@ -12,6 +12,10 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
+// TODO: send and receive focus messages (react properly to them)
+// TODO: all messages
+// TODO: edit cell in a cell
+
 
 namespace SpreadsheetGUI
 {
@@ -548,8 +552,7 @@ namespace SpreadsheetGUI
         /// <returns></returns>
         private string ChooseSpreadsheetBox(string[] sheetChoices)
         {
-            
-            return sheetChoices[0];
+            throw new NotImplementedException();
         }
     }
 }
