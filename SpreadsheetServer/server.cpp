@@ -14,6 +14,7 @@
 
 #include "server.h"
 #include "interface.h"
+#include "spreadsheet.h"
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
@@ -348,8 +349,10 @@ namespace cs3505
             // pop the message off the stack
             std::string message = data.get_message();
 
+            spreadsheet s();
+
             // parse the message
-            std::string response = parse_message(message);
+            std::string response = parse_message(s, message);
 
             if (!response.empty())
             {
@@ -493,55 +496,55 @@ std::string parseBuffer(std::string * message)
  * Implements the servers response to the message.
  * TODO: Still need to implement
  */
-std::string parse_message(std::string message)
+std::string parse_message(spreadsheet s, std::string message)
 {
     // register
     if (message.find("register ") > 0)
     {
         int p = message.find("register ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // load
     else if (message.find("load ") > 0)
     {
         int p = message.find("load ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // edit
     else if (message.find("edit ") > 0)
     {
         int p = message.find("edit ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // focus
     else if (message.find("focus ") > 0)
     {
         int p = message.find("focus ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // unfocus
     else if (message.find("unfocus ") > 0)
     {
         int p = message.find("unfocus ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // undo
     else if (message.find("undo ") > 0)
     {
         int p = message.find("undo ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // revert
-    else if (message.find("register ") > 0)
+    else if (message.find("revert ") > 0)
     {
-        int p = message.find("register ");
-        message.substr(p);
+        int p = message.find("revert ");
+        message.substr(p, message.length() - 1);
     }
 
     // else not a valid message so we do nothing

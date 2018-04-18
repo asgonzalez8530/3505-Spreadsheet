@@ -16,6 +16,7 @@
 #include <string>
 #include <ctime>
 #include "interface.h"
+#include "spreadsheet.h"
 
 namespace cs3505
 {
@@ -45,8 +46,8 @@ namespace cs3505
             void check_for_shutdown();
             void shutdown();
             std::string parseBuffer(std::string * message);
-            void parse_and__message(std::string message);
-			std::string parse_message(std::string message);
+            //void parse_and__message(std::string message);
+			std::string parse_message(spreadsheet, std::string message);
 
 
     };
