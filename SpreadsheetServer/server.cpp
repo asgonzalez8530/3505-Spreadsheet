@@ -483,7 +483,8 @@ std::string server::parseBuffer(std::string * message)
             return current_message;
         }
     }
-    
+
+    return NULL;
 }
 
 /**
@@ -514,8 +515,13 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         int p = message.find("edit ");
 
         // remove white space at the beginning of the message
-        message.substr(p);
+        std::string cleaned_up_message = message.substr(p);
 
+        // update spreadsheet with the change 
+        std::string result = s->update(cleaned_up_message);
+
+        // propgate the result to the other clients in the spreadsheet
+        data.propogate_to_spreadsheet(s, result);
     }
 
     // focus
@@ -535,15 +541,33 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     // undo
     else if (message.find("undo ") > 0)
     {
+        // find where the message begins
         int p = message.find("undo ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
+
+        // update spreadsheet with the change 
+        std::string result = s->update(cleaned_up_message);
+
+        // propgate the result to the other clients in the spreadsheet
+        data.propogate_to_spreadsheet(s, result);
     }
 
     // revert
     else if (message.find("revert ") > 0)
     {
+        // find where the message begins
         int p = message.find("revert ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        std::string cleaned_up_message = message.substr(p);
+
+        // update spreadsheet with the change 
+        std::string result = s->update(cleaned_up_message);
+
+        // propgate the result to the other clients in the spreadsheet
+        data.propogate_to_spreadsheet(s, result);
     }
 
     // else not a valid message so we do nothing
