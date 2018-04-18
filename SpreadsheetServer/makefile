@@ -20,10 +20,4 @@ socket_connection.o: socket_connection.cpp socket_connection.h
 	g++ -std=c++11 -c socket_connection.cpp
 
 tester.o: tester.cpp
-<<<<<<< HEAD
-	g++ -c tester.cpp
-
-#server.o
-=======
 	g++ -std=c++11 -c tester.cpp
->>>>>>> 79a6474c13cdbcd676b25b768f8cdfff6476c69a
