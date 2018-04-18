@@ -343,15 +343,10 @@ namespace cs3505
             // pop the message off the stack
             std::string message = data.get_message();
 
-            spreadsheet s();
-
-            // parse the message
-            std::string response = parse_message(s, message);
-
-            if (!response.empty())
-            {
-                // propogate the message on new thread
-            }
+            int socket = 0;
+            spreadsheet * s = new spreadsheet("testToParseMessages");
+            // parse the message and have the server respond apporiately
+            parse_and_respond_to_message(s, socket, message);
 
             return true;
         }
@@ -441,7 +436,7 @@ namespace cs3505
  *      3: its a disconnect message
  *      <string>: this a complete message that was not one of the above
  */
-std::string parseBuffer(std::string * message)
+std::string server::parseBuffer(std::string * message)
 {   
     // TODO: move this to the right before the method call
     // outside the loop
@@ -464,19 +459,19 @@ std::string parseBuffer(std::string * message)
         // ping_response (may be able to remove the char 3)
         if (current_message.find("ping_response ") > 0)
         {
-            return 1 + "";
+            return std::to_string(1);
         }
 
         // ping
         else if (current_message.find("ping ") > 0)
         {
-            return 2 + "";
+            return std::to_string(2);
         }
 
         // disconnect
         else if (current_message.find("ping_response ") > 0)
         {
-            return 3 + "";
+            return std::to_string(3);
         }
 
         // other messages that we will parse later
@@ -493,7 +488,7 @@ std::string parseBuffer(std::string * message)
  * Implements the servers response to the message.
  * TODO: Still need to implement
  */
-std::string parse_message(spreadsheet s, std::string message)
+void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::string message)
 {
     // register
     if (message.find("register ") > 0)
@@ -545,7 +540,6 @@ std::string parse_message(spreadsheet s, std::string message)
     }
 
     // else not a valid message so we do nothing
-    return NULL;
 }
 
 
