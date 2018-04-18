@@ -19,6 +19,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include "spreadsheet.h"
 
 typedef std::list<int> socket_list;
 typedef std::map<std::string, socket_list> client_map;
@@ -42,7 +43,7 @@ namespace cs3505
 
 
             std::queue<int> new_clients;
-            std::map<int, int> map_of_clients;
+            std::map<spreadsheet, int> map_of_clients;
             std::set<int> disconnect;
             std::queue<std::string> messages;
 
@@ -61,6 +62,8 @@ namespace cs3505
             void messages_add(std::string);
 			int check_ping_response(int socket);
 			void send_ping(int socket);
+            void propogate_to_spreadsheet(spreadsheet * s, std::string message);
+            void propogate_to_client(int client, std::string message);
 
 
         private:
