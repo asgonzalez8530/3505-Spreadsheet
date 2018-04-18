@@ -436,6 +436,14 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
+            ////////TODO: remove this hacky test for ChooseSpreadsheetBox//////////
+            //string[] stringarr = { "one", "two", "three" };
+
+            //string result = ChooseSpreadsheetBox(stringarr);
+
+            //window.WindowText = result;
+            //return;
+            //////////////////////////////////////////////////////////////////
             Form2 getIP = new Form2();
 
             if (getIP.ShowDialog() == DialogResult.OK)
@@ -555,7 +563,22 @@ namespace SpreadsheetGUI
         /// <returns></returns>
         private string ChooseSpreadsheetBox(string[] sheetChoices)
         {
-            throw new NotImplementedException();
+            Form3 comboForm = new Form3(sheetChoices);
+            string spreadsheet = "";
+
+            if (comboForm.ShowDialog() == DialogResult.OK)
+            {
+                spreadsheet = comboForm.comboBox.Text;
+                // TODO: clean file name here
+            }
+            else
+            {
+                spreadsheet = ChooseSpreadsheetBox(sheetChoices);
+            }
+
+            comboForm.Dispose();
+
+            return spreadsheet;
         }
 
         private void UndoLastChange()
