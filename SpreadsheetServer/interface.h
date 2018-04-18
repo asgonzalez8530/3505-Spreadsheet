@@ -59,6 +59,7 @@ namespace cs3505
             std::string get_message();
             void messages_add(std::string);
 			int check_ping_response(int socket);
+			void send_ping(int socket);
 
 
         private:

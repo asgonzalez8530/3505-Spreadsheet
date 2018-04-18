@@ -115,6 +115,11 @@ namespace cs3505
 	{
 		return true;
 	}
+
+    /**
+     * Send a ping to the passed socket
+     */
+	void send_ping(int socket);
     
 
 } // end of class

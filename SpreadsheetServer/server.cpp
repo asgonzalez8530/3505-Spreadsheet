@@ -85,6 +85,9 @@ namespace cs3505
                 //sleep(10ms);
                 sleeping = false;
             }
+
+			// Checks for "quit" to be input by user
+            check_for_shutdown();
         }
 
         shutdown();
@@ -152,6 +155,9 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
+
+				(args->data)->send_ping(socket);
+
                 //Check for a ping response
 				if((args->data)->check_ping_response(socket))
                 {
@@ -361,18 +367,15 @@ namespace cs3505
      */
     void server::check_for_shutdown()
     {
-        while (true)
+        std::string input = "";
+        std::getline(std::cin, input);
+
+        if (input.compare("quit") == 0)
         {
-            std::string input = "";
-            std::getline(std::cin, input);
+            // lock terminate
 
-            if (input.compare("quit") == 0)
-            {
-                // lock terminate
-
-                // flip the boolean flag terminate to tell the program to terminate
-                terminate = true;
-            }
+            // flip the boolean flag terminate to tell the program to terminate
+            terminate = true;
         }
     }
 
