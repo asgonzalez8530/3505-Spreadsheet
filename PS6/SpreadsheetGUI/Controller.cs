@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SpreadsheetUtilities;
+using NetworkController;
+using System.Net.Sockets;
 
-// TODO: check for TODO in formula and spreadsheet
-// TODO: take out print statement from setcellcontents in spreadsheet
 
 namespace SpreadsheetGUI
 {
@@ -22,6 +22,10 @@ namespace SpreadsheetGUI
     {
         private SS.Spreadsheet sheet; // reference to the model 
         private ISpreadsheetWindow window; // reference to the GUI (view)
+        private Socket theServer; // reference to Networking
+
+        char THREE = (char)3;
+
 
         /// <summary>
         /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
@@ -428,9 +432,16 @@ namespace SpreadsheetGUI
             if (getIP.ShowDialog() == DialogResult.OK)
             {
                 string ipAddress = getIP.ipTextBox.Text;
-                // TODO: Try connecting here, if it doesn't work, call MyDialogBox() again.
-                // update window text with whatever file chosen
-                // create form3 for selecting spreadsheet or creating new
+                
+                try
+                {
+                    theServer = Networking.ConnectToServer(FirstContact, ipAddress);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("There was a connection error, please try again.", "Error");
+                    MyDialogBox();
+                }
             }
             else
             {
@@ -438,6 +449,86 @@ namespace SpreadsheetGUI
             }
             
             getIP.Dispose();
+        }
+
+        private void FirstContact(SocketState state)
+        {
+            if (theServer.Connected && !state.hasError)
+            {
+                state.callMe = ReceiveStartup;
+                Networking.Send(state.theSocket, "register " + THREE);
+                Networking.GetData(state);
+            }
+            else
+            {
+                MessageBox.Show("There was a connection error, please try again.", "Error");
+                MyDialogBox();
+            }
+        }
+
+        private void ReceiveStartup(SocketState state)
+        {
+            // state error or sbuilder null
+            if (state.hasError)
+            {
+                MessageBox.Show("There was a connection error, please try again.", "Error");
+                MyDialogBox();
+            }
+            if (state.sBuilder == null)
+            {
+                return;
+            }
+
+            // get info from sbuilder
+            string fromServer = state.sBuilder.ToString();
+
+            if (!fromServer.Contains(THREE))
+            {
+                return;
+            }
+
+            // "connect_accepted spreadsheet\nother\ncrazy\3"
+            // parse and use info for combo box
+            string connect_accepted = "connect_accepted ";
+            string[] parsed = fromServer.Split(THREE);
+            string connectAcceptMessage = parsed[0];
+            string sheets = "";
+
+            if (!connectAcceptMessage.StartsWith(connect_accepted))
+            {
+                return; // Server sent a bogus message.
+            }
+            else
+            {
+                sheets = connectAcceptMessage.Remove(0, connect_accepted.Length);
+            }
+            string[] sheetChoicesForUser = sheets.Split('\n');
+
+            // in combo box dialog, choose a spreadsheet
+            string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
+            
+            window.WindowText = spreadsheet;
+            Networking.Send(theServer, "load " + spreadsheet + THREE);
+
+            // clear sbuilder
+            state.sBuilder.Clear();
+
+            state.callMe = ProcessMessage;
+            Networking.GetData(state);
+        }
+
+        private void ProcessMessage(SocketState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        // meatAndPotatoes
+        // parse data, decide what to do with it
+
+        private string ChooseSpreadsheetBox(string[] sheetChoices)
+        {
+            
+            return sheetChoices[0];
         }
     }
 }

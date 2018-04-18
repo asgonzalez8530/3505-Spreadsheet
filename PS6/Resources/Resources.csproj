@@ -41,6 +41,8 @@
     <Content Include="Libraries\DependencyGraph.xml" />
     <Content Include="Libraries\Formula.dll" />
     <Content Include="Libraries\Formula.xml" />
+    <Content Include="Libraries\NetworkController.dll" />
+    <Content Include="Libraries\NetworkController.xml" />
     <Content Include="Libraries\Spreadsheet.dll" />
     <Content Include="Libraries\Spreadsheet.xml" />
     <Content Include="Libraries\SpreadsheetPanel.dll" />
