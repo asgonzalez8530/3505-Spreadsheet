@@ -153,7 +153,7 @@ namespace cs3505
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
                 //Check for a ping response
-				if((args->data)->check_ping_response))
+				if((args->data)->check_ping_response(socket))
                 {
                     pingTimer = clock();
                     failed_pings = 0;

@@ -111,7 +111,7 @@ namespace cs3505
     /**
      * Checks ping_flags for a response
      */
-    bool check_ping_response(int socket)
+    int interface::check_ping_response(int socket)
 	{
 		return true;
 	}
