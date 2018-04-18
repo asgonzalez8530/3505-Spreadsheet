@@ -429,6 +429,8 @@ namespace SpreadsheetGUI
             {
                 string ipAddress = getIP.ipTextBox.Text;
                 // TODO: Try connecting here, if it doesn't work, call MyDialogBox() again.
+                // update window text with whatever file chosen
+                // create form3 for selecting spreadsheet or creating new
             }
             else
             {
