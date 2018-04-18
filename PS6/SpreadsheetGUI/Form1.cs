@@ -20,6 +20,9 @@ namespace SpreadsheetGUI
         public event Action AboutText;
         public event Action HowToUseText;
 
+        // Added for 3505
+        public event Action Startup;
+
         /// <summary>
         /// Gets the spreadsheet panel component in this window
         /// </summary>
@@ -214,8 +217,8 @@ namespace SpreadsheetGUI
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            // try connecting -> fires off event
-            // error message or choose spreadsheet
+            Startup();
         }
+       
     }
 }

@@ -25,6 +25,8 @@ namespace SpreadsheetGUI
 
         event Action HowToUseText;
 
+        event Action Startup;
+
         /// <summary>
         /// Gets the spreadsheet panel component in this window
         /// </summary>

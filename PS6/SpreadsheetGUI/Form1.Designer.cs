@@ -35,8 +35,6 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CellProperties = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.connectButton = new System.Windows.Forms.Button();
             this.contents_button = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -107,8 +105,6 @@
             // 
             this.CellProperties.AutoSize = true;
             this.CellProperties.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.CellProperties.Controls.Add(this.label1);
-            this.CellProperties.Controls.Add(this.textBox1);
             this.CellProperties.Controls.Add(this.connectButton);
             this.CellProperties.Controls.Add(this.contents_button);
             this.CellProperties.Controls.Add(this.tableLayoutPanel2);
@@ -121,25 +117,9 @@
             this.CellProperties.TabStop = false;
             this.CellProperties.Text = "Cell Properties";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(609, 16);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 13);
-            this.label1.TabIndex = 9;
-            this.label1.Text = "IP Address:";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(677, 13);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(178, 20);
-            this.textBox1.TabIndex = 8;
-            // 
             // connectButton
             // 
-            this.connectButton.Location = new System.Drawing.Point(677, 39);
+            this.connectButton.Location = new System.Drawing.Point(688, 23);
             this.connectButton.Name = "connectButton";
             this.connectButton.Size = new System.Drawing.Size(178, 61);
             this.connectButton.TabIndex = 7;
@@ -268,7 +248,6 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.CellProperties.ResumeLayout(false);
-            this.CellProperties.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
@@ -294,8 +273,6 @@
         private SS.SpreadsheetPanel spreadsheetPanel1;
         private System.Windows.Forms.Button contents_button;
         private System.Windows.Forms.Button connectButton;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
     }
 }
 

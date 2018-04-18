@@ -33,7 +33,7 @@ namespace SpreadsheetGUI
             window = spreadsheetWindow;
 
             // set the window name at the top of the form 
-            window.WindowText = "untitled.sprd";
+            window.WindowText = "YOU NEED TO CONNECT TO A SPREADSHEET STILL";
 
             // create a new model
             string version = "ps6";
@@ -55,6 +55,7 @@ namespace SpreadsheetGUI
             //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
+            window.Startup += MyDialogBox;
 
             // set default locations
             panel.SetSelection(0, 0);
@@ -414,6 +415,27 @@ namespace SpreadsheetGUI
                     Save();
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Shows a dialog box for getting the IP address of the spreadsheet server, and connecting appropriately.
+        /// </summary>
+        private void MyDialogBox()
+        {
+            Form2 getIP = new Form2();
+
+            if (getIP.ShowDialog() == DialogResult.OK)
+            {
+                string ipAddress = getIP.ipTextBox.Text;
+                // TODO: Try connecting here, if it doesn't work, call MyDialogBox() again.
+            }
+            else
+            {
+                MyDialogBox();
+            }
+            
+            getIP.Dispose();
         }
     }
 }
