@@ -486,11 +486,11 @@ std::string parseBuffer(std::string * message)
 }
 
 /**
- * parses the inputted message. And determine if its a valid message.
+ * parses the inputted message. And determines if its a valid message.
  * Implements the servers response to the message.
  * TODO: Still need to implement
  */
-void parse_and__message(std::string message)
+string parse_and__message(std::string message)
 {
     // register
     if (message.find("register ") > 0)
