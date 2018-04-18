@@ -12,6 +12,7 @@ namespace SpreadsheetGUI
 {
     public partial class Form2 : Form
     {
+        // TODO: can use parameters
         public Form2()
         {
             InitializeComponent();

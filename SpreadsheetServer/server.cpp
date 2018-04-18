@@ -14,6 +14,7 @@
 
 #include "server.h"
 #include "interface.h"
+#include "spreadsheet.h"
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
@@ -85,6 +86,9 @@ namespace cs3505
                 //sleep(10ms);
                 sleeping = false;
             }
+
+			// Checks for "quit" to be input by user
+            check_for_shutdown();
         }
 
         shutdown();
@@ -152,8 +156,11 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
+
+				(args->data)->send_ping(socket);
+
                 //Check for a ping response
-				if((args->data)->check_ping_response))
+				if((args->data)->check_ping_response(socket))
                 {
                     pingTimer = clock();
                     failed_pings = 0;
@@ -342,13 +349,10 @@ namespace cs3505
             // pop the message off the stack
             std::string message = data.get_message();
 
-            // parse the message
-            std::string response = parse_message(message);
-
-            if (!response.empty())
-            {
-                // propogate the message on new thread
-            }
+            int socket = 0;
+            spreadsheet * s = new spreadsheet("testToParseMessages");
+            // parse the message and have the server respond apporiately
+            parse_and_respond_to_message(s, socket, message);
 
             return true;
         }
@@ -361,18 +365,15 @@ namespace cs3505
      */
     void server::check_for_shutdown()
     {
-        while (true)
+        std::string input = "";
+        std::getline(std::cin, input);
+
+        if (input.compare("quit") == 0)
         {
-            std::string input = "";
-            std::getline(std::cin, input);
+            // lock terminate
 
-            if (input.compare("quit") == 0)
-            {
-                // lock terminate
-
-                // flip the boolean flag terminate to tell the program to terminate
-                terminate = true;
-            }
+            // flip the boolean flag terminate to tell the program to terminate
+            terminate = true;
         }
     }
 
@@ -438,7 +439,7 @@ namespace cs3505
  *      3: its a disconnect message
  *      <string>: this a complete message that was not one of the above
  */
-std::string parseBuffer(std::string * message)
+std::string server::parseBuffer(std::string * message)
 {   
     // TODO: move this to the right before the method call
     // outside the loop
@@ -461,19 +462,19 @@ std::string parseBuffer(std::string * message)
         // ping_response (may be able to remove the char 3)
         if (current_message.find("ping_response ") > 0)
         {
-            return 1 + "";
+            return std::to_string(1);
         }
 
         // ping
         else if (current_message.find("ping ") > 0)
         {
-            return 2 + "";
+            return std::to_string(2);
         }
 
         // disconnect
         else if (current_message.find("ping_response ") > 0)
         {
-            return 3 + "";
+            return std::to_string(3);
         }
 
         // other messages that we will parse later
@@ -490,59 +491,58 @@ std::string parseBuffer(std::string * message)
  * Implements the servers response to the message.
  * TODO: Still need to implement
  */
-std::string parse_message(std::string message)
+void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::string message)
 {
     // register
     if (message.find("register ") > 0)
     {
         int p = message.find("register ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // load
     else if (message.find("load ") > 0)
     {
         int p = message.find("load ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // edit
     else if (message.find("edit ") > 0)
     {
         int p = message.find("edit ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // focus
     else if (message.find("focus ") > 0)
     {
         int p = message.find("focus ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // unfocus
     else if (message.find("unfocus ") > 0)
     {
         int p = message.find("unfocus ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // undo
     else if (message.find("undo ") > 0)
     {
         int p = message.find("undo ");
-        message.substr(p);
+        message.substr(p, message.length() - 1);
     }
 
     // revert
-    else if (message.find("register ") > 0)
+    else if (message.find("revert ") > 0)
     {
-        int p = message.find("register ");
-        message.substr(p);
+        int p = message.find("revert ");
+        message.substr(p, message.length() - 1);
     }
 
     // else not a valid message so we do nothing
-    return NULL;
 }
 
 

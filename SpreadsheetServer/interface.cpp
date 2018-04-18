@@ -27,6 +27,15 @@ namespace cs3505
         messages = std::queue<std::string>();
     }
 
+
+    /**
+     * Destructor for the interface
+     */
+    interface::~interface() 
+    {
+
+    }
+
     /**
      * Returns true if there are clients to client. Otherwise returns false. 
      */
@@ -111,10 +120,15 @@ namespace cs3505
     /**
      * Checks ping_flags for a response
      */
-    bool check_ping_response(int socket)
+    int interface::check_ping_response(int socket)
 	{
 		return true;
 	}
+
+    /**
+     * Send a ping to the passed socket
+     */
+	void send_ping(int socket);
     
 
 } // end of class
