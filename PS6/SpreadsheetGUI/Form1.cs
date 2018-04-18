@@ -22,6 +22,8 @@ namespace SpreadsheetGUI
 
         // Added for 3505
         public event Action Startup;
+        public event Action Undo;
+        public event Action Revert;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -219,6 +221,15 @@ namespace SpreadsheetGUI
         {
             Startup();
         }
-       
+
+        private void RevertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Revert();
+        }
+
+        private void UndoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Undo();
+        }
     }
 }

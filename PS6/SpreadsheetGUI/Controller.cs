@@ -12,9 +12,9 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
+// TODO: edit cell in a cell
 // TODO: send and receive focus messages (react properly to them)
 // TODO: all messages
-// TODO: edit cell in a cell
 
 
 namespace SpreadsheetGUI
@@ -63,7 +63,10 @@ namespace SpreadsheetGUI
             //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
+            // added for 3505
             window.Startup += IPInputBox;
+            window.Undo += UndoLastChange;
+            window.Revert += RevertCell;
 
             // set default locations
             panel.SetSelection(0, 0);
@@ -551,6 +554,16 @@ namespace SpreadsheetGUI
         /// <param name="sheetChoices"></param>
         /// <returns></returns>
         private string ChooseSpreadsheetBox(string[] sheetChoices)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void UndoLastChange()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void RevertCell()
         {
             throw new NotImplementedException();
         }

@@ -27,6 +27,10 @@ namespace SpreadsheetGUI
 
         event Action Startup;
 
+        event Action Revert;
+
+        event Action Undo;
+
         /// <summary>
         /// Gets the spreadsheet panel component in this window
         /// </summary>
