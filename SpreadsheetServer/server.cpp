@@ -455,8 +455,8 @@ std::string server::parseBuffer(std::string * message)
     // check to see if its a complete message
     if ( position > 0 )
     {
-        // pull out and remove the message from the beginning to the current char;
-        std::string current_message = message->substr(0, position + 1);
+        // pull out and remove the message from the beginning to right before the /3
+        std::string current_message = message->substr(0, position);
         *message = message->substr(position + 1);
 
         // ping_response (may be able to remove the char 3)
@@ -510,8 +510,14 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     // edit
     else if (message.find("edit ") > 0)
     {
+        // find where the message begins
         int p = message.find("edit ");
-        message.substr(p, message.length() - 1);
+
+        // remove white space at the beginning of the message
+        message.substr(p);
+        // remove the /3 at the end
+        message.substr(0, )
+
     }
 
     // focus

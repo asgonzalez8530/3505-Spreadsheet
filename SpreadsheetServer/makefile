@@ -21,3 +21,6 @@ socket_connection.o: socket_connection.cpp socket_connection.h
 
 tester.o: tester.cpp
 	g++ -std=c++11 -c tester.cpp
+
+clean:
+	rm a.out *.o tester
