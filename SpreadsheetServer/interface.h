@@ -49,6 +49,7 @@ namespace cs3505
         public:
             // constructor
             interface();
+            ~interface();
             bool new_clients_isempty();
             void new_clients_add(int);
             void new_clients_finish_handshake();

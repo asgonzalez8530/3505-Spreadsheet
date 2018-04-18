@@ -27,6 +27,15 @@ namespace cs3505
         messages = std::queue<std::string>();
     }
 
+
+    /**
+     * Destructor for the interface
+     */
+    interface::~interface() 
+    {
+
+    }
+
     /**
      * Returns true if there are clients to client. Otherwise returns false. 
      */
