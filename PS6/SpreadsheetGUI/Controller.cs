@@ -252,20 +252,11 @@ namespace SpreadsheetGUI
                 window.SetCellText(row, col, value.ToString());
             }
             // else text box value will be set to Error
-            else if (value is FormulaError)
-            {
-                window.SetCellText(row, col, "FormulaError");
-            }
-            else if (value is CircularError)
-            {
-                window.SetCellText(row, col, "CircularError");
-            }
             else
             {
-                window.SetCellText(row, col, "FormatError");
+                window.SetCellText(row, col, "CellError");
             }
-
-
+            
         }
 
         /// <summary>

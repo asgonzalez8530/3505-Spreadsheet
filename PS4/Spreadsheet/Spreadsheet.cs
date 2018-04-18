@@ -484,13 +484,10 @@ namespace SS
             // update dependencies and check circular exception
             IEnumerable<string> dependencies = CheckCircularGetDependency(name, formula);
 
-            Console.WriteLine("************PRINT CHECK***************");
-
-
             Changed = true;
 
             // set the cell contents
-            // TODO: this if else throws ArgumentException when it is formerror or circerror
+            // Argument Exception thrown here
             if (cells.ContainsKey(name))
             {
                 cells[name] = new Cell(formula, LookupCellValue);
@@ -869,10 +866,6 @@ namespace SS
                         else if (cellValue.GetType() == typeof(FormatError))
                         {
                             return (FormatError)cellValue;
-                        }
-                        else if (cellValue.GetType() == typeof(CircularError))
-                        {
-                            return (CircularError)cellValue;
                         }
                         else
                         {

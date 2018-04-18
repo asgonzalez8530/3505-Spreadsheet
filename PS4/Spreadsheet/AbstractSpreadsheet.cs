@@ -368,11 +368,12 @@ namespace SS
             visited.Add(name);
             foreach(String n in GetDirectDependents(name))
             {
+                // Update for 3505
+                // Circular Errors now throw ArgumentException, because it can not be evaluated to a double
                 //if(n.Equals(start))
                 //{
                 //    throw new CircularException();
-                //}
-                //else
+                //} else
                 if(!visited.Contains(n))
                 {
                     Visit(start, n, visited, changed);

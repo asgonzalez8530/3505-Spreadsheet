@@ -117,6 +117,7 @@ namespace SpreadsheetGUI
         /// </summary>
         public void SetDefaultAcceptButton()
         {
+            // TODO: ENTER button
             AcceptButton = contents_button;
         }
 

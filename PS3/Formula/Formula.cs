@@ -60,8 +60,6 @@ namespace SpreadsheetUtilities
         /// </summary>
         private FormatError fe = null;
 
-        private bool circularDependency = false;
-
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -169,11 +167,6 @@ namespace SpreadsheetUtilities
             return t;
         }
 
-        public void markDependency()
-        {
-            circularDependency = true;
-        }
-
         /// <summary>
         /// Takes in a string value, if it can be parsed to a double d, returns 
         /// the d.ToString() else returns v unchanged. 
@@ -222,12 +215,7 @@ namespace SpreadsheetUtilities
                 return fe;
             }
 
-            if (circularDependency)
-            {
-                return new CircularError("");
-            }
-
-
+           
             // this is the main body of the algorithm where the expression is evaluated
             foreach(string token in tokens)
             {
@@ -779,27 +767,6 @@ namespace SpreadsheetUtilities
         /// </summary>
         /// <param name="reason"></param>
         public FormulaError(String reason)
-            : this()
-        {
-            Reason = reason;
-        }
-
-        /// <summary>
-        ///  The reason why this FormulaError was created.
-        /// </summary>
-        public string Reason { get; private set; }
-    }
-
-    /// <summary>
-    /// circ error
-    /// </summary>
-    public struct CircularError
-    {
-        /// <summary>
-        /// Constructs a FormulaError containing the explanatory reason.
-        /// </summary>
-        /// <param name="reason"></param>
-        public CircularError(String reason)
             : this()
         {
             Reason = reason;
