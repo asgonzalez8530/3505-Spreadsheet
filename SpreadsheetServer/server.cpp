@@ -515,8 +515,6 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
 
         // remove white space at the beginning of the message
         message.substr(p);
-        // remove the /3 at the end
-        message.substr(0, )
 
     }
 
