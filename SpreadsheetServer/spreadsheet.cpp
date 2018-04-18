@@ -119,7 +119,7 @@ namespace cs3505
 			std::stack<std::string> temp(edits);
 			
 			// build file path to edits stack
-			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_edits.sprd");
+			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
 
 
 
@@ -140,7 +140,7 @@ namespace cs3505
 			std::map<std::string, std::stack<std::string> > temp(sheet);
 			
 			// build file path to sheet map
-			boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(myName + "_sheet.sprd");
+			boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_sheet.sprd");
 
 			boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams		
 			boost::archive::text_oarchive sheetArchive(sheetOut); // set up out archives
@@ -164,10 +164,10 @@ namespace cs3505
 		this->myName = fileName;
 
 		// build file path to sheet map
-		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_sheet.sprd");
+		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + fileName + "_sheet.sprd");
 
 		// build file path to edits stack
-		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)(fileName + "_edits.sprd");
+		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + fileName + "_edits.sprd");
 
 
 		

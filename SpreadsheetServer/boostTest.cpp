@@ -7,6 +7,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <stack>
 #include <fstream>
+#include <set>
 
 // to run:
 // g++ -o boostTest boostTest.cpp -lboost_system -lboost_serialization -lboost_filesystem
@@ -15,6 +16,28 @@
 
 int main()
 {
+	boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
+	
+	if(boost::filesystem::is_directory(directory))
+	{
+		std::set<std::string> meSprds;
+
+		std::cout << directory << " is a directory!" << std::endl;	
+		for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
+		{
+			boost::filesystem::directory_entry file = *rator;
+			std::string filename = ((boost::filesystem::path)file).filename().string();
+			std::string next = filename.substr(0, filename.length() - 11);
+
+			meSprds.insert(next);
+			
+		}
+
+		for(std::set<std::string>::iterator iter = meSprds.begin(); iter != meSprds.end(); iter++)
+			std::cout << *iter << std::endl;
+	}
+
+/*
 	std::ofstream helloOut("HELLOWORLD.txt");
 	helloOut << "Hello, World!" << std::endl;
 
@@ -37,6 +60,8 @@ int main()
 	std::cout << "Writing edits. Edits size = " << temp.size() << std::endl;
 	editsArchive << temp;
 	std::cout << "Wrote edits!!!" << std::endl;
+
+*/
 }
 
 /*

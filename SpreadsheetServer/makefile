@@ -1,7 +1,7 @@
 a.out: makefile main.o server.o interface.o spreadsheet.o socket_connection.o tester
 	g++ main.o server.o interface.o spreadsheet.o socket_connection.o /usr/local/lib/libboost_system.a /usr/local/lib/libboost_serialization.a /usr/local/lib/libboost_filesystem.a -lpthread
 
-tester: makefile tester.o server.o interface.o spreadsheet.o socket_connection.o
+tester: makefile tester.o interface.o spreadsheet.o socket_connection.o server.o
 	g++ -o tester server.o interface.o tester.o spreadsheet.o socket_connection.o /usr/local/lib/libboost_system.a /usr/local/lib/libboost_serialization.a /usr/local/lib/libboost_filesystem.a -lgtest -lpthread
 
 main.o: main.cpp server.h
@@ -21,3 +21,5 @@ socket_connection.o: socket_connection.cpp socket_connection.h
 
 tester.o: tester.cpp
 	g++ -c tester.cpp
+
+#server.o
