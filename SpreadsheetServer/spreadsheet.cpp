@@ -32,16 +32,15 @@
 
 namespace cs3505
 {
+
+/*
+ ************************** PRIVATE METHODS ***********************
+ */
 	/*
 	 * Change cellName's contents to cellContents. Counts as an edit.
 	 */
 	std::string spreadsheet::edit(std::string cellName, std::string cellContents)
 	{	
-		// TODO checking if it's empty, but may actually need to check if it's NULL too
-
-		std::cout << "Hello from edit." << std::endl;
-
-
 		sheet[cellName];
 
 		// peek the cell's stack, preserve the old value 
@@ -103,52 +102,37 @@ namespace cs3505
 		return "change A1:This should not be happening."; // TODO should never reach this. . .
 	}
 
+/*
+ ************************** PUBLIC METHODS ***********************
+ */
+
+
 	/*
 	 * Write the current state of the spreadsheet to file.
 	 */
 	void spreadsheet::save() 
 	{
-
-		if(!edits.empty())
-		{
-		
-			std::cout << "I don't even know." << std::endl;	
-			std::cout << edits.top() << std::endl;	
-			std::cout << sheet["A1"].top() << std::endl;
-			
+		// save if there's something to save
+		if(!edits.empty() && !sheet.empty())
+		{			
 			std::stack<std::string> temp(edits);
 			
 			// build file path to edits stack
 			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
 
-
-
-			std::cout << "Set up path." << std::endl;	
-
-			boost::filesystem::ofstream  editsOut(myEdits); // set up out file streams
-			std::cout << "Made filestream. " << editsOut.good() << std::endl;	
-			boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
-			std::cout << "Made edits archive." << std::endl;	
-
-			std::cout << "Writing edits. Edits size = " << edits.size() << std::endl;
-			editsArchive << temp;
-			std::cout << "Wrote edits." << std::endl;	
-		}
-
-		if(!sheet.empty())
-		{
-			std::map<std::string, std::stack<std::string> > temp(sheet);
-			
 			// build file path to sheet map
 			boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_sheet.sprd");
 
-			boost::filesystem::ofstream sheetOut(mySheet); // set up out file streams		
-			boost::archive::text_oarchive sheetArchive(sheetOut); // set up out archives
 
-			std::cout << "Writing sheet." << std::endl;
-			sheetArchive << temp; // write to archives
+			boost::filesystem::ofstream  editsOut(myEdits); // set up out file streams
+			boost::filesystem::ofstream sheetOut(mySheet);
+
+			boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
+			boost::archive::text_oarchive sheetArchive(sheetOut); 
+
+			editsArchive << temp; // write to archives	
+			sheetArchive << temp; 
 		}
-
 	}
 
 	/*
@@ -170,43 +154,33 @@ namespace cs3505
 		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + fileName + "_edits.sprd");
 
 
-		
-		// if the "sheet" file exists, read from it
-		if (boost::filesystem::exists(mySheet) && boost::filesystem::file_size(mySheet) > 0)
-		{
-			boost::filesystem::ifstream in(mySheet);
-			boost::archive::text_iarchive meArchive(in);
+		// do the files exist, and are they non-zero in size?
+		bool sheetExists = boost::filesystem::exists(mySheet) && boost::filesystem::file_size(mySheet) > 0;		
+		bool editsExists = boost::filesystem::exists(myEdits) && boost::filesystem::file_size(myEdits) > 0;
 
-			meArchive >> sheet; // populate this->sheet
+		// if the "sheet" and "edits" files exist, read from it
+		if (sheetExists && editsExists)
+		{
+			boost::filesystem::ifstream sheetIn(mySheet); // set up out file streams
+			boost::filesystem::ifstream editsIn(myEdits);
+
+			boost::archive::text_iarchive sheetArchive(sheetIn); // set up out archives
+			boost::archive::text_iarchive editsArchive(editsIn);
+
+			sheetArchive >> sheet; // populate this->sheet and this-> edits
+			editsArchive >> edits; 
 
 			// archive AND ifstream are closed when we leave scope 
-			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
 		}
 
-		// otherwise, create the file and close it.
+		// otherwise, create the files and close them.
 		else
 		{
-			boost::filesystem::ofstream out(mySheet);
-			out.close();
-		}
+			boost::filesystem::ofstream sheetOut(mySheet);
+			sheetOut.close();
 
-		// if the "edits" file exists, read from it
-		if (boost::filesystem::exists(myEdits) && boost::filesystem::file_size(myEdits) > 0)
-		{
-			boost::filesystem::ifstream in(myEdits);
-			boost::archive::text_iarchive meArchive(in);
-
-			meArchive >> edits; // populate this->edits
-
-			// archive AND ifstream are closed when we leave scope 
-			// (https://www.boost.org/doc/libs/1_66_0/libs/serialization/doc/tutorial.html)
-		}
-
-		// otherwise, create the file and close it
-		else
-		{
-			boost::filesystem::ofstream out(myEdits);
-			out.close();
+			boost::filesystem::ofstream editsOut(myEdits);
+			editsOut.close();
 		}
 	}
 
