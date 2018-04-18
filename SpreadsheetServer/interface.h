@@ -58,7 +58,7 @@ namespace cs3505
             bool messages_isempty();
             std::string get_message();
             void messages_add(std::string);
-			bool check_ping_response(int socket);
+			int check_ping_response(int socket);
 
 
         private:
