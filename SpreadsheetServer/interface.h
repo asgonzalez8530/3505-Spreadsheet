@@ -49,6 +49,7 @@ namespace cs3505
         public:
             // constructor
             interface();
+            ~interface();
             bool new_clients_isempty();
             void new_clients_add(int);
             void new_clients_finish_handshake();
@@ -59,6 +60,7 @@ namespace cs3505
             std::string get_message();
             void messages_add(std::string);
 			int check_ping_response(int socket);
+			void send_ping(int socket);
 
 
         private:
