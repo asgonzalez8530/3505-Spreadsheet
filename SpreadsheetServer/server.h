@@ -16,6 +16,7 @@
 #include <string>
 #include <ctime>
 #include "interface.h"
+#include "spreadsheet.h"
 
 namespace cs3505
 {

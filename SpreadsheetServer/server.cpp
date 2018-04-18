@@ -14,6 +14,7 @@
 
 #include "server.h"
 #include "interface.h"
+#include "spreadsheet.h"
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
