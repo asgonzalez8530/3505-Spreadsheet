@@ -343,8 +343,10 @@ namespace cs3505
             // pop the message off the stack
             std::string message = data.get_message();
 
+            spreadsheet s;
+
             // parse the message
-            std::string response = parse_message(message);
+            std::string response = parse_message(s, message);
 
             if (!response.empty())
             {
