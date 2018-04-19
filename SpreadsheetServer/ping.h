@@ -17,8 +17,6 @@ namespace cs3505
 
 		    pthread_mutex_t lock;
 
-			int tmp;
-
 		public:
 		    ping();
 		    ~ping();
@@ -31,9 +29,6 @@ namespace cs3505
 			void send_ping(int socket);
 		    void ping_received(int socket);
 
-			int get_int();
-			pthread_mutex_t * get_lock();
-			ping_f get_pings();
 
 	};
 }

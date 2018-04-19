@@ -10,30 +10,8 @@ namespace cs3505
     ping::ping()
     {
 		std::cout << "Ping Constructor lock address " << &lock << "\n";
-		tmp = 100001;
         lock = PTHREAD_MUTEX_INITIALIZER;
     }
-
-
-
-	int ping::get_int()
-	{
-		return tmp;
-	}
-
-	pthread_mutex_t * ping::get_lock()
-	{
-		return &lock;
-	}
-
-	ping_f ping::get_pings()
-	{
-		return ping_flags;
-	}
-
-
-
-
 
     ping::~ping()
 	{
@@ -51,6 +29,7 @@ namespace cs3505
     void ping::flag_map_add(int socket)
     {
         pthread_mutex_lock( &lock );
+        std::cout << "Flag map add!\n";
         ping_flags[socket] = 0;
         pthread_mutex_unlock( &lock );
 
@@ -61,8 +40,8 @@ namespace cs3505
      */
     void ping::flag_map_remove(int socket)
     {
-		std::cout << "Flag map remove\n";
         pthread_mutex_lock( &lock );
+        std::cout << "Flag map remove!\n";
         ping_flags.erase(socket);
         pthread_mutex_unlock( &lock );
     }
@@ -72,8 +51,8 @@ namespace cs3505
      */
     int ping::check_ping_response(int socket)
 	{
-		std::cout << "Check ping response\n";
         pthread_mutex_lock( &lock );
+        std::cout << "Check ping response\n";
         if(ping_flags[socket] == 1)
         {
             ping_flags[socket] = 0;
@@ -91,7 +70,9 @@ namespace cs3505
      */
 	void ping::send_ping(int socket)
     {
+        pthread_mutex_lock( &lock );
 		std::cout << "Send ping\n";
+        pthread_mutex_unlock( &lock );
     }
 
 
@@ -100,17 +81,10 @@ namespace cs3505
      */
     void ping::ping_received(int socket)
     {
-		std::cout << "tmp is " << tmp << "\n";
-		std::cout << "Ping received\n";
-        std::cout << "Before lock\n";
-        std::cout << "socket is " << socket << "\n";
-        std::cout << "lock address is " << &lock << "\n";
         pthread_mutex_lock( &lock );
-        std::cout << "Inside lock!" << "\n";
         ping_flags[socket] = 1;
-		std::cout << "Past insert!" << "\n";
-        //ping_flags.insert(std::pair<int ,int>(socket, 1));
         pthread_mutex_unlock( &lock );
+        std::cout << "Ping received! HOLY CRAP!!\n";
     }
 
 }
