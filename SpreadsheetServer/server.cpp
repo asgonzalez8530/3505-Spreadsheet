@@ -24,6 +24,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <mutex>
 
 namespace cs3505
 {
