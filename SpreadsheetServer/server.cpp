@@ -56,14 +56,11 @@ namespace cs3505
     // constructor
     server::server()
     {
-        // this boolean will tell us when we want to shut down the server
-		std::cout << "In the server constructor!\n";
-		std::cout << pings.get_int() << "\n";
-
 		connfd = new ThreadData();
 		connfd->data = &data;
 		connfd->png = &pings;
 
+        // this boolean will tell us when we want to shut down the server
         terminate = false;
 
         // TODO moved stubs relating to starting new threads to master_server_loop()
@@ -130,8 +127,6 @@ namespace cs3505
         std::cout << "Finished listener initialize." << std::endl;
 
         connfd->socket = serverSocket;
-		std::cout << "Follow the socket 1: " << (connfd->socket) << "\n";
-		std::cout << "In thread create int is " << (connfd->png)->get_int() << "\n";
 
         pthread_t new_connection_thread;
         pthread_create(&new_connection_thread, NULL, listener_loop, connfd);
@@ -153,9 +148,6 @@ namespace cs3505
         double secondsToPing = 10;
         double secondsToTimeout = 60;
         clock_t pingTimer, timePassed;
-
-		std::cout << "Begin ping loop\n";
-		std::cout << "In thread create int is " << (args->png)->get_int() << "\n";
 
         // begin ping timer
         pingTimer = clock();
@@ -182,12 +174,8 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
-<<<<<<< HEAD
 
 				(args->png)->send_ping(socket);
-=======
-				(args->data)->send_ping(socket);
->>>>>>> cd7dca665c338499dec45d2bde7a87efcb791d51
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket))
@@ -215,8 +203,6 @@ namespace cs3505
         int socket = args->socket;
 		ping * png = (args->png);
 		interface * data = (args->data);
-
-		std::cout << "In client loop int is " << (*png).get_int() << "\n";
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
@@ -340,9 +326,6 @@ namespace cs3505
 
         // print for debugging
         std::cout << "Begin listening." << std::endl;
-
-		std::cout << "Follow the socket 2: " << args->socket << "\n";
-		std::cout << "In thread create int is " << (args->png)->get_int() << "\n";
 
         while (true)
         {
