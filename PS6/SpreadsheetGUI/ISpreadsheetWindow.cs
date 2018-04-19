@@ -27,6 +27,10 @@ namespace SpreadsheetGUI
 
         event Action Startup;
 
+        event Action Revert;
+
+        event Action Undo;
+
         /// <summary>
         /// Gets the spreadsheet panel component in this window
         /// </summary>
@@ -101,5 +105,10 @@ namespace SpreadsheetGUI
         /// sets the default cell as selected in the spreadsheet panel
         /// </summary>
         void SetCellSelectionToDefault();
+
+        /// <summary>
+        /// Allows controller to move and change size of editable text box.
+        /// </summary>
+        void UpdateEditBoxLocation(int x, int y, int width, int height);
     }
 }

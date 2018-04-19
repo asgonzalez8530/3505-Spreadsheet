@@ -12,9 +12,9 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
+// TODO: edit cell in a cell
 // TODO: send and receive focus messages (react properly to them)
 // TODO: all messages
-// TODO: edit cell in a cell
 
 
 namespace SpreadsheetGUI
@@ -63,7 +63,10 @@ namespace SpreadsheetGUI
             //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
+            // added for 3505
             window.Startup += IPInputBox;
+            window.Undo += UndoLastChange;
+            window.Revert += RevertCell;
 
             // set default locations
             panel.SetSelection(0, 0);
@@ -158,14 +161,11 @@ namespace SpreadsheetGUI
                 window.ValueBoxText = value.ToString();
             }
             // else text box value will be set to Error
-            else if (value is FormulaError)
+            else 
             {
-                window.ValueBoxText = "FormulaError";
+                window.ValueBoxText = "CellError";
             }
-            else
-            {
-                window.ValueBoxText = "FormatError";
-            }
+            
         }
 
         /// <summary>
@@ -174,6 +174,12 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCellContentsBox(SpreadsheetPanel panel)
         {
+            // set the location of this textbox
+            int x, y, width, height;
+            panel.GetSelectionLocation(out x, out y, out width, out height);
+
+            window.UpdateEditBoxLocation(x, y, width, height);
+
             // locate the current cell in the grid and convert to a variable
             panel.GetSelection(out int col, out int row);
             string cellName = ConvertRowColToCellName(row, col);
@@ -433,6 +439,14 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
+            ////////TODO: remove this hacky test for ChooseSpreadsheetBox//////////
+            //string[] stringarr = { "one", "two", "three" };
+
+            //string result = ChooseSpreadsheetBox(stringarr);
+
+            //window.WindowText = result;
+            //return;
+            //////////////////////////////////////////////////////////////////
             Form2 getIP = new Form2();
 
             if (getIP.ShowDialog() == DialogResult.OK)
@@ -551,6 +565,31 @@ namespace SpreadsheetGUI
         /// <param name="sheetChoices"></param>
         /// <returns></returns>
         private string ChooseSpreadsheetBox(string[] sheetChoices)
+        {
+            Form3 comboForm = new Form3(sheetChoices);
+            string spreadsheet = "";
+
+            if (comboForm.ShowDialog() == DialogResult.OK)
+            {
+                spreadsheet = comboForm.comboBox.Text;
+                // TODO: clean file name here
+            }
+            else
+            {
+                spreadsheet = ChooseSpreadsheetBox(sheetChoices);
+            }
+
+            comboForm.Dispose();
+
+            return spreadsheet;
+        }
+
+        private void UndoLastChange()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void RevertCell()
         {
             throw new NotImplementedException();
         }

@@ -12,6 +12,7 @@
  */
 
 #include "interface.h"
+#include "spreadsheet.h"
 #include <string>
 #include <queue>
 #include <set>
@@ -22,7 +23,7 @@ namespace cs3505
     interface::interface() 
     {
 		new_clients = std::queue<int>();
-        map_of_clients = std::map<int, int>();
+        map_of_clients = std::map<spreadsheet, int>();
         disconnect = std::set<int>();
         messages = std::queue<std::string>();
     }
@@ -79,6 +80,7 @@ namespace cs3505
      */
     void interface::disconnect_add(int client)
     {
+        // lock
         disconnect.insert(client);
     }
 
@@ -114,6 +116,7 @@ namespace cs3505
      */
     void interface::messages_add(std::string message)
     {
+        // lock 
         messages.push(message);
     }
 
@@ -129,8 +132,35 @@ namespace cs3505
      * Send a ping to the passed socket
      */
 	void interface::send_ping(int socket)
-{
-}
+    {
+    }
+
+    /**
+     * Propogate the inputted message to all the clients connected to that spreadsheet
+     */
+	void interface::propogate_to_spreadsheet(spreadsheet * s, std::string message)
+    {
+        //int clients = map_of_clients[s];
+        //map_of_clients.find(s)->second;
+        // std::map<spreadsheet, int>::const_iterator pos = map_of_clients.find(*s);
+        // if (pos != map_of_clients.end()) 
+        // {
+        //     int clients = pos->second;
+        // }
+
+        // get the client list using the spreadsheet and map_of_clients 
+
+        // lock
+        // add the message to outgoing messages of the client
+    }
     
+    /**
+     * Propogate the inputted message to the clients passed in
+     */
+	void interface::propogate_to_client(int client, std::string message)
+    {
+        // lock
+        // add the message to outgoing messages of the client
+    }
 
 } // end of class
