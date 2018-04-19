@@ -30,19 +30,13 @@ namespace cs3505
     class interface
     {
         private:
-            // private variables (still need getters and setters for all)
-
-
-			/* TODO: Do we want to use data structures like these? */
-			 // list of all client sockets for a spreadsheet
-			socket_list clients;
-			 // map of client lists for spreadsheets
-			client_map map_of_spreadsheets;
-
-            std::queue<int> new_clients;
-            std::map<spreadsheet, int> map_of_clients;
-            std::set<int> disconnect;
-            std::queue<std::string> messages;
+            // private variables
+            std::queue<int> new_clients = new std::queue<int>(); // queue of clients that need to be added
+            std::set<int> disconnect = std::set<int>(); // set of sockets that need to be disconnected
+            std::queue<std::string> messages = std::queue<std::string>(); // queue of messages that the server needs to parse
+            std::map<std::string, spreadsheet> all_spreadsheets =  std::map<std::string, spreadsheet>(); // map of spreadsheet names and spreadsheet objects
+            socket_list clients; // list of all client sockets for a spreadsheet
+            client_map map_of_spreadsheets; // map of client lists for spreadsheets
 
         public:
             // constructor
@@ -59,6 +53,10 @@ namespace cs3505
             void messages_add(std::string);
             void propogate_to_spreadsheet(spreadsheet * s, std::string message);
             void propogate_to_client(int client, std::string message);
+            bool spreadsheet_exists(std::string spreadsheet_name);
+            void add_client(std::string spreadsheet_name, int socket);
+            void add_spreadsheet(std::spreadsheet_name);
+            void propogate_full_state(std::map<std::string, std::string> * contents);
 
         private:
             // helper methods

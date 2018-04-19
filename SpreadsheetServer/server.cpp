@@ -79,7 +79,20 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool sleeping = false;
 
-        // new thread were we start the ping loop
+        std::set<std::string> file_names = get_spreadsheet_names();
+
+        if (!file_names.empty())
+        {
+            // get all the available spreadsheets
+            for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+            {
+                // get the spreadsheet name
+                std::string name = *iter;
+
+                // build and add the spreadsheet to the server
+                data.add_spreadsheet(name);
+            }
+        }
 
         // new thread were we start listening for multiple clients
         server_awaiting_client_loop();
@@ -575,69 +588,34 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // get the cell id
         std::string spreadsheet_name = message.substr(p + 6);
 
-        // build up the response message
-        std::string result  = "full_state ";
-
-        // propogate to the client the result response 
-        data.propogate_to_client(socket, result);
-
         // try to make a open spreadsheet
         try 
         {
-            //if (data.spreadsheet_exists(s))
-            //{
+            if (data.spreadsheet_exists(spreadsheet_name))
+            {
                 // add client 
-                //data.add_client(s, socket);
+                data.add_client(spreadsheet_name, socket);
 
                 // load full state (iterate)
-                std::map<std::string, std::string> contents = s->full_state();
-                for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
-                {
-                    // get cell 
-                    result = iter->first;
+                std::map<std::string, std::string> * contents = s->full_state();
 
-                    // propogate to the client the result response 
-                    data.propogate_to_client(socket, result);
-                    
-                    // get cell contents
-                    result = iter->second;
-
-                    // propogate to the client the result response 
-                    data.propogate_to_client(socket, result);
-                }
-            //}
-            // else
-            // {
-            //     // add client
-            //     data.add_client(s, socket);
+                propogate_full_state(contents);
+            }
+            else
+            {
+                // add client
+                data.add_client(spreadsheet_name, socket);
                 
-            //     // load full state (iterate)
-            //     std::map<std::string, std::string> contents = s->full_state();
-            //     for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
-            //     {
-            //         // get cell 
-            //         result = iter->first;
-
-            //         // propogate to the client the result response 
-            //         data.propogate_to_client(socket, result);
-                    
-            //         // get cell contents
-            //         result = iter->second;
-
-            //         // propogate to the client the result response 
-            //         data.propogate_to_client(socket, result);
-            //     }
-            // }
+                // load full state (iterate)
+                std::map<std::string, std::string> contents = s->full_state();
+                propogate_full_state(contents);
+            }
         }
         catch (...)
         {
             // propogate to the client the file error message response 
             data.propogate_to_client(socket, "file_load_error" + (char) 3);
-            return;
         }
-
-        // propogate to the client the result response 
-        data.propogate_to_client(socket, "" + (char) 3);
     }
 
     // edit
