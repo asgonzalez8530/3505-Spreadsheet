@@ -10,6 +10,7 @@
  * v2: April 5, 2018
  * v3: April 6, 2018
  * v4: April 13, 2018
+ * v5: April 18, 2018
  */
 
 #include "server.h"
@@ -24,6 +25,19 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+<<<<<<< HEAD
+#include <mutex>
+=======
+#include <stack>
+#include <fstream>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/stack.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+>>>>>>> ebc329f2066edc6e57bdcd9832977dccdb1f5fb4
 
 namespace cs3505
 {
@@ -213,7 +227,7 @@ namespace cs3505
 
             if (result.empty())
 			{
-
+                continue;
 			}
             else if (result == "1")
             {
@@ -473,21 +487,13 @@ namespace cs3505
  */
 std::string parseBuffer(std::string * message)
 {   
-    // TODO: move this to the right before the method call
-    // outside the loop
-    //std::string message = "";
-    // convert the char buff to a string
-    //std::string new_message(buff);
-    // combine the old messages with the new messages
-    //messages.append(buff);
-    
-    // get the position of /3
+    // get the position of \3
     int position = message->find((char)3);
 
     // check to see if its a complete message
     if ( position > 0 )
     {
-        // pull out and remove the message from the beginning to right before the /3
+        // pull out and remove the message from the beginning to right before the \3
         std::string current_message = message->substr(0, position);
         *message = message->substr(position + 1);
 
@@ -516,7 +522,7 @@ std::string parseBuffer(std::string * message)
         }
     }
 
-    return "";
+    return NULL;
 }
 
 /**
@@ -533,7 +539,26 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         int p = message.find("register ");
 
         // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
+        //std::string cleaned_up_message = message.substr(p);
+
+        std::set<std::string> file_names = get_spreadsheet_names();
+
+        // build of the response
+        std::string result = "connect_accepted ";
+
+        if (!file_names.empty())
+        {
+            // get all the available spreadsheets
+            for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+            {
+                result += *iter;
+                result += "\n";
+            }
+        }
+        result += (char) 3;
+
+        // propogate to the client the result response 
+        data.propogate_to_client(socket, result);
     }
 
     // load
@@ -542,8 +567,37 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // find where the message begins
         int p = message.find("load ");
 
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
+        // get the cell id
+        std::string spreadsheet_name = message.substr(p + 6);
+
+        // build up the response message
+        std::string result  = "full_state ";
+
+        // try to make a open spreadsheet
+        try 
+        {
+            // if (spreadsheet exists)
+            // {
+            //     // add client 
+            //     // load full state (iterate)
+            // }
+            // else
+            // {
+                // build up the response message
+                std::string result  = "focus ";
+                // add client
+                // load full state (iterate)
+            //}
+        }
+        catch (...)
+        {
+            // propogate to the client the file error message response 
+            data.propogate_to_client(socket, "file_load_error" + (char) 3);
+            return;
+        }
+
+        // propogate to the client the result response 
+        data.propogate_to_client(socket, result + (char) 3);
     }
 
     // edit
@@ -568,8 +622,15 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // find where the message begins
         int p = message.find("focus ");
 
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
+        // get the cell id
+        std::string cell_id = message.substr(p + 6);
+
+        // build up the response message
+        std::string result  = "focus ";
+        result += message.substr(p + 6) + ":" + std::to_string(socket);
+        
+        // propogate the message to all the clients in the spreadsheet
+        data.propogate_to_spreadsheet(s, result);
     }
 
     // unfocus
@@ -578,8 +639,12 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // find where the message begins
         int p = message.find("unfocus ");
        
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
+        // build up the response message
+        std::string result  = "unfocus ";
+        result += std::to_string(socket);
+        
+        // propogate the message to all the clients in the spreadsheet
+        data.propogate_to_spreadsheet(s, result);
     }
 
     // undo
@@ -615,6 +680,31 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     }
 
     // else not a valid message so we do nothing
+}
+
+/**
+ * Gets all the spreadsheets inside the spreadsheet directory
+ */
+std::set<std::string> server::get_spreadsheet_names()
+{
+    boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
+	
+    std::set<std::string> meSprds;
+
+	if(boost::filesystem::is_directory(directory))
+	{	
+		for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
+		{
+			boost::filesystem::directory_entry file = *rator;
+			std::string filename = ((boost::filesystem::path)file).filename().string();
+			std::string next = filename.substr(0, filename.length() - 11);
+
+			meSprds.insert(next);
+			
+		}
+	}
+
+    return meSprds;
 }
 
 
