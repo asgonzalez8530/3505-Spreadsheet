@@ -121,11 +121,35 @@ namespace cs3505
     }
 
     /**
+     * Register socket in flag map
+     */
+    void interface::flag_map_add(socket)
+    {
+        ping_flags[socket] = 0;
+    }
+
+    /**
+     * Register socket in flag map
+     */
+    void interface::flag_map_remove(socket)
+    {
+        ping_flags.erase(socket);
+    }
+
+    /**
      * Checks ping_flags for a response
      */
     int interface::check_ping_response(int socket)
 	{
-		return true;
+        if(ping_flags[socket] == 1)
+        {
+            ping_flags[socket] = 0;
+            return true;
+        }
+        else
+        {
+		    return false;
+        }
 	}
 
     /**
@@ -133,6 +157,16 @@ namespace cs3505
      */
 	void interface::send_ping(int socket)
     {
+    }
+
+
+    /**
+     * Update socket ping response flag
+     */
+    void interface::ping_received(int socket)
+    {
+        ping_flags[socket] = 1;
+
     }
 
     /**
