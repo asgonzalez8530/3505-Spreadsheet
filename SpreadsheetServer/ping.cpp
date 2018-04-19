@@ -9,7 +9,6 @@ namespace cs3505
 {
     ping::ping()
     {
-		std::cout << "Ping Constructor lock address " << &lock << "\n";
         lock = PTHREAD_MUTEX_INITIALIZER;
     }
 
@@ -84,7 +83,6 @@ namespace cs3505
         pthread_mutex_lock( &lock );
         ping_flags[socket] = 1;
         pthread_mutex_unlock( &lock );
-        std::cout << "Ping received! HOLY CRAP!!\n";
     }
 
 }

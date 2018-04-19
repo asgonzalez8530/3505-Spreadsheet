@@ -29,6 +29,7 @@ namespace cs3505
     class interface
     {
         private:
+<<<<<<< HEAD
             // private variables
             std::queue<int> new_clients; // queue of clients that need to be added
             std::set<int> disconnect; // set of sockets that need to be disconnected
@@ -36,6 +37,19 @@ namespace cs3505
             std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
+=======
+            // private variables (still need getters and setters for all)
+
+			 // list of all client sockets for a spreadsheet
+			socket_list clients;
+			 // map of client lists for spreadsheets
+			client_map map_of_spreadsheets;
+
+            std::queue<int> new_clients;
+            std::map<spreadsheet, int> map_of_clients;
+            std::set<int> disconnect;
+            std::queue<std::string> messages;
+>>>>>>> 544fda139c3b2158d0ca6a321db8d09e6a5a043a
 
         public:
             // constructor
