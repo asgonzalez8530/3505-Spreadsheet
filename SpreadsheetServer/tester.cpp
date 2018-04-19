@@ -26,11 +26,38 @@ TEST(SpreadsheetTests, SaveEmpty)
 TEST(SpreadsheetTests, SaveOneCell)
 {
 
-	std::cout << "Hello for commit from test." << std::endl;
-	std::cout << "Hello from test." << std::endl;
+	//std::cout << "Hello for commit from test." << std::endl;
+	//std::cout << "Hello from test." << std::endl;
 	cs3505::spreadsheet otherNewSheet("MyOtherNewSaveFile");
-	std::cout << "Hello again." << std::endl;
+	//std::cout << "Hello again." << std::endl;
 	otherNewSheet.update("edit A1:36");
+	otherNewSheet.save();
+}
+
+TEST(SpreadsheetTests, RevertOneCell)
+{
+
+	//std::cout << "Hello for commit from test." << std::endl;
+	//std::cout << "Hello from test." << std::endl;
+	cs3505::spreadsheet otherNewSheet("MyNewSaveFile");
+	//std::cout << "Hello again." << std::endl;
+	otherNewSheet.update("edit A1:36");
+	otherNewSheet.update("edit A1:I love dogs!");
+	otherNewSheet.update("revert A1");
+	otherNewSheet.save();
+}
+
+TEST(SpreadsheetTests, UndoOneCell)
+{
+
+	//std::cout << "Hello for commit from test." << std::endl;
+	//std::cout << "Hello from test." << std::endl;
+	cs3505::spreadsheet otherNewSheet("UndoSaveFile");
+	//std::cout << "Hello again." << std::endl;
+	otherNewSheet.update("edit A1:36");
+	otherNewSheet.update("edit A1:I love dogs!");
+	otherNewSheet.update("revert A1");
+	otherNewSheet.update("undo ");
 	otherNewSheet.save();
 }
 

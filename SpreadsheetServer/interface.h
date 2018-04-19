@@ -60,10 +60,16 @@ namespace cs3505
             bool messages_isempty();
             std::string get_message();
             void messages_add(std::string);
-			int check_ping_response(int socket);
-			void send_ping(int socket);
             void propogate_to_spreadsheet(spreadsheet * s, std::string message);
             void propogate_to_client(int client, std::string message);
+
+            /* Ping control functions */
+            void flag_map_add(int socket);
+            void flag_map_remove(int socket);
+			int check_ping_response(int socket);
+			void send_ping(int socket);
+            void ping_received(int socket);
+
 
 
         private:

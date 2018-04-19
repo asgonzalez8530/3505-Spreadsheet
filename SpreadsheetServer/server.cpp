@@ -31,7 +31,7 @@ namespace cs3505
     void *client_loop(void *connection_file_descriptor);
     void *ping_loop(void *connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
-    bool parseBuffer(int size, char buff[]);
+    std::string parseBuffer(std::string * message);
 
     // forward declare listener initializer and listener_loop helper
     int init_listener();
@@ -111,11 +111,8 @@ namespace cs3505
 		ThreadData * args = new ThreadData();
 		args->socket = serverSocket;
 		args->data = &data;
-
-        // set up a new thread for the listener loop()
-        void *server = &serverSocket; // store as a void * so it can be passed to listener_loop()
         pthread_t new_connection_thread;
-        pthread_create(&new_connection_thread, NULL, listener_loop, server);
+        pthread_create(&new_connection_thread, NULL, listener_loop, args);
         pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
         // Clean up thread resources as they finish
@@ -139,6 +136,9 @@ namespace cs3505
         // begin ping timer
         pingTimer = clock();
 
+        // Add socket to ping flag map
+        (args->data)->flag_map_add(socket);
+
         while (true)
         {
             timePassed = clock();
@@ -146,6 +146,9 @@ namespace cs3505
             // check for timeout
             if (failed_pings >= 5)
             {
+                // remove socket from flag map
+				(args->data)->flag_map_remove(socket);
+
                 // add client to the disconnect list
 				(args->data)->disconnect_add(socket);
 
@@ -181,7 +184,8 @@ namespace cs3505
      */
     void *client_loop(void *connection_file_descriptor)
     {
-        int socket = *((int *)connection_file_descriptor);
+        ThreadData * args = (ThreadData*)connection_file_descriptor;
+        int socket = args->socket;
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
@@ -203,27 +207,33 @@ namespace cs3505
             // Insert null terminator in buffer
             buffer[size] = 0;
 
-            std::string result = parseBuffer(size, buffer);
+            std::string buff = buffer;
 
-            if (result == null)
+            std::string result = parseBuffer(&buff);
+
+            if (result.empty())
+			{
+
+			}
             else if (result == "1")
             {
                 // current client pinged a response so we flag ping as true
+                (args->data)->ping_received(socket);
             }
             else if (result == "2")
             {
                 // ping the client back 
-                // data.propogate_to_client(socket, result);
+                (args->data)->propogate_to_client(socket, result);
             }
             else if (result == "3")
             {
                 // add the client to the disconnect list
-                // data.disconnect_add(socket)
+                (args->data)->disconnect_add(socket);
             }
             else
             {
                 // add message to the list of messages that needs to be processed
-                //data.messages_add(result);
+                (args->data)->messages_add(result);
             }
 
             // Print number of received bytes AND the contents of the buffer
@@ -461,7 +471,7 @@ namespace cs3505
  *      3: its a disconnect message
  *      <string>: this a complete message that was not one of the above
  */
-std::string server::parseBuffer(std::string * message)
+std::string parseBuffer(std::string * message)
 {   
     // TODO: move this to the right before the method call
     // outside the loop
@@ -506,7 +516,7 @@ std::string server::parseBuffer(std::string * message)
         }
     }
 
-    return NULL;
+    return "";
 }
 
 /**

@@ -85,15 +85,14 @@ namespace cs3505
 	 */
 	std::string spreadsheet::undo()
 	{
-		// TODO checking if it's empty, but may actually need to check if it's NULL too
-
 		if(edits.empty()) return NULL; //nothing to undo
 
 		else
 		{
 			std::string undo = edits.top(); // grab the last edit
 			edits.pop(); // undo the last edit
-			std::string cellName = undo.substr(0, undo.find(":") - 1); // grab the cell name
+
+			std::string cellName = undo.substr(0, undo.find(":")); // grab the cell name
 			sheet[cellName].pop(); // undo the last edit to this cell
 
 			return "change " + undo; // return the change message
@@ -114,9 +113,7 @@ namespace cs3505
 	{
 		// save if there's something to save
 		if(!edits.empty() && !sheet.empty())
-		{			
-			std::stack<std::string> temp(edits);
-			
+		{				
 			// build file path to edits stack
 			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
 
@@ -130,8 +127,8 @@ namespace cs3505
 			boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
 			boost::archive::text_oarchive sheetArchive(sheetOut); 
 
-			editsArchive << temp; // write to archives	
-			sheetArchive << temp; 
+			editsArchive << edits; // write to archives	
+			sheetArchive << sheet; 
 		}
 	}
 
@@ -161,14 +158,13 @@ namespace cs3505
 		// if the "sheet" and "edits" files exist, read from it
 		if (sheetExists && editsExists)
 		{
-			boost::filesystem::ifstream sheetIn(mySheet); // set up out file streams
-			boost::filesystem::ifstream editsIn(myEdits);
-
-			boost::archive::text_iarchive sheetArchive(sheetIn); // set up out archives
-			boost::archive::text_iarchive editsArchive(editsIn);
-
+			boost::filesystem::ifstream sheetIn(mySheet); // set up in file streams
+			boost::archive::text_iarchive sheetArchive(sheetIn); // set up in archives
 			sheetArchive >> sheet; // populate this->sheet and this-> edits
-			editsArchive >> edits; 
+
+			boost::filesystem::ifstream editsIn(myEdits); // set up in file streams
+			boost::archive::text_iarchive editsArchive(editsIn); // set up in archives
+			editsArchive >> edits; // populate this->sheet and this-> edits
 
 			// archive AND ifstream are closed when we leave scope 
 		}
@@ -182,6 +178,8 @@ namespace cs3505
 			boost::filesystem::ofstream editsOut(myEdits);
 			editsOut.close();
 		}
+
+
 	}
 
 
@@ -204,7 +202,7 @@ namespace cs3505
 	{
 		try
 		{
-			std::cout << "Hello from update." << std::endl;
+			//std::cout << "Hello from update." << std::endl;
 			
 		    if (update.find("edit ") == 0)
 		    {
