@@ -12,10 +12,10 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: edit cell in a cell
-// TODO: send and receive focus messages (react properly to them)
+// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
+// TODO: send and receive focus messages
 // TODO: all messages
-
+// TODO: disable buttons while trying to connect and choose a spreadsheet?
 
 namespace SpreadsheetGUI
 {
@@ -29,7 +29,6 @@ namespace SpreadsheetGUI
         private Socket theServer; // reference to Networking
 
         char THREE = (char)3;
-
 
         /// <summary>
         /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
@@ -57,8 +56,6 @@ namespace SpreadsheetGUI
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
-            window.SaveFileAction += Save;
-            window.OpenFileAction += Open;
             //TODO: we do probably want to have a Closing action, just not this one!
             //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
             window.AboutText += OpenAbout;
@@ -210,22 +207,10 @@ namespace SpreadsheetGUI
             // convert row and column to a cell name
             string cellName = ConvertRowColToCellName(row, col);
 
-            try
-            {
-                // reset the contents of the cell and recalculate dependent cells
-                ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
-                SetSpreadsheetPanelValues(cellsToUpdate);
-                UpdateCurrentCellBoxes();
-
-            }
-            catch (CircularException)
-            {
-                window.ShowErrorMessageBox("Circular dependency detected");
-            }
-            catch (Exception e) // TODO take this out
-            {
-                window.ShowErrorMessageBox(e.Message);
-            }
+            // reset the contents of the cell and recalculate dependent cells
+            ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, window.ContentsBoxText);
+            SetSpreadsheetPanelValues(cellsToUpdate);
+            UpdateCurrentCellBoxes();
 
             window.SetFocusToContentBox();
         }
@@ -239,6 +224,8 @@ namespace SpreadsheetGUI
             DisplayCurrentCellName(panel);
             SetCellValueBox(panel);
             SetCellContentsBox(panel);
+
+            window.SetFocusToContentBox();
         }
 
         /// <summary>
@@ -273,85 +260,6 @@ namespace SpreadsheetGUI
             }
             
         }
-
-        /// <summary>
-        /// Opens a save file dialogue and saves the model to a file
-        /// </summary>
-        private void Save()
-        {
-            try
-            {
-                // open file explorer
-                SaveFileDialog saveFile = new SaveFileDialog
-                {
-                    Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
-                    Title = "Save " + window.WindowText,
-                    OverwritePrompt = true,
-                    FileName = window.WindowText
-
-                };
-
-                // when ok is pressed and the file name is not empty
-                if (saveFile.ShowDialog() == DialogResult.OK)
-                {
-                    if (saveFile.FileName != "")
-                    {
-                        // get the file name and the file's absolute path
-                        saveFile.FileName = Path.GetFullPath(saveFile.FileName);
-                        window.WindowText = Path.GetFileName(saveFile.FileName);
-
-                        // save file using the absolute path
-                        sheet.Save(saveFile.FileName);
-                    }
-                }
-            }
-            catch (SpreadsheetReadWriteException)
-            {
-                window.ShowErrorMessageBox("Problem occurred while saving the file");
-            }
-        }
-
-        /// <summary>
-        /// Opens a file dialogue box and opens the chosen file in this window. 
-        /// If information will be changed, prompts user to save.
-        /// </summary>
-        private void Open()
-        {
-            // if there exists any unsaved changes then promt user to save
-            ModifiedSpreadsheetDialogueBox();
-
-            try
-            {
-                // open file explorer
-                OpenFileDialog openFile = new OpenFileDialog
-                {
-                    Filter = "Spreadsheet File (*.sprd)|*.sprd|All files (*.*)|*.*",
-                    Title = "Open Spreadsheet",
-                    RestoreDirectory = true
-                };
-
-                // when ok is pressed and a file is selected
-                if (openFile.ShowDialog() == DialogResult.OK)
-                {
-                    if (openFile.FileName != "")
-                    {
-                        // get filename and files absolute path
-                        openFile.FileName = Path.GetFullPath(openFile.FileName);
-                        window.WindowText = Path.GetFileName(openFile.FileName);
-                        
-                        // open new spreadsheet
-                        OpenSpreadsheetFromFile(openFile.FileName);
-
-
-                    }
-                }
-            }
-            catch (SpreadsheetReadWriteException)
-            {
-                window.ShowErrorMessageBox("Problem occured while opening file");
-            }
-        }
-
         /// <summary>
         /// Helper method for OpenSpreadsheetFromFile. 
         /// Empties the contents of the spreadsheet pane.
@@ -371,6 +279,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void OpenSpreadsheetFromFile(string fileLocation)
         {
+            // TODO: take this method out
             // empty the current spreadsheetpane
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
 
@@ -415,6 +324,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void ModifiedSpreadsheetDialogueBox()
         {
+            // TODO: take this out
             if (sheet.Changed)
             {
                 //prompt to save
@@ -423,11 +333,11 @@ namespace SpreadsheetGUI
                 string caption = "Save Changes?";
                 bool save = window.ShowOkayCancelMessageBox(message, caption);
 
-                // if user clicks on save then save the changes
-                if (save)
-                {
-                    Save();
-                }
+                //// if user clicks on save then save the changes
+                //if (save)
+                //{
+                //    Save();
+                //}
             }
         }
 
@@ -460,12 +370,7 @@ namespace SpreadsheetGUI
                 catch (Exception)
                 {
                     MessageBox.Show("There was a connection error, please try again.", "Error");
-                    IPInputBox();
                 }
-            }
-            else
-            {
-                IPInputBox();
             }
             
             getIP.Dispose();
@@ -487,7 +392,6 @@ namespace SpreadsheetGUI
             else
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
-                IPInputBox();
             }
         }
 
@@ -502,7 +406,7 @@ namespace SpreadsheetGUI
             if (state.hasError)
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
-                IPInputBox();
+                // TODO: do we need to do any disconnecting cleanup if we get to this point and have an error?
             }
             if (state.sBuilder == null)
             {
@@ -526,7 +430,7 @@ namespace SpreadsheetGUI
 
             if (!connectAcceptMessage.StartsWith(connect_accepted))
             {
-                return; // Server sent a bogus message.
+                return; // TODO: Server sent a bogus message.
             }
             else
             {
@@ -572,7 +476,7 @@ namespace SpreadsheetGUI
             if (comboForm.ShowDialog() == DialogResult.OK)
             {
                 spreadsheet = comboForm.comboBox.Text;
-                // TODO: clean file name here
+                spreadsheet = CleanFileName(spreadsheet);
             }
             else
             {
@@ -584,11 +488,22 @@ namespace SpreadsheetGUI
             return spreadsheet;
         }
 
+        private string CleanFileName(string spreadsheet)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This is registered and called when an Undo event happens.
+        /// </summary>
         private void UndoLastChange()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// This is registered and called when a Revert event happens.
+        /// </summary>
         private void RevertCell()
         {
             throw new NotImplementedException();
