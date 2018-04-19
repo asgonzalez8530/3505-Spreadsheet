@@ -28,6 +28,9 @@ namespace SpreadsheetGUI
         private ISpreadsheetWindow window; // reference to the GUI (view)
         private Socket theServer; // reference to Networking
 
+        // TODO: thoughts on this? it's intended to help pick a new sheet after a file_load_error
+        private string[] sheetChoicesForUser;
+
         char THREE = (char)3;
 
         /// <summary>
@@ -436,7 +439,7 @@ namespace SpreadsheetGUI
             {
                 sheets = connectAcceptMessage.Remove(0, connect_accepted.Length);
             }
-            string[] sheetChoicesForUser = sheets.Split('\n');
+            sheetChoicesForUser = sheets.Split('\n');
 
             // in combo box dialog, choose a spreadsheet
             string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
@@ -453,14 +456,120 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Parse data and ...
+        /// Parse data and update this Spreadsheet.
         /// </summary>
         /// <param name="state"></param>
         private void ProcessMessage(SocketState state)
         {
             // TODO: test up to this point? Make a fake server?
+
+            if (theServer.Connected && !state.hasError)
+            {
+                // grab the incoming message(s)
+                string totalData = state.sBuilder.ToString();
+
+                // Messages are separated by THREE
+                string[] parts = Regex.Split(totalData, @"(?<=[\n])"); //TODO: figure out Regex for THREE
+
+                foreach (string message in parts)
+                {
+                    ProcessNext(message);
+                    state.sBuilder.Remove(0, message.Length);
+                }
+
+                // now ask for more data. this will start an event loop.
+                Networking.GetData(state);
+            }
+        }
+
+        /// <summary>
+        /// A helper to decide which action to take, based on the message contents.
+        /// </summary>
+        /// <param name="message">example: focus A9:unique_1\3</param>
+        private void ProcessNext(string message)
+        {
+            // Ignore empty strings added by the regex splitter
+            if (message.Length == 0)
+                return;
+
+            // The regex splitter will include the last string even if it doesn't end with THREE,
+            // So we need to ignore it if this happens. 
+            if (message[message.Length - 1] != THREE)
+                return;
+
+            // Find the first space and switch on the command found
+            string command = message.Substring(0, message.IndexOf(" "));
+            string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
+
+            switch (command)
+            {
+                // Error loading the file, prompt user to select a file again
+                case "file_load_error":
+                    // Show an error dialog
+                    // in combo box dialog, choose another spreadsheet
+                    string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
+
+                    window.WindowText = spreadsheet;
+                    Networking.Send(theServer, "load " + spreadsheet + THREE); // TODO: is it ok to send here?
+                    break;
+
+                // Disconnect, ending the session
+                case "disconnect":
+                    // TODO: how do we want to do this? could we just set the hasError flag?
+                    break;
+
+                // Reply with ping_response
+                case "ping":
+                    Networking.Send(theServer, "ping_response ");
+                    break;
+
+                // A ping response arrived, so reset our ping timer
+                case "ping_response":
+                    break;
+
+                // Load the new sheet
+                case "full_state":
+                    LoadSheet(contents);
+                    break;
+
+                // Apply the Change
+                case "change":
+                    UpdateSheet(contents);
+                    break;
+
+                case "focus":
+                    // TODO: contents example: A9:unique_1
+                    break;
+
+                case "unfocus":
+                    // TODO: contents example: unique_1
+                    break;
+            }
+
+
+
             throw new NotImplementedException();
-            // parse data and do the appropriate thing with each message.
+        }
+
+        /// <summary>
+        ///  Attempt to load the spreadsheet.
+        /// </summary>
+        /// <param name="contents">The spreadsheet as newline-separated 
+        /// cell names and contents. A6:3\nA9:=A6/2\n\</param>
+        private void LoadSheet(string contents)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Apply "change" to the sheet.
+        /// </summary>
+        /// <param name="change">example: A4:=A1+A3\</param>
+        private void UpdateSheet(string change)
+        {
+            // TODO: lock spreadsheet model before changing
+            // TODO: add lock in local change mechanism as well, if that's a thing
+            throw new NotImplementedException();
         }
 
         /// <summary>
