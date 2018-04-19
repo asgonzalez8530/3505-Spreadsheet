@@ -12,13 +12,11 @@ namespace SpreadsheetGUI
 {
     public partial class Form3 : Form
     {
-        public string NEWSHEET = "---CREATE NEW---";
-
+        
         public Form3(string[] sheets)
         {
             InitializeComponent();
 
-            comboBox.Items.Add(NEWSHEET);
             comboBox.Items.AddRange(sheets);
         }
     }

@@ -28,7 +28,6 @@ namespace SpreadsheetGUI
         private ISpreadsheetWindow window; // reference to the GUI (view)
         private Socket theServer; // reference to Networking
 
-        // TODO: thoughts on this? it's intended to help pick a new sheet after a file_load_error
         private string[] sheetChoicesForUser;
 
         char THREE = (char)3;
@@ -277,30 +276,7 @@ namespace SpreadsheetGUI
             }
         }
 
-        /// <summary>
-        /// Empties the spreadsheet pane and sets its contents to the new spreadsheet model at fileLocation
-        /// </summary>
-        private void OpenSpreadsheetFromFile(string fileLocation)
-        {
-            // TODO: take this method out
-            // empty the current spreadsheetpane
-            EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
-
-            // window text is now the name of the new file
-            window.WindowText = Path.GetFileName(fileLocation);
-
-            // open the spreadsheet
-            sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
-
-            // set the contents of the spreadsheet pane
-            HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
-            SetSpreadsheetPanelValues(nonEmpty);
-
-            // update the current window selection
-            window.SetCellSelectionToDefault();
-            UpdateCurrentCellBoxes();
-
-        }
+       
 
         /// <summary>
         /// Opens the about file in the default text editor.
@@ -321,28 +297,7 @@ namespace SpreadsheetGUI
             string path = Path.Combine(Environment.CurrentDirectory, fileName);
             Process.Start(path);
         }
-
-        /// <summary>
-        /// Dialogue box that prompts the user to save current spreadsheet
-        /// </summary>
-        private void ModifiedSpreadsheetDialogueBox()
-        {
-            // TODO: take this out
-            if (sheet.Changed)
-            {
-                //prompt to save
-                string message = "Unsaved changes detected in current spreadsheet: " + window.WindowText;
-                message += "\n\nSave changes?";
-                string caption = "Save Changes?";
-                bool save = window.ShowOkayCancelMessageBox(message, caption);
-
-                //// if user clicks on save then save the changes
-                //if (save)
-                //{
-                //    Save();
-                //}
-            }
-        }
+        
 
         /*************************************Connecting to Server and NETWORKING*****************************************/
 
@@ -473,6 +428,15 @@ namespace SpreadsheetGUI
 
                 foreach (string message in parts)
                 {
+                    // Ignore empty strings added by the regex splitter
+                    if (message.Length == 0)
+                        continue;
+
+                    // The regex splitter will include the last string even if it doesn't end with THREE,
+                    // So we need to ignore it if this happens. 
+                    if (message[message.Length - 1] != THREE)
+                        break;
+
                     ProcessNext(message);
                     state.sBuilder.Remove(0, message.Length);
                 }
@@ -488,15 +452,6 @@ namespace SpreadsheetGUI
         /// <param name="message">example: focus A9:unique_1\3</param>
         private void ProcessNext(string message)
         {
-            // Ignore empty strings added by the regex splitter
-            if (message.Length == 0)
-                return;
-
-            // The regex splitter will include the last string even if it doesn't end with THREE,
-            // So we need to ignore it if this happens. 
-            if (message[message.Length - 1] != THREE)
-                return;
-
             // Find the first space and switch on the command found
             string command = message.Substring(0, message.IndexOf(" "));
             string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
