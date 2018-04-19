@@ -123,7 +123,7 @@ namespace cs3505
     /**
      * Register socket in flag map
      */
-    void interface::flag_map_add(socket)
+    void interface::flag_map_add(int socket)
     {
         ping_flags[socket] = 0;
     }
@@ -131,7 +131,7 @@ namespace cs3505
     /**
      * Register socket in flag map
      */
-    void interface::flag_map_remove(socket)
+    void interface::flag_map_remove(int socket)
     {
         ping_flags.erase(socket);
     }
