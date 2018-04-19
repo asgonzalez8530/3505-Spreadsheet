@@ -45,8 +45,8 @@ namespace cs3505
             bool process_message();
             void check_for_shutdown();
             void shutdown();
-            //std::string parseBuffer(std::string * message);
 			void parse_and_respond_to_message(spreadsheet * s, int socket, std::string message);
+            std::set<std::string> get_spreadsheet_names();
 
 
     };
