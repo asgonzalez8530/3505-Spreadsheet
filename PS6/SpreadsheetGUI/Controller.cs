@@ -12,8 +12,10 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: go through all messages in protocol, and make sure code is there for sending or receiving it
-// TODO: arrows move users around
+// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
+// TODO: send and receive focus messages
+// TODO: all messages
+// TODO: disable buttons while trying to connect and choose a spreadsheet?
 
 namespace SpreadsheetGUI
 {
@@ -27,7 +29,6 @@ namespace SpreadsheetGUI
         private Socket theServer; // reference to Networking
 
         private string[] sheetChoicesForUser;
-        private Dictionary<string, string> focusedCells = new Dictionary<string, string>();
 
         char THREE = (char)3;
 
@@ -119,6 +120,7 @@ namespace SpreadsheetGUI
 
             return "" + colName + "" + rowName;
         }
+
         /// <summary>
         /// creates a new sheet
         /// </summary>
@@ -362,6 +364,7 @@ namespace SpreadsheetGUI
             if (state.hasError)
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
+                // TODO: do we need to do any disconnecting cleanup if we get to this point and have an error?
             }
             if (state.sBuilder == null)
             {
@@ -385,9 +388,7 @@ namespace SpreadsheetGUI
 
             if (!connectAcceptMessage.StartsWith(connect_accepted))
             {
-                Networking.Send(theServer, "disconnect " + THREE);
-                MessageBox.Show("There was a connection error, please try again.", "Error");
-                return;
+                return; // TODO: Server sent a bogus message.
             }
             else
             {
@@ -401,6 +402,7 @@ namespace SpreadsheetGUI
             window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
+            // TODO: could this clear too much?
             // clear sbuilder
             state.sBuilder.Clear();
 
@@ -414,6 +416,7 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void ProcessMessage(SocketState state)
         {
+            // TODO: test up to this point? Make a fake server?
 
             if (theServer.Connected && !state.hasError)
             {
@@ -421,7 +424,7 @@ namespace SpreadsheetGUI
                 string totalData = state.sBuilder.ToString();
 
                 // Messages are separated by THREE
-                string[] parts = Regex.Split(totalData, @"(?<=[\3])"); //TODO: this might be an error
+                string[] parts = Regex.Split(totalData, @"(?<=[\n])"); //TODO: figure out Regex for THREE
 
                 foreach (string message in parts)
                 {
@@ -452,7 +455,6 @@ namespace SpreadsheetGUI
             // Find the first space and switch on the command found
             string command = message.Substring(0, message.IndexOf(" "));
             string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
-            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
 
             switch (command)
             {
@@ -463,12 +465,12 @@ namespace SpreadsheetGUI
                     string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
 
                     window.WindowText = spreadsheet;
-                    Networking.Send(theServer, "load " + spreadsheet + THREE);
+                    Networking.Send(theServer, "load " + spreadsheet + THREE); // TODO: is it ok to send here?
                     break;
 
                 // Disconnect, ending the session
                 case "disconnect":
-                    theServer.Close();
+                    // TODO: how do we want to do this? could we just set the hasError flag?
                     break;
 
                 // Reply with ping_response
@@ -491,19 +493,17 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    // contents example: "A9:unique_1"
-                    string[] parsed = contents.Split(':');
-                    focusedCells.Add(parsed[1], parsed[0]);
-                    ConvertCellNameToRowCol(parsed[0], out int row, out int col);
-                    panel.Focus(row, col); // TODO: wait... should I be passing this to the Form to deal with?
+                    // TODO: contents example: A9:unique_1
                     break;
 
                 case "unfocus":
-                    // contents example: unique_1
-                    ConvertCellNameToRowCol(focusedCells[contents], out int r, out int c);
-                    panel.Unfocus(r, c);
+                    // TODO: contents example: unique_1
                     break;
             }
+
+
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -513,7 +513,6 @@ namespace SpreadsheetGUI
         /// cell names and contents. A6:3\nA9:=A6/2\n\</param>
         private void LoadSheet(string contents)
         {
-            // EmptyAllCells
             throw new NotImplementedException();
         }
 
@@ -525,7 +524,6 @@ namespace SpreadsheetGUI
         {
             // TODO: lock spreadsheet model before changing
             // TODO: add lock in local change mechanism as well, if that's a thing
-            // something with locking OnPaint... search in model
             throw new NotImplementedException();
         }
 
