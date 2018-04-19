@@ -175,7 +175,6 @@ namespace cs3505
                 //Check for a ping response
 				if((args->data)->check_ping_response(socket))
                 {
-                    pingTimer = clock();
                     failed_pings = 0;
                 }
                 else
@@ -222,6 +221,9 @@ namespace cs3505
 
             std::string result = parseBuffer(&buff);
 
+            // Print number of received bytes AND the contents of the buffer
+            std::cout << "Received " << size << " bytes:\n" << buffer << std::endl;
+
             if (result.empty())
 			{
                 continue;
@@ -247,8 +249,6 @@ namespace cs3505
                 (args->data)->messages_add(result);
             }
 
-            // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << size << " bytes:\n" << buffer << std::endl;
         }
 
         close(socket);
@@ -518,7 +518,7 @@ std::string parseBuffer(std::string * message)
         }
     }
 
-    return NULL;
+    return "";
 }
 
 /**

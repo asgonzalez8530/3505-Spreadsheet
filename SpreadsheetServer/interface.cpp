@@ -17,6 +17,7 @@
 #include <queue>
 #include <set>
 #include <map>
+#include <iostream>
 
 namespace cs3505
 {
@@ -125,7 +126,9 @@ namespace cs3505
      */
     void interface::flag_map_add(int socket)
     {
+        //mtx.lock();
         ping_flags[socket] = 0;
+        //mtx.unlock();
     }
 
     /**
@@ -133,7 +136,9 @@ namespace cs3505
      */
     void interface::flag_map_remove(int socket)
     {
+        //mtx.lock();
         ping_flags.erase(socket);
+        //mtx.unlock();
     }
 
     /**
@@ -141,6 +146,7 @@ namespace cs3505
      */
     int interface::check_ping_response(int socket)
 	{
+        //mtx.lock();
         if(ping_flags[socket] == 1)
         {
             ping_flags[socket] = 0;
@@ -150,6 +156,7 @@ namespace cs3505
         {
 		    return false;
         }
+        //mtx.unlock();
 	}
 
     /**
@@ -165,8 +172,11 @@ namespace cs3505
      */
     void interface::ping_received(int socket)
     {
-        ping_flags[socket] = 1;
-
+        std::cout << "MADE IT IN" << "\n";
+        //mtx.lock();
+        ping_flags.insert(std::pair<int ,int>(socket, 1));
+        //mtx.unlock();
+        std::cout << "MADE IT OUT\n";
     }
 
     /**

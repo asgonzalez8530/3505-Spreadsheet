@@ -20,6 +20,7 @@
 #include <map>
 #include <list>
 #include "spreadsheet.h"
+#include <mutex>
 
 typedef std::list<int> socket_list;
 typedef std::map<std::string, socket_list> client_map;
@@ -40,6 +41,8 @@ namespace cs3505
 			client_map map_of_spreadsheets;
 			// map of ping flags for sockets
 			ping_f ping_flags;
+
+            //std::mutex mtx;
 
 
             std::queue<int> new_clients;
