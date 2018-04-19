@@ -83,7 +83,6 @@ namespace cs3505
         pthread_mutex_lock( &lock );
         ping_flags[socket] = 1;
         pthread_mutex_unlock( &lock );
-        std::cout << "Ping received! HOLY CRAP!!\n";
     }
 
 }

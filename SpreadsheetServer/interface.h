@@ -32,8 +32,6 @@ namespace cs3505
         private:
             // private variables (still need getters and setters for all)
 
-
-			/* TODO: Do we want to use data structures like these? */
 			 // list of all client sockets for a spreadsheet
 			socket_list clients;
 			 // map of client lists for spreadsheets
