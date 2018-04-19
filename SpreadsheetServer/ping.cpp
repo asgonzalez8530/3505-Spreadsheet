@@ -1,0 +1,117 @@
+
+#include "ping.h"
+#include <pthread.h>
+#include <iostream>
+#include <map>
+
+
+namespace cs3505
+{
+    ping::ping()
+    {
+		std::cout << "Ping Constructor lock address " << &lock << "\n";
+		tmp = 100001;
+        lock = PTHREAD_MUTEX_INITIALIZER;
+    }
+
+
+
+	int ping::get_int()
+	{
+		return tmp;
+	}
+
+	pthread_mutex_t * ping::get_lock()
+	{
+		return &lock;
+	}
+
+	ping_f ping::get_pings()
+	{
+		return ping_flags;
+	}
+
+
+
+
+
+    ping::~ping()
+	{
+	}
+
+    ping::ping(const ping & other)
+    {
+        this->ping_flags = other.ping_flags;
+        this->lock = other.lock;
+    }
+
+    /**
+     * Register socket in flag map
+     */
+    void ping::flag_map_add(int socket)
+    {
+        pthread_mutex_lock( &lock );
+        ping_flags[socket] = 0;
+        pthread_mutex_unlock( &lock );
+
+    }
+
+    /**
+     * Register socket in flag map
+     */
+    void ping::flag_map_remove(int socket)
+    {
+		std::cout << "Flag map remove\n";
+        pthread_mutex_lock( &lock );
+        ping_flags.erase(socket);
+        pthread_mutex_unlock( &lock );
+    }
+
+    /**
+     * Checks ping_flags for a response
+     */
+    int ping::check_ping_response(int socket)
+	{
+		std::cout << "Check ping response\n";
+        pthread_mutex_lock( &lock );
+        if(ping_flags[socket] == 1)
+        {
+            ping_flags[socket] = 0;
+            return true;
+        }
+        else
+        {
+		    return false;
+        }
+        pthread_mutex_unlock( &lock );
+	}
+
+    /**
+     * Send a ping to the passed socket
+     */
+	void ping::send_ping(int socket)
+    {
+		std::cout << "Send ping\n";
+    }
+
+
+    /**
+     * Update socket ping response flag
+     */
+    void ping::ping_received(int socket)
+    {
+		std::cout << "tmp is " << tmp << "\n";
+		std::cout << "Ping received\n";
+        std::cout << "Before lock\n";
+        std::cout << "socket is " << socket << "\n";
+        std::cout << "lock address is " << &lock << "\n";
+        pthread_mutex_lock( &lock );
+        std::cout << "Inside lock!" << "\n";
+        ping_flags[socket] = 1;
+		std::cout << "Past insert!" << "\n";
+        //ping_flags.insert(std::pair<int ,int>(socket, 1));
+        pthread_mutex_unlock( &lock );
+    }
+
+}
+

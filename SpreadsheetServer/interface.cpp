@@ -23,10 +23,12 @@ namespace cs3505
 {
     interface::interface() 
     {
+        /*
 		new_clients = std::queue<int>();
         map_of_clients = std::map<spreadsheet, int>();
         disconnect = std::set<int>();
         messages = std::queue<std::string>();
+        */
     }
 
 
@@ -119,64 +121,6 @@ namespace cs3505
     {
         // lock 
         messages.push(message);
-    }
-
-    /**
-     * Register socket in flag map
-     */
-    void interface::flag_map_add(int socket)
-    {
-        //mtx.lock();
-        ping_flags[socket] = 0;
-        //mtx.unlock();
-    }
-
-    /**
-     * Register socket in flag map
-     */
-    void interface::flag_map_remove(int socket)
-    {
-        //mtx.lock();
-        ping_flags.erase(socket);
-        //mtx.unlock();
-    }
-
-    /**
-     * Checks ping_flags for a response
-     */
-    int interface::check_ping_response(int socket)
-	{
-        //mtx.lock();
-        if(ping_flags[socket] == 1)
-        {
-            ping_flags[socket] = 0;
-            return true;
-        }
-        else
-        {
-		    return false;
-        }
-        //mtx.unlock();
-	}
-
-    /**
-     * Send a ping to the passed socket
-     */
-	void interface::send_ping(int socket)
-    {
-    }
-
-
-    /**
-     * Update socket ping response flag
-     */
-    void interface::ping_received(int socket)
-    {
-        std::cout << "MADE IT IN" << "\n";
-        //mtx.lock();
-        ping_flags.insert(std::pair<int ,int>(socket, 1));
-        //mtx.unlock();
-        std::cout << "MADE IT OUT\n";
     }
 
     /**
