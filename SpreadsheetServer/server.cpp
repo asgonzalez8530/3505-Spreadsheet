@@ -180,7 +180,7 @@ namespace cs3505
                 }
                 else
                 {
-                    failed_pings++:
+                    failed_pings++;
                 }
 
                 // reset timer clock
@@ -577,8 +577,8 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
                 //data.add_client(s, socket);
 
                 // load full state (iterate)
-                std::map<std::string, std::string> contents = full_state();
-                for(std::map<std::string, string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
+                std::map<std::string, std::string> contents = s->full_state();
+                for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
                 {
                     // get cell 
                     result = iter->first;
@@ -599,8 +599,8 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
             //     data.add_client(s, socket);
                 
             //     // load full state (iterate)
-            //     std::map<std::string, std::string> contents = full_state();
-            //     for(std::map<std::string, string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
+            //     std::map<std::string, std::string> contents = s->full_state();
+            //     for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
             //     {
             //         // get cell 
             //         result = iter->first;
@@ -624,7 +624,7 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         }
 
         // propogate to the client the result response 
-        data.propogate_to_client(socket, (char) 3);
+        data.propogate_to_client(socket, "" + (char) 3);
     }
 
     // edit
