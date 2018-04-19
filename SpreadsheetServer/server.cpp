@@ -11,6 +11,7 @@
  * v3: April 6, 2018
  * v4: April 13, 2018
  * v5: April 18, 2018
+ * v6: April 19, 2018
  */
 
 #include "server.h"
@@ -597,9 +598,9 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
                 data.add_client(spreadsheet_name, socket);
 
                 // load full state (iterate)
-                std::map<std::string, std::string> * contents = s->full_state();
+                std::map<std::string, std::string> contents = s->full_state();
 
-                propogate_full_state(contents);
+                data.propogate_full_state(&contents, socket);
             }
             else
             {
@@ -608,7 +609,7 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
                 
                 // load full state (iterate)
                 std::map<std::string, std::string> contents = s->full_state();
-                propogate_full_state(contents);
+                data.propogate_full_state(&contents, socket);
             }
         }
         catch (...)

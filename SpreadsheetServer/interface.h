@@ -24,17 +24,16 @@
 typedef std::list<int> socket_list;
 typedef std::map<std::string, socket_list> client_map;
 
-
 namespace cs3505
 {
     class interface
     {
         private:
             // private variables
-            std::queue<int> new_clients = new std::queue<int>(); // queue of clients that need to be added
-            std::set<int> disconnect = std::set<int>(); // set of sockets that need to be disconnected
-            std::queue<std::string> messages = std::queue<std::string>(); // queue of messages that the server needs to parse
-            std::map<std::string, spreadsheet> all_spreadsheets =  std::map<std::string, spreadsheet>(); // map of spreadsheet names and spreadsheet objects
+            std::queue<int> new_clients; // queue of clients that need to be added
+            std::set<int> disconnect; // set of sockets that need to be disconnected
+            std::queue<std::string> messages; // queue of messages that the server needs to parse
+            std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
 
@@ -55,8 +54,8 @@ namespace cs3505
             void propogate_to_client(int client, std::string message);
             bool spreadsheet_exists(std::string spreadsheet_name);
             void add_client(std::string spreadsheet_name, int socket);
-            void add_spreadsheet(std::spreadsheet_name);
-            void propogate_full_state(std::map<std::string, std::string> * contents);
+            void add_spreadsheet(std::string spreadsheet_name);
+            void propogate_full_state(std::map<std::string, std::string> * contents, int socket);
 
         private:
             // helper methods

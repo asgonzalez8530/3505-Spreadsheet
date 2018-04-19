@@ -144,31 +144,31 @@ namespace cs3505
 
     /**
      */
-    void interface::propogate_full_state(std::map<std::string, std::string> * contents)
+    void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
     {
         // build up the response message
         std::string result  = "full_state ";
 
         // propogate to the client the result response 
-        data.propogate_to_client(socket, result);
+        propogate_to_client(socket, result);
 
-        for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
+        for(std::map<std::string, std::string>::iterator iter = contents->begin(); iter != contents->end(); iter++)
         {
             // get cell 
             result = iter->first;
 
             // propogate to the client the result response 
-            data.propogate_to_client(socket, result);
+            propogate_to_client(socket, result);
             
             // get cell contents
             result = iter->second;
 
             // propogate to the client the result response 
-            data.propogate_to_client(socket, result);
+            propogate_to_client(socket, result);
         }
 
         // propogate to the client the result response 
-        data.propogate_to_client(socket, "" + (char) 3);
+        propogate_to_client(socket, "" + (char) 3);
     }
 
     /**
@@ -176,9 +176,9 @@ namespace cs3505
      */
     bool interface::spreadsheet_exists(std::string spreadsheet_name)
     {
-        std::map<std::string, spreadsheet>::iterator location;
-        location = client_map.find(spreadsheet_name);
-        return location != client_map.end();
+        std::map<std::string, socket_list>::iterator location;
+        location = map_of_spreadsheets.find(spreadsheet_name);
+        return location != map_of_spreadsheets.end();
     }
 
     /**
@@ -186,21 +186,21 @@ namespace cs3505
      */
     void interface::add_client(std::string spreadsheet_name, int socket)
     {
-        std::map<std::string, spreadsheet>::iterator location;
-        location = client_map.find(spreadsheet_name);
-        if (location != client_map.end())
+        std::map<std::string, socket_list>::iterator location;
+        location = map_of_spreadsheets.find(spreadsheet_name);
+        if (location != map_of_spreadsheets.end())
         {
-            client_map.at(spreadsheet_name)->push_back(socket);
+            map_of_spreadsheets.at(spreadsheet_name).push_back(socket);
         }
     }
 
     /**
      * add the inputted spreadsheet to the list of spreadsheets
      */
-    void interface::add_spreadsheet(std::spreadsheet_name)
+    void interface::add_spreadsheet(std::string spreadsheet_name)
     {
-        spreadsheet s = new spreadsheet(spreadsheet_name);
-        all_spreadsheets.insert( std::pair<std::string, spreadsheet>(name, s) );
+        spreadsheet s(spreadsheet_name);
+        all_spreadsheets.insert( std::pair<std::string, spreadsheet>(spreadsheet_name, s) );
     }
 
 } // end of class
