@@ -122,7 +122,6 @@ namespace SpreadsheetGUI
         /// </summary>
         public void SetDefaultAcceptButton()
         {
-            // TODO: ENTER button
             AcceptButton = contents_button;
         }
 
@@ -230,6 +229,13 @@ namespace SpreadsheetGUI
         private void UndoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Undo();
+        }
+
+        public void UpdateEditBoxLocation(int x, int y, int width, int height)
+        {
+            Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
+            Contents_Text.Width = width;
+            Contents_Text.Height = height;
         }
     }
 }

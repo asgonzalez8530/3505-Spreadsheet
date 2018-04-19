@@ -37,7 +37,7 @@ int main()
 			std::cout << *iter << std::endl;
 	}
 
-/*
+
 	std::ofstream helloOut("HELLOWORLD.txt");
 	helloOut << "Hello, World!" << std::endl;
 
@@ -61,7 +61,7 @@ int main()
 	editsArchive << temp;
 	std::cout << "Wrote edits!!!" << std::endl;
 
-*/
+
 }
 
 /*
