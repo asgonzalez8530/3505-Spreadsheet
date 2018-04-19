@@ -17,9 +17,6 @@ namespace SpreadsheetGUI
 
         event Action EnterContentsAction;
 
-        event Action SaveFileAction;
-
-        event Action OpenFileAction;
 
         event Action AboutText;
 
