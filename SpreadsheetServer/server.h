@@ -58,7 +58,7 @@ namespace cs3505
 
         private:
             // helper methods
-	        void server_awaiting_client_loop();
+	        int server_awaiting_client_loop();
             void check_for_new_clients();
             void verify_connections();
             bool process_message();

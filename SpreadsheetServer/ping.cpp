@@ -9,7 +9,6 @@ namespace cs3505
 {
     ping::ping()
     {
-		std::cout << "Ping Constructor lock address " << &lock << "\n";
         lock = PTHREAD_MUTEX_INITIALIZER;
     }
 

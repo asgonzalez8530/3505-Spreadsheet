@@ -31,6 +31,7 @@
 #include <fstream>
 #include <thread> 
 #include <chrono> 
+#include <regex>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/map.hpp>
@@ -69,8 +70,6 @@ namespace cs3505
 	    // constructor
     server::~server()
     {
-        delete &pings;
-		delete &data;
     }
 
     void server::master_server_loop()
@@ -82,7 +81,7 @@ namespace cs3505
         // new thread were we start the ping loop
 
         // new thread were we start listening for multiple clients
-        server_awaiting_client_loop();
+        int serverSocket = server_awaiting_client_loop();
 
         std::cout << "Entering main server loop.\n";
 
@@ -110,6 +109,7 @@ namespace cs3505
         }
 
         shutdown();
+        close(serverSocket);
     }
 
     //**** private & helper methods ****//
@@ -118,7 +118,7 @@ namespace cs3505
      * This is a loop that listens for new TCP connections and processes those new
      * connections by connecting and initiating the Protocol Handshake.
      */
-    void server::server_awaiting_client_loop()
+    int server::server_awaiting_client_loop()
     {
         // initialize listener socket
         int serverSocket = init_listener();
@@ -133,6 +133,8 @@ namespace cs3505
 
         // Clean up thread resources as they finish
         pthread_detach(new_connection_thread);
+
+        return serverSocket;
     }
 
     /**
@@ -235,19 +237,19 @@ namespace cs3505
 			{
                 continue;
 			}
-            else if (result == "1")
+            else if (result.compare("1") == 0)
             {
                 std::cout << "Hit 1\n";
                 // current client pinged a response so we flag ping as true
                 (args->png)->ping_received(socket);
             }
-            else if (result == "2")
+            else if (result.compare("2") == 0)
             {
                 std::cout << "Hit 2\n";
                 // ping the client back 
                 (args->data)->propogate_to_client(socket, result);
             }
-            else if (result == "3")
+            else if (result.compare("3") == 0)
             {
                 std::cout << "Hit 3\n";
                 // add the client to the disconnect list
@@ -448,25 +450,8 @@ namespace cs3505
         // save the spreadsheet
 
         // close our out of this program in a clean way
+        
     }
-
-    /**
-     * THIS METHODS FUNCTIONALITY WILL MOST LIKELY NEED TO CHANGE
-     * 
-     * parses the inputted message and if the message requires a server response then we return the server's response as a string
-     * 
-     * the following messages should be parsed by this message and result in the following response
-     */
-    // std::string server::parse_message(std::string message)
-    // {
-    //     // response message that the server will propogate if not an empty string
-    //     std::string response = "";
-
-    //     // TODO: parse message here
-    //     // register message will add the client to the new clients list
-
-    //     return response;
-    // }
 
   /**
    * This method takes two clock times and returns the difference
@@ -498,6 +483,7 @@ std::string parseBuffer(std::string * message)
 {   
     // get the position of \3
     int position = message->find((char)3);
+    std::cout << "Message is " << *message << "\n";
 
     // check to see if its a complete message
     if ( position > 0 )
@@ -506,20 +492,23 @@ std::string parseBuffer(std::string * message)
         std::string current_message = message->substr(0, position);
         *message = message->substr(position + 1);
 
+        std::cout << "Parse message is " << current_message << "\n";
+
+
         // ping_response (may be able to remove the char 3)
-        if (current_message.find("ping_response ") > 0)
+        if (std::regex_match(current_message, std::regex("ping_response ")))
         {
             return std::to_string(1);
         }
 
         // ping
-        else if (current_message.find("ping ") > 0)
+        else if (std::regex_match(current_message, std::regex("ping ")))
         {
             return std::to_string(2);
         }
 
         // disconnect
-        else if (current_message.find("ping_response ") > 0)
+        else if (std::regex_match(current_message, std::regex("disconnect ")))
         {
             return std::to_string(3);
         }
