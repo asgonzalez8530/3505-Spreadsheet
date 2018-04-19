@@ -25,11 +25,11 @@
 #include <string>
 #include <iostream>
 #include <ctime>
-<<<<<<< HEAD
 #include <mutex>
-=======
 #include <stack>
 #include <fstream>
+#include <thread> 
+#include <chrono> 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/map.hpp>
@@ -37,7 +37,6 @@
 #include <boost/serialization/stack.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
->>>>>>> ebc329f2066edc6e57bdcd9832977dccdb1f5fb4
 
 namespace cs3505
 {
@@ -96,7 +95,7 @@ namespace cs3505
             // if no new message then we sleep for 10ms
             if (sleeping)
             {
-                //sleep(10ms);
+                std::this_thread::sleep_for (std::chrono::milliseconds(10));
                 sleeping = false;
             }
 
@@ -115,7 +114,6 @@ namespace cs3505
      */
     void server::server_awaiting_client_loop()
     {
-
         // initialize listener socket
         int serverSocket = init_listener();
 
@@ -172,7 +170,6 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
-
 				(args->data)->send_ping(socket);
 
                 //Check for a ping response
@@ -183,7 +180,7 @@ namespace cs3505
                 }
                 else
                 {
-                    failed_pings += 1;
+                    failed_pings++:
                 }
 
                 // reset timer clock
@@ -356,7 +353,6 @@ namespace cs3505
      */
     void server::check_for_new_clients()
     {
-
         // there are new clients
         if (!data.new_clients_isempty())
         {
@@ -528,7 +524,6 @@ std::string parseBuffer(std::string * message)
 /**
  * parses the inputted message. And determines if its a valid message.
  * Implements the servers response to the message.
- * TODO: Still need to implement
  */
 void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::string message)
 {
@@ -537,9 +532,6 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
     {
         // find where the message begins
         int p = message.find("register ");
-
-        // remove white space at the beginning of the message
-        //std::string cleaned_up_message = message.substr(p);
 
         std::set<std::string> file_names = get_spreadsheet_names();
 
@@ -573,21 +565,56 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // build up the response message
         std::string result  = "full_state ";
 
+        // propogate to the client the result response 
+        data.propogate_to_client(socket, result);
+
         // try to make a open spreadsheet
         try 
         {
-            // if (spreadsheet exists)
-            // {
-            //     // add client 
-            //     // load full state (iterate)
-            // }
+            //if (data.spreadsheet_exists(s))
+            //{
+                // add client 
+                //data.add_client(s, socket);
+
+                // load full state (iterate)
+                std::map<std::string, std::string> contents = full_state();
+                for(std::map<std::string, string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
+                {
+                    // get cell 
+                    result = iter->first;
+
+                    // propogate to the client the result response 
+                    data.propogate_to_client(socket, result);
+                    
+                    // get cell contents
+                    result = iter->second;
+
+                    // propogate to the client the result response 
+                    data.propogate_to_client(socket, result);
+                }
+            //}
             // else
             // {
-                // build up the response message
-                std::string result  = "focus ";
-                // add client
-                // load full state (iterate)
-            //}
+            //     // add client
+            //     data.add_client(s, socket);
+                
+            //     // load full state (iterate)
+            //     std::map<std::string, std::string> contents = full_state();
+            //     for(std::map<std::string, string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
+            //     {
+            //         // get cell 
+            //         result = iter->first;
+
+            //         // propogate to the client the result response 
+            //         data.propogate_to_client(socket, result);
+                    
+            //         // get cell contents
+            //         result = iter->second;
+
+            //         // propogate to the client the result response 
+            //         data.propogate_to_client(socket, result);
+            //     }
+            // }
         }
         catch (...)
         {
@@ -597,7 +624,7 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         }
 
         // propogate to the client the result response 
-        data.propogate_to_client(socket, result + (char) 3);
+        data.propogate_to_client(socket, (char) 3);
     }
 
     // edit

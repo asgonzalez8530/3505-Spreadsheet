@@ -31,8 +31,7 @@ namespace cs3505
 	    // cell's stack
 
 		/*
-		 * The name of this spreadsheet. Used for saving and identification.
-		 *
+		 * The name of this spreadsheet. Used for saving and identification
 		 */	
 		std::string myName;
 
@@ -45,7 +44,6 @@ namespace cs3505
 
 	    /** 
 	     * stack of edits (used for undo)
- 	     *
 	     */
 	    std::stack<std::string> edits; // example value: "A36:I <3 dogs"
 
@@ -90,15 +88,13 @@ namespace cs3505
 	     * Takes a Edit, Revert, or Undo message (see page 5 of protocol for examples) 
 	     * as an argument.
 	     *
-	     * Returns a Change message.
-	     *
+	     * Returns a Change message
 	     */
 	    std::string update(std::string);
 
 	    /*
 	     * Process a Full_State message by returning this spreadsheet
 	     * as a map
-	     *
 	     */
 	    std::map<std::string, std::string> full_state();
 
