@@ -161,14 +161,11 @@ namespace SpreadsheetGUI
                 window.ValueBoxText = value.ToString();
             }
             // else text box value will be set to Error
-            else if (value is FormulaError)
+            else 
             {
-                window.ValueBoxText = "FormulaError";
+                window.ValueBoxText = "CellError";
             }
-            else
-            {
-                window.ValueBoxText = "FormatError";
-            }
+            
         }
 
         /// <summary>
@@ -177,6 +174,12 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCellContentsBox(SpreadsheetPanel panel)
         {
+            // set the location of this textbox
+            int x, y, width, height;
+            panel.GetSelectionLocation(out x, out y, out width, out height);
+
+            window.UpdateEditBoxLocation(x, y, width, height);
+
             // locate the current cell in the grid and convert to a variable
             panel.GetSelection(out int col, out int row);
             string cellName = ConvertRowColToCellName(row, col);

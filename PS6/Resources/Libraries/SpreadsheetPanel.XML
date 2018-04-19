@@ -61,6 +61,15 @@
             <param name="row"></param>
             <returns></returns>
         </member>
+        <member name="M:SS.SpreadsheetPanel.GetSelectionLocation(System.Int32@,System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Get's location of the current cell's location.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="width"></param>
+            <param name="height"></param>
+        </member>
         <member name="M:SS.SpreadsheetPanel.GetSelection(System.Int32@,System.Int32@)">
             <summary>
             Assigns the column and row of the current selection to the
@@ -90,6 +99,11 @@
             <summary>
             The panel where the spreadsheet grid is drawn.  It keeps track of the
             current selection as well as what is supposed to be drawn in each cell.
+            </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.GetSelectionLocation(System.Int32@,System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Get the location of the current selection.
             </summary>
         </member>
         <member name="M:SS.SpreadsheetPanel.DrawingPanel.DrawColumnLabel(System.Drawing.Graphics,System.Int32,System.Drawing.Font)">
