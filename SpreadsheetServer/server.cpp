@@ -16,6 +16,7 @@
 #include "server.h"
 #include "interface.h"
 #include "spreadsheet.h"
+#include "ping.h"
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
@@ -50,21 +51,29 @@ namespace cs3505
     int init_listener();
     void *listener_loop(void *);
 
-	typedef struct _ThreadData
-	{
-		int socket;
-		interface * data;
-	} ThreadData;
-
     //**** public methods ****//
 
     // constructor
     server::server()
     {
         // this boolean will tell us when we want to shut down the server
+		std::cout << "In the server constructor!\n";
+		std::cout << pings.get_int() << "\n";
+
+		connfd = new ThreadData();
+		connfd->data = &data;
+		connfd->png = &pings;
+
         terminate = false;
 
         // TODO moved stubs relating to starting new threads to master_server_loop()
+    }
+
+	    // constructor
+    server::~server()
+    {
+        delete &pings;
+		delete &data;
     }
 
     void server::master_server_loop()
@@ -120,12 +129,12 @@ namespace cs3505
         // print for debugging
         std::cout << "Finished listener initialize." << std::endl;
 
-		ThreadData * args = new ThreadData();
-		args->socket = serverSocket;
-		args->data = &data;
+        connfd->socket = serverSocket;
+		std::cout << "Follow the socket 1: " << (connfd->socket) << "\n";
+		std::cout << "In thread create int is " << (connfd->png)->get_int() << "\n";
+
         pthread_t new_connection_thread;
-        pthread_create(&new_connection_thread, NULL, listener_loop, args);
-        pthread_create(&new_connection_thread, NULL, ping_loop, args);
+        pthread_create(&new_connection_thread, NULL, listener_loop, connfd);
 
         // Clean up thread resources as they finish
         pthread_detach(new_connection_thread);
@@ -145,11 +154,14 @@ namespace cs3505
         double secondsToTimeout = 60;
         clock_t pingTimer, timePassed;
 
+		std::cout << "Begin ping loop\n";
+		std::cout << "In thread create int is " << (args->png)->get_int() << "\n";
+
         // begin ping timer
         pingTimer = clock();
 
         // Add socket to ping flag map
-        (args->data)->flag_map_add(socket);
+        (args->png)->flag_map_add(socket);
 
         while (true)
         {
@@ -159,7 +171,7 @@ namespace cs3505
             if (failed_pings >= 5)
             {
                 // remove socket from flag map
-				(args->data)->flag_map_remove(socket);
+				(args->png)->flag_map_remove(socket);
 
                 // add client to the disconnect list
 				(args->data)->disconnect_add(socket);
@@ -170,10 +182,15 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
+<<<<<<< HEAD
+
+				(args->png)->send_ping(socket);
+=======
 				(args->data)->send_ping(socket);
+>>>>>>> cd7dca665c338499dec45d2bde7a87efcb791d51
 
                 //Check for a ping response
-				if((args->data)->check_ping_response(socket))
+				if((args->png)->check_ping_response(socket))
                 {
                     failed_pings = 0;
                 }
@@ -196,6 +213,10 @@ namespace cs3505
     {
         ThreadData * args = (ThreadData*)connection_file_descriptor;
         int socket = args->socket;
+		ping * png = (args->png);
+		interface * data = (args->data);
+
+		std::cout << "In client loop int is " << (*png).get_int() << "\n";
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
@@ -222,7 +243,7 @@ namespace cs3505
             std::string result = parseBuffer(&buff);
 
             // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << size << " bytes:\n" << buffer << std::endl;
+            std::cout << "Received " << size << " bytes:\n" << buffer << "\n";
 
             if (result.empty())
 			{
@@ -230,21 +251,25 @@ namespace cs3505
 			}
             else if (result == "1")
             {
+                std::cout << "Hit 1\n";
                 // current client pinged a response so we flag ping as true
-                (args->data)->ping_received(socket);
+                (args->png)->ping_received(socket);
             }
             else if (result == "2")
             {
+                std::cout << "Hit 2\n";
                 // ping the client back 
                 (args->data)->propogate_to_client(socket, result);
             }
             else if (result == "3")
             {
+                std::cout << "Hit 3\n";
                 // add the client to the disconnect list
                 (args->data)->disconnect_add(socket);
             }
             else
             {
+                std::cout << "Hit 4\n";
                 // add message to the list of messages that needs to be processed
                 (args->data)->messages_add(result);
             }
@@ -308,15 +333,20 @@ namespace cs3505
      * The server's listening loop.
      * Accepts new connections, starting a new thread for each one.
      */
-    void *listener_loop(void *server)
+    void *listener_loop(void * connection_file_descriptor)
     {
+        ThreadData * args = (ThreadData*)connection_file_descriptor;
+        int serverSocket = args->socket;
+
         // print for debugging
         std::cout << "Begin listening." << std::endl;
+
+		std::cout << "Follow the socket 2: " << args->socket << "\n";
+		std::cout << "In thread create int is " << (args->png)->get_int() << "\n";
 
         while (true)
         {
             int newClient = 0;
-            int serverSocket = *((int *)server);
 
             // Accept a connection (the "accept" command waits for a connection with
             // no timeout limit...)
@@ -334,10 +364,10 @@ namespace cs3505
             // if the accept result value is positive, we have a new client!
             if (newClient > 0)
             {
-                int sock = newClient;  // copy the new client
-                void *conn_fd = &sock; // store as a void * so it can be passed to client_loop
+                args->socket = newClient;
                 pthread_t new_connection_thread;
-                pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+                pthread_create(&new_connection_thread, NULL, client_loop, args);
+                pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
                 // Clean up thread resources as they finish
                 pthread_detach(new_connection_thread);
