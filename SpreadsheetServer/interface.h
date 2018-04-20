@@ -47,15 +47,21 @@ namespace cs3505
             bool disconnect_isempty();
             void disconnect_add(int);
             void disconnect_clients();
+            void disconnect_all();
+            void disconnecting();
             bool messages_isempty();
             std::string get_message();
             void messages_add(std::string);
-            void propogate_to_spreadsheet(spreadsheet * s, std::string message);
-            void propogate_to_client(int client, std::string message);
-            bool spreadsheet_exists(std::string spreadsheet_name);
-            void add_client(std::string spreadsheet_name, int socket);
-            void add_spreadsheet(std::string spreadsheet_name);
-            void propogate_full_state(std::map<std::string, std::string> * contents, int socket);
+            void propogate_to_spreadsheet(std::string, std::string);
+            void propogate_to_client(int, std::string);
+            bool spreadsheet_exists(std::string);
+            void add_client(std::string, int);
+            void add_spreadsheet(std::string);
+            void propogate_full_state(std::map<std::string, std::string> *, int);
+            spreadsheet * get_spreadsheet(std::string);
+            std::string get_spreadsheet(int);
+            void stop_receiving_and_propogate_all_messages();
+            void save_all_spreadsheets();
 
         private:
             // helper methods

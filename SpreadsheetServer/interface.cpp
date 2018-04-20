@@ -17,6 +17,7 @@
 #include <queue>
 #include <set>
 #include <map>
+#include <unistd.h>
 #include <iostream>
 
 namespace cs3505
@@ -72,10 +73,10 @@ namespace cs3505
     /**
      * Adds the inputted client to the disconnect set
      */
-    void interface::disconnect_add(int client)
+    void interface::disconnect_add(int socket)
     {
         // lock
-        disconnect.insert(client);
+        disconnect.insert(socket);
     }
 
     /**
@@ -85,8 +86,86 @@ namespace cs3505
     {
         // lock the disconnected list
 
-        // for each client 
-            // remove them from the list, the server, & their spreadsheet. 
+        // for each client remove them from the list, the server, & their spreadsheet
+        std::set<int>::iterator it;
+        for (it = disconnect.begin(); it != disconnect.end(); it++)
+        {
+            // pull out the socket
+            int socket = *it;
+
+            // remove the socket from the disconnect list
+            disconnect.erase(*it);
+
+            // lock the spreadsheet
+
+            // remove the client from the spreadsheet
+            std::map<std::string, std::list<int>>::iterator it;
+            for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+            {
+                std::list<int> clients = it->second;
+
+                // check to see if the client is in the list conenct to the spreadsheet
+                std::list<int>::iterator j;
+                for (j = clients.begin(); j != clients.end(); j++)
+                {
+                    if (*j == socket)
+                    {
+                        clients.remove(*j);
+                        map_of_spreadsheets.insert(std::pair<std::string, std::list<int>> (it->first, clients));
+                    }
+                }
+            }
+
+            // now we close the socket and remove them from the server
+            close(socket);
+        }
+    }
+
+    /**
+     * removes each client from the server 
+     */
+    void interface::disconnect_all()
+    {
+        // lock the spreadsheet
+
+        // remove the client from the spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            std::list<int> clients = it->second;
+
+            // check to see if the client is in the list conenct to the spreadsheet
+            std::list<int>::iterator j;
+            for (j = clients.begin(); j != clients.end(); j++)
+            {
+                // now we close the socket and remove them from the server
+                close(*j);
+            }
+        }
+    }
+
+    /**
+     * send the disconnect message to each client
+     */
+    void interface::disconnecting()
+    {
+        std::string message = "disconnect " + (char)3;
+
+        // lock the spreadsheet
+
+        // remove the client from the spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            std::list<int> clients = it->second;
+
+            // check to see if the client is in the list conenct to the spreadsheet
+            std::list<int>::iterator j;
+            for (j = clients.begin(); j != clients.end(); j++)
+            {
+                propogate_to_client(*j, message);
+            }
+        }
     }
 
     /**
@@ -117,7 +196,7 @@ namespace cs3505
     /**
      * Propogate the inputted message to all the clients connected to that spreadsheet
      */
-	void interface::propogate_to_spreadsheet(spreadsheet * s, std::string message)
+	void interface::propogate_to_spreadsheet(std::string spreadsheet_name, std::string message)
     {
         //int clients = map_of_clients[s];
         //map_of_clients.find(s)->second;
@@ -136,7 +215,7 @@ namespace cs3505
     /**
      * Propogate the inputted message to the clients passed in
      */
-	void interface::propogate_to_client(int client, std::string message)
+	void interface::propogate_to_client(int socket, std::string message)
     {
         // lock
         // add the message to outgoing messages of the client
@@ -201,6 +280,70 @@ namespace cs3505
     {
         spreadsheet s(spreadsheet_name);
         all_spreadsheets.insert( std::pair<std::string, spreadsheet>(spreadsheet_name, s) );
+        std::list<int> empty_list({});
+        map_of_spreadsheets.insert(std::pair<std::string, std::list<int>>(spreadsheet_name, empty_list));
     }
+
+    /**
+     * returns the spreadsheet object that is associated with the inputted spreadsheet name
+     */
+    spreadsheet * interface::get_spreadsheet(std::string name)
+    {
+        std::map<std::string, spreadsheet>::iterator it;
+        for (it = all_spreadsheets.begin(); it != all_spreadsheets.end(); it++)
+        {
+            if (it->first == name)
+            {
+                return &(it->second);
+            }
+        }
+        return NULL;
+    }
+
+    std::string interface::get_spreadsheet(int socket)
+    {
+        // get the list of clients connected to each spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            std::list<int> clients = it->second;
+
+            // check to see if the client is in the list conenct to the spreadsheet
+            std::list<int>::iterator j;
+            for (j = clients.begin(); j != clients.end(); j++)
+            {
+                if (*j == socket)
+                {
+                    return it->first;
+                }
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * stops receiveing messages from the sockets (clients) goes and propogates all the messages properly
+     */
+    void interface::stop_receiving_and_propogate_all_messages()
+    {
+
+    }
+
+    /**
+     * Saves the current states of all the spreadsheets to proper files
+     */
+    void interface::save_all_spreadsheets()
+    {
+        // iterate through each spreadsheet
+        std::map<std::string, spreadsheet>::iterator it;
+        for (it = all_spreadsheets.begin(); it != all_spreadsheets.end(); it++)
+        {
+            // save the spreadsheet
+            spreadsheet s = it->second;
+            s.save();
+        }
+    }
+
 
 } // end of class

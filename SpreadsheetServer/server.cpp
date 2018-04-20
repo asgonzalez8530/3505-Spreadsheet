@@ -101,6 +101,7 @@ namespace cs3505
         std::cout << "Entering main server loop.\n";
 
         // server shutdown listener
+        check_for_shutdown();
 
         // TODO the "endl" here leads to an error in the listener loop, it's interpreted as a socket operation.
         // std::cout << "Entering main server loop." << std::endl;
@@ -114,22 +115,14 @@ namespace cs3505
             sleeping = process_message();
 
             // if no new message then we sleep for 10ms
-            /*
             if (sleeping)
             {
                 std::this_thread::sleep_for (std::chrono::milliseconds(10));
                 sleeping = false;
             }
-            */
-
-			// Checks for "quit" to be input by user
-            check_for_shutdown();
-            std::cout << "Process end\n";
-
         }
 
-        shutdown();
-        close(serverSocket);
+        shutdown(serverSocket);
     }
 
     //**** private & helper methods ****//
@@ -433,9 +426,10 @@ namespace cs3505
             std::string message = data.get_message();
 
             int socket = 0;
-            spreadsheet * s = new spreadsheet("testToParseMessages");
+            // get the spreadsheet name that coorelates to the socket
+            std::string spreadsheet_name = data.get_spreadsheet(socket);
             // parse the message and have the server respond apporiately
-            parse_and_respond_to_message(s, socket, message);
+            parse_and_respond_to_message(spreadsheet_name, socket, message);
 
             return true;
         }
@@ -466,17 +460,23 @@ namespace cs3505
      * We propogate the appropriate messages. We then proceed to disconnect all the clients, save the spreadsheet, and close 
      * our program in a clean manner.
      */
-    void server::shutdown()
+    void server::shutdown(int serverSocket)
     {
         // stop receiving messages and propogate appropriate changes
         // (i.e. call the process message method to process all previous messages)
+        data.stop_receiving_and_propogate_all_messages();
 
-        // disconnect all clients
+        // propogate to each client that the server is disconnecting
+        data.disconnecting();
 
         // save the spreadsheet
+        data.save_all_spreadsheets();
 
-        // close our out of this program in a clean way
-        
+        // disconnect all clients (close all the sockets) 
+        data.disconnect_all();
+
+        // close out of this program in a clean way
+        close(serverSocket);
     }
 
   /**
@@ -553,7 +553,7 @@ std::string parseBuffer(std::string * message)
  * parses the inputted message. And determines if its a valid message.
  * Implements the servers response to the message.
  */
-void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::string message)
+void server::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
 {
     // register
     if (message.find("register ") > 0)
@@ -598,6 +598,9 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
                 // add client 
                 data.add_client(spreadsheet_name, socket);
 
+                // get the spreadsheet object
+                spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
                 // load full state (iterate)
                 std::map<std::string, std::string> contents = s->full_state();
 
@@ -605,8 +608,14 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
             }
             else
             {
+                // add spreadsheet
+                data.add_spreadsheet(spreadsheet_name);
+
                 // add client
                 data.add_client(spreadsheet_name, socket);
+
+                // get the spreadsheet object
+                spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
                 
                 // load full state (iterate)
                 std::map<std::string, std::string> contents = s->full_state();
@@ -629,11 +638,14 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // remove white space at the beginning of the message
         std::string cleaned_up_message = message.substr(p);
 
+        // get the spreadsheet object
+        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);
 
         // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(s, result);
+        data.propogate_to_spreadsheet(spreadsheet_name, result);
     }
 
     // focus
@@ -650,7 +662,7 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         result += message.substr(p + 6) + ":" + std::to_string(socket);
         
         // propogate the message to all the clients in the spreadsheet
-        data.propogate_to_spreadsheet(s, result);
+        data.propogate_to_spreadsheet(spreadsheet_name, result);
     }
 
     // unfocus
@@ -664,7 +676,7 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         result += std::to_string(socket);
         
         // propogate the message to all the clients in the spreadsheet
-        data.propogate_to_spreadsheet(s, result);
+        data.propogate_to_spreadsheet(spreadsheet_name, result);
     }
 
     // undo
@@ -676,11 +688,14 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // remove white space at the beginning of the message
         std::string cleaned_up_message = message.substr(p);
 
+        // get the spreadsheet object
+        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);
 
         // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(s, result);
+        data.propogate_to_spreadsheet(spreadsheet_name, result);
     }
 
     // revert
@@ -692,11 +707,14 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // remove white space at the beginning of the message
         std::string cleaned_up_message = message.substr(p);
 
+        // get the spreadsheet object
+        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);
 
         // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(s, result);
+        data.propogate_to_spreadsheet(spreadsheet_name, result);
     }
 
     // else not a valid message so we do nothing
@@ -720,7 +738,6 @@ std::set<std::string> server::get_spreadsheet_names()
 			std::string next = filename.substr(0, filename.length() - 11);
 
 			meSprds.insert(next);
-			
 		}
 	}
 
