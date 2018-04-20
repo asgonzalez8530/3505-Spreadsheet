@@ -229,10 +229,13 @@ namespace cs3505
 
 		for (sheetRator = sheet.begin(); sheetRator != sheet.end(); sheetRator++)
 		{
-		    std::string cellName = sheetRator->first;
-		    std::string cellContents = sheetRator->second.top();
+			if(!(sheetRator->second.empty()))
+			{
+		    	std::string cellName = sheetRator->first;
+		    	std::string cellContents = sheetRator->second.top();
 
-		    fullState.insert(std::pair<std::string, std::string>(cellName, cellContents));
+			    fullState.insert(std::pair<std::string, std::string>(cellName, cellContents));
+			}
 		}
 		return fullState;
 	}
