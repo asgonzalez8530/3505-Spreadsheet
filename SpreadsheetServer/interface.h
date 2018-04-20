@@ -19,6 +19,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <pthread.h>
 #include "spreadsheet.h"
 
 typedef std::list<int> socket_list;
@@ -36,6 +37,14 @@ namespace cs3505
             std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
+
+            // Data structure locks
+			pthread_mutex_t map_lock;
+            pthread_mutex_t queue_lock;
+            pthread_mutex_t client_lock;
+            pthread_mutex_t message_lock;
+            pthread_mutex_t disconnect_lock;
+            pthread_mutex_t spreadsheet_lock;
 
         public:
             // constructor
