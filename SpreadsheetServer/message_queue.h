@@ -42,6 +42,8 @@ namespace cs3505
 		// Enqueue this message to send to the client later.
 		void add_to_outbound(int socket, std::string & message);
 
+		void add_to_outbound(Message message);
+
 		// Return the next message to send.
 		Message next_outbound();
 

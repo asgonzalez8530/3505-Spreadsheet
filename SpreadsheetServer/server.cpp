@@ -76,7 +76,8 @@ namespace cs3505
     {
         // this boolean will determine whether or not the loop will run immediatily
         // after execution or it will sleep 10 ms before running again
-        bool sleeping = false;
+        bool inbound_sleep = false;
+        bool outbound_sleep = false;
 
         std::set<std::string> file_names = get_spreadsheet_names();
 
@@ -99,19 +100,20 @@ namespace cs3505
         std::cout << "Entering main server loop.\n";
 
         // server shutdown listener
-        check_for_shutdown();
+        //check_for_shutdown();
 
         // run the main server loop
-        while (!terminate && !sleeping)
+        while (!terminate)
         {
-            std::cout << "Process a message\n";
-            sleeping = process_message();
+            inbound_sleep = process_message();
+            outbound_sleep = send_message();
 
             // if no new message then we sleep for 10ms
-            if (sleeping)
+            if (inbound_sleep && outbound_sleep)
             {
                 std::this_thread::sleep_for (std::chrono::milliseconds(10));
-                sleeping = false;
+                inbound_sleep = false;
+                outbound_sleep = false;
             }
         }
 
@@ -152,9 +154,12 @@ namespace cs3505
     {
 		ThreadData * args = (ThreadData*)connection_file_descriptor;
         int socket = args->socket;
+        ping * png = (args->png);
+		interface * data = (args->data);
+        message_queue * msg = (args->q);
+
         int failed_pings = 0;
-        double secondsToPing = 10;
-        double secondsToTimeout = 60;
+        double secondsToPing = 20;
         clock_t pingTimer, timePassed;
 
         // begin ping timer
@@ -163,13 +168,24 @@ namespace cs3505
         // Add socket to ping flag map
         (args->png)->flag_map_add(socket);
 
+        Message message2;
+        message2.socket = socket;
+        message2.message = "Sent ping!";
+
+        Message message3;
+        message3.socket = socket;
+        message3.message = "Disconnect!";
+
         while (true)
         {
+
             timePassed = clock();
 
             // check for timeout
-            if (failed_pings >= 5)
+            if (failed_pings > 5)
             {
+                msg->add_to_outbound(message3);
+
                 // remove socket from flag map
 				(args->png)->flag_map_remove(socket);
 
@@ -180,14 +196,14 @@ namespace cs3505
             }
 
             // check for ping
-            else if (getTime(pingTimer, timePassed) >= secondsToPing)
+            else if (getTime(timePassed, pingTimer) >= secondsToPing)
             {
-
-				(args->png)->send_ping(socket);
+                msg->add_to_outbound(message2);
 
                 //Check for a ping response
-				if((args->png)->check_ping_response(socket))
+				if((args->png)->check_ping_response(socket) == 1)
                 {
+                    std::cout << "Reset Failed Pings!\n";
                     failed_pings = 0;
                 }
                 else
@@ -213,7 +229,6 @@ namespace cs3505
 		interface * data = (args->data);
         message_queue * msg = (args->q);
 
-        write(socket, "Hello!\r\n", 8);
         char buffer[1024];
         int size = 0;
 
@@ -252,8 +267,6 @@ namespace cs3505
             else if (result.compare("2") == 0)
             {
                 // ping the client back
-                std::string sendThis = "Ping";
-                msg->add_to_outbound(socket, sendThis);
                 (args->data)->propogate_to_client(socket, result);
             }
             else if (result.compare("3") == 0)
@@ -406,23 +419,41 @@ namespace cs3505
     {
         // incoming messages will most likely be an object of interface so we will be using the getter here
         // there are messages to process
-        if(!messages.outbound_empty())
-        {
-            std::cout << "Sending a message!\n";
-            Message temp = messages.next_outbound();
-            messages.send_message(temp);
-        }
 
-        if (!data.messages_isempty())
+        if (!messages.inbound_empty())
         {
             // pop the message off the stack
-            std::string message = data.get_message();
+            Message inbound = messages.next_inbound();
 
-            int socket = 0;
+            int socket = inbound.socket;
             // get the spreadsheet name that coorelates to the socket
             std::string spreadsheet_name = data.get_spreadsheet(socket);
             // parse the message and have the server respond apporiately
-            parse_and_respond_to_message(spreadsheet_name, socket, message);
+            parse_and_respond_to_message(spreadsheet_name, socket, inbound.message);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * THIS METHODS WAY OF PARSING/PROPOGATING MESSAGES MAY NEED TO CHANGE
+     * 
+     * checks if there is a new message to process.
+     * if there is a new message to process then it locks the list and takes one message. 
+     * it then proceeds to parse and process the message.
+     * if the message needs to be propagated to the other clients then it propagates the message on a new thread
+     */
+    bool server::send_message()
+    {
+        // incoming messages will most likely be an object of interface so we will be using the getter here
+        // there are messages to process
+
+        if (!messages.outbound_empty())
+        {
+            Message msg = messages.next_outbound();
+            messages.send_message(msg);
 
             return true;
         }
@@ -502,7 +533,6 @@ namespace cs3505
     {   
         // get the position of \3
         int position = message->find((char)3);
-        std::cout << "Message is " << *message << "\n";
 
         // check to see if its a complete message
         if ( position > 0 )
@@ -510,9 +540,6 @@ namespace cs3505
             // pull out and remove the message from the beginning to right before the \3
             std::string current_message = message->substr(0, position);
             *message = message->substr(position + 1);
-
-            std::cout << "Parse message is " << current_message << "\n";
-
 
             // ping_response (may be able to remove the char 3)
             if (std::regex_match(current_message, std::regex("ping_response ")))

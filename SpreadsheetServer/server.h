@@ -67,6 +67,7 @@ namespace cs3505
             void check_for_new_clients();
             void verify_connections();
             bool process_message();
+            bool send_message();
             void check_for_shutdown();
             void shutdown(int);
 			void parse_and_respond_to_message(std::string, int socket, std::string);

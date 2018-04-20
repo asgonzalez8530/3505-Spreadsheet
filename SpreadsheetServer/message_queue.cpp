@@ -34,6 +34,12 @@ namespace cs3505
 		outboundMessages.push(msg);
 	}
 
+		// Enqueue this message to send to the client later.
+	void message_queue::add_to_outbound(Message msg)
+	{
+		outboundMessages.push(msg);
+	}
+
 	// Return the next message to send.
 	Message message_queue::next_outbound()
 	{
@@ -73,8 +79,6 @@ namespace cs3505
     {
         int socket = message.socket;
         std::string tmp = message.message;
-        std::cout << "Sending message " << tmp << " of size ";
-        std::cout << tmp.length() << " bytes to socket " << socket;
-        write(socket, &tmp, tmp.length());
+        write(socket, tmp.c_str(), tmp.length());
     }
 }

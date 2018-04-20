@@ -50,18 +50,14 @@ namespace cs3505
      */
     int ping::check_ping_response(int socket)
 	{
+        int holder;
         pthread_mutex_lock( &lock );
         std::cout << "Check ping response\n";
-        if(ping_flags[socket] == 1)
-        {
-            ping_flags[socket] = 0;
-            return true;
-        }
-        else
-        {
-		    return false;
-        }
+        holder = ping_flags[socket];
+        ping_flags[socket] = 0;
         pthread_mutex_unlock( &lock );
+
+        return holder;
 	}
 
     /**
