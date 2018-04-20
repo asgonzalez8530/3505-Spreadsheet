@@ -13,7 +13,7 @@ namespace SpreadsheetGUI
     /// </summary>
     public interface ISpreadsheetWindow
     {
-        event Action NewSheetAction;
+        event Action NewSheetAction; // TODO: can we remove this?
 
         event Action EnterContentsAction;
 
@@ -36,7 +36,7 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Sets the text field of the CurrentCell_Text component
         /// </summary>
-        string CurrentCellText { set; }
+        string CurrentCellText { get; set; }
 
         /// <summary>
         /// Sets the Value_Text.Text

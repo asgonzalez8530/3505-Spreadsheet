@@ -23,6 +23,7 @@ namespace SpreadsheetGUI
         public event Action Startup;
         public event Action Undo;
         public event Action Revert;
+        public event Action NewSheetAction;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -37,6 +38,7 @@ namespace SpreadsheetGUI
         /// </summary>
         public string CurrentCellText
         {
+            get { return CurrentCell_Text.Text; }
             set { CurrentCell_Text.Text = value; }
         }
 
@@ -60,12 +62,12 @@ namespace SpreadsheetGUI
         /// </summary>
         private void FileMenuNew_Click(object sender, EventArgs e)
         {
-            // fire off event if listeners are registered.
-            if (NewSheetAction != null)
-            {
-                NewSheetAction();
-            }
-
+            //// fire off event if listeners are registered.
+            //if (NewSheetAction != null)
+            //{
+            //    NewSheetAction();
+            //}
+            throw new NotImplementedException();
         }
 
         /// <summary>

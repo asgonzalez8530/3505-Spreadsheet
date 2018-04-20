@@ -56,8 +56,10 @@ namespace SpreadsheetGUI
             panel.SelectionChanged += DisplayCurrentCellName;
             panel.SelectionChanged += SetCellValueBox;
             panel.SelectionChanged += SetCellContentsBox;
+            panel.SelectionChanged += SendFocusToServer;
 
             window.EnterContentsAction += SetCellContentsFromContentsBox;
+            window.EnterContentsAction += SendEditToServer;
             window.SetDefaultAcceptButton();
 
             window.AddFormClosingAction(FormCloses);
@@ -65,12 +67,19 @@ namespace SpreadsheetGUI
             window.HowToUseText += OpenHowToUse;
             // added for 3505
             window.Startup += IPInputBox;
-            window.Undo += UndoLastChange;
-            window.Revert += RevertCell;
+            window.Undo += SendUndoToServer;
+            window.Revert += SendRevertToServer;
 
             // set default locations
             panel.SetSelection(0, 0);
             UpdateCurrentCellBoxes();
+        }
+
+
+        private void SendFocusToServer(SpreadsheetPanel sender)
+        {
+            // TODO: should we send an unfocus first?
+            Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
         }
 
         private void FormCloses()
@@ -209,7 +218,10 @@ namespace SpreadsheetGUI
         /// updates the views cell value. If an error occurs, creates a message box with the a message that 
         /// an error occured.
         /// </summary>
-        private void SetCellContentsFromContentsBox()
+        private void SetCellContentsFromContentsBox()  // TODO, this needs to be unregistered
+                                                       // from the enter and used for
+                                                       // updating the sheet when a "change"
+                                                       // comes in
         {
             // get the location of the currently selected cell
             window.GetCellSelection(out int row, out int col);
@@ -222,7 +234,15 @@ namespace SpreadsheetGUI
             SetSpreadsheetPanelValues(cellsToUpdate);
             UpdateCurrentCellBoxes();
 
-            window.SetFocusToContentBox();
+            window.SetFocusToContentBox(); // TODO: we might not want to do this after every change
+        }
+
+
+        private void SendEditToServer()
+        {
+            string name = window.CurrentCellText;
+            string contents = window.ContentsBoxText; // TODO: not sure if this is the right text box :D
+            Networking.Send(theServer, "edit " + name + ":" + contents + THREE);
         }
 
         /// <summary>
@@ -605,17 +625,18 @@ namespace SpreadsheetGUI
         /// <summary>
         /// This is registered and called when an Undo event happens.
         /// </summary>
-        private void UndoLastChange()
+        private void SendUndoToServer()
         {
-            throw new NotImplementedException();
+            Networking.Send(theServer, "undo " + THREE);
         }
 
         /// <summary>
         /// This is registered and called when a Revert event happens.
         /// </summary>
-        private void RevertCell()
+        private void SendRevertToServer()
         {
-            throw new NotImplementedException();
+            string cellToRevert = window.CurrentCellText;
+            Networking.Send(theServer, "revert " + cellToRevert + THREE);
         }
     }
 }
