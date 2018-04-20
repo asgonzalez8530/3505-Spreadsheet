@@ -2,7 +2,7 @@ a.out: makefile main.o server.o interface.o spreadsheet.o socket_connection.o te
 	g++ main.o server.o interface.o spreadsheet.o socket_connection.o /usr/local/lib/libboost_system.a /usr/local/lib/libboost_serialization.a /usr/local/lib/libboost_filesystem.a -lpthread
 
 tester: makefile tester.o interface.o spreadsheet.o socket_connection.o server.o
-	g++ -g -o tester server.o interface.o tester.o spreadsheet.o socket_connection.o /usr/local/lib/libboost_system.a /usr/local/lib/libboost_serialization.a /usr/local/lib/libboost_filesystem.a -lgtest -lpthread
+	g++ -o tester server.o interface.o tester.o spreadsheet.o socket_connection.o /usr/local/lib/libboost_system.a /usr/local/lib/libboost_serialization.a /usr/local/lib/libboost_filesystem.a -lgtest -lpthread
 
 main.o: main.cpp server.h
 	g++ -std=c++11 -c main.cpp

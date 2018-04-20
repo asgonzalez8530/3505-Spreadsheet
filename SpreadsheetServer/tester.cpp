@@ -54,10 +54,16 @@ TEST(SpreadsheetTests, UndoOneCell)
 	//std::cout << "Hello from test." << std::endl;
 	cs3505::spreadsheet otherNewSheet("UndoSaveFile");
 	//std::cout << "Hello again." << std::endl;
+	
 	otherNewSheet.update("edit A1:36");
-	otherNewSheet.update("edit A1:I love dogs!");
-	otherNewSheet.update("revert A1");
-	otherNewSheet.update("undo ");
+	std::string change1 = otherNewSheet.update("edit A1:I love dogs!");
+	ASSERT_EQ("change A1:I love dogs!", change1);
+	
+	std::string change = otherNewSheet.update("revert A1");
+	ASSERT_EQ("change A1:36", change);
+
+	std::string change2 = otherNewSheet.update("undo ");
+	ASSERT_EQ("change A1:I love dogs!", change2);
 	otherNewSheet.save();
 }
 

@@ -75,7 +75,8 @@ namespace cs3505
 		    edits.push(cellName + ":" + oldContents); // store the old value onto edits
 		}
 
-		std::string cellContents = sheet[cellName].empty() ? "" : sheet[cellName].top(); // grab the current contents		
+		std::string cellContents = sheet[cellName].empty() ? "" : sheet[cellName].top(); // grab the current contents	
+
 	
 		return "change " + cellName + ":" + cellContents; // return the change message
 	}
@@ -94,6 +95,8 @@ namespace cs3505
 
 			std::string cellName = undo.substr(0, undo.find(":")); // grab the cell name
 			sheet[cellName].pop(); // undo the last edit to this cell
+
+			// TODO double check the undo process, draw it out
 
 			return "change " + undo; // return the change message
 		}
