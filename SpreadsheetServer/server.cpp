@@ -65,8 +65,6 @@ namespace cs3505
 
         // this boolean will tell us when we want to shut down the server
         terminate = false;
-
-        // TODO moved stubs relating to starting new threads to master_server_loop()
     }
 
 	    // constructor
@@ -103,14 +101,9 @@ namespace cs3505
         // server shutdown listener
         check_for_shutdown();
 
-        // TODO the "endl" here leads to an error in the listener loop, it's interpreted as a socket operation.
-        // std::cout << "Entering main server loop." << std::endl;
-
         // run the main server loop
         while (!terminate && !sleeping)
         {
-            //check_for_new_clients();
-            //verify_connections();
             std::cout << "Process a message\n";
             sleeping = process_message();
 
@@ -479,288 +472,287 @@ namespace cs3505
         close(serverSocket);
     }
 
-  /**
-   * This method takes two clock times and returns the difference
-   * 
-   * startTime - The current clock time
-   * testTime - The initial clock time
-   * 
-   * Returns a double value of seconds passed
-   */
-  double getTime(clock_t currentTime, clock_t initialTime)
+    /**
+     * This method takes two clock times and returns the difference
+     * 
+     * startTime - The current clock time
+     * testTime - The initial clock time
+     * 
+     * Returns a double value of seconds passed
+     */
+    double getTime(clock_t currentTime, clock_t initialTime)
     {
-      clock_t timeDiff = currentTime - initialTime;
-      // extract time passed based on clock speed
-      double seconds = timeDiff / (double)CLOCKS_PER_SEC;
-      return seconds;
+        clock_t timeDiff = currentTime - initialTime;
+        // extract time passed based on clock speed
+        double seconds = timeDiff / (double)CLOCKS_PER_SEC;
+        return seconds;
     }
 
-/**
- * This method parses the inputted message to make sure that it is complete and valid.
- * The inputted message is a reference. 
- * 
- * This method returns one of four values:
- *      1: its a ping_response message
- *      2: its a ping message
- *      3: its a disconnect message
- *      <string>: this a complete message that was not one of the above
- */
-std::string parseBuffer(std::string * message)
-{   
-    // get the position of \3
-    int position = message->find((char)3);
-    std::cout << "Message is " << *message << "\n";
+    /**
+     * This method parses the inputted message to make sure that it is complete and valid.
+     * The inputted message is a reference. 
+     * 
+     * This method returns one of four values:
+     *      1: its a ping_response message
+     *      2: its a ping message
+     *      3: its a disconnect message
+     *      <string>: this a complete message that was not one of the above
+     */
+    std::string parseBuffer(std::string * message)
+    {   
+        // get the position of \3
+        int position = message->find((char)3);
+        std::cout << "Message is " << *message << "\n";
 
-    // check to see if its a complete message
-    if ( position > 0 )
-    {
-        // pull out and remove the message from the beginning to right before the \3
-        std::string current_message = message->substr(0, position);
-        *message = message->substr(position + 1);
-
-        std::cout << "Parse message is " << current_message << "\n";
-
-
-        // ping_response (may be able to remove the char 3)
-        if (std::regex_match(current_message, std::regex("ping_response ")))
+        // check to see if its a complete message
+        if ( position > 0 )
         {
-            return std::to_string(1);
-        }
+            // pull out and remove the message from the beginning to right before the \3
+            std::string current_message = message->substr(0, position);
+            *message = message->substr(position + 1);
 
-        // ping
-        else if (std::regex_match(current_message, std::regex("ping ")))
-        {
-            return std::to_string(2);
-        }
+            std::cout << "Parse message is " << current_message << "\n";
 
-        // disconnect
-        else if (std::regex_match(current_message, std::regex("disconnect ")))
-        {
-            return std::to_string(3);
-        }
 
-        // other messages that we will parse later
-        else
-        {
-            return current_message;
-        }
-    }
-
-    return "";
-}
-
-/**
- * parses the inputted message. And determines if its a valid message.
- * Implements the servers response to the message.
- */
-void server::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
-{
-    // register
-    if (message.find("register ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("register ");
-
-        std::set<std::string> file_names = get_spreadsheet_names();
-
-        // build of the response
-        std::string result = "connect_accepted ";
-
-        if (!file_names.empty())
-        {
-            // get all the available spreadsheets
-            for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+            // ping_response (may be able to remove the char 3)
+            if (std::regex_match(current_message, std::regex("ping_response ")))
             {
-                result += *iter;
-                result += "\n";
+                return std::to_string(1);
             }
-        }
-        result += (char) 3;
 
-        // propogate to the client the result response 
-        data.propogate_to_client(socket, result);
-    }
-
-    // load
-    else if (message.find("load ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("load ");
-
-        // get the cell id
-        std::string spreadsheet_name = message.substr(p + 6);
-
-        // try to make a open spreadsheet
-        try 
-        {
-            if (data.spreadsheet_exists(spreadsheet_name))
+            // ping
+            else if (std::regex_match(current_message, std::regex("ping ")))
             {
-                // add client 
-                data.add_client(spreadsheet_name, socket);
-
-                // get the spreadsheet object
-                spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-                // load full state (iterate)
-                std::map<std::string, std::string> contents = s->full_state();
-
-                data.propogate_full_state(&contents, socket);
+                return std::to_string(2);
             }
+
+            // disconnect
+            else if (std::regex_match(current_message, std::regex("disconnect ")))
+            {
+                return std::to_string(3);
+            }
+
+            // other messages that we will parse later
             else
             {
-                // add spreadsheet
-                data.add_spreadsheet(spreadsheet_name);
-
-                // add client
-                data.add_client(spreadsheet_name, socket);
-
-                // get the spreadsheet object
-                spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-                
-                // load full state (iterate)
-                std::map<std::string, std::string> contents = s->full_state();
-                data.propogate_full_state(&contents, socket);
+                return current_message;
             }
         }
-        catch (...)
-        {
-            // propogate to the client the file error message response 
-            data.propogate_to_client(socket, "file_load_error" + (char) 3);
-        }
+
+        return "";
     }
 
-    // edit
-    else if (message.find("edit ") > 0)
+    /**
+     * parses the inputted message. And determines if its a valid message.
+     * Implements the servers response to the message.
+     */
+    void server::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
     {
-        // find where the message begins
-        int p = message.find("edit ");
-
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
-
-        // get the spreadsheet object
-        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-        // ignore the message
-        if (s == NULL)
+        // register
+        if (message.find("register ") > 0)
         {
-            return;
+            // find where the message begins
+            int p = message.find("register ");
+
+            std::set<std::string> file_names = get_spreadsheet_names();
+
+            // build of the response
+            std::string result = "connect_accepted ";
+
+            if (!file_names.empty())
+            {
+                // get all the available spreadsheets
+                for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+                {
+                    result += *iter;
+                    result += "\n";
+                }
+            }
+            result += (char) 3;
+
+            // propogate to the client the result response 
+            data.propogate_to_client(socket, result);
         }
 
-        // update spreadsheet with the change 
-        std::string result = s->update(cleaned_up_message);
+        // load
+        else if (message.find("load ") > 0)
+        {
+            // find where the message begins
+            int p = message.find("load ");
 
-        // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(spreadsheet_name, result);
-    }
+            // get the cell id
+            std::string spreadsheet_name = message.substr(p + 6);
 
-    // focus
-    else if (message.find("focus ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("focus ");
+            // try to make a open spreadsheet
+            try 
+            {
+                if (data.spreadsheet_exists(spreadsheet_name))
+                {
+                    // add client 
+                    data.add_client(spreadsheet_name, socket);
 
-        // get the cell id
-        std::string cell_id = message.substr(p + 6);
+                    // get the spreadsheet object
+                    spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
 
-        // build up the response message
-        std::string result  = "focus ";
-        result += message.substr(p + 6) + ":" + std::to_string(socket);
+                    // load full state (iterate)
+                    std::map<std::string, std::string> contents = s->full_state();
+
+                    data.propogate_full_state(&contents, socket);
+                }
+                else
+                {
+                    // add spreadsheet
+                    data.add_spreadsheet(spreadsheet_name);
+
+                    // add client
+                    data.add_client(spreadsheet_name, socket);
+
+                    // get the spreadsheet object
+                    spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+                    
+                    // load full state (iterate)
+                    std::map<std::string, std::string> contents = s->full_state();
+                    data.propogate_full_state(&contents, socket);
+                }
+            }
+            catch (...)
+            {
+                // propogate to the client the file error message response 
+                data.propogate_to_client(socket, "file_load_error" + (char) 3);
+            }
+        }
+
+        // edit
+        else if (message.find("edit ") > 0)
+        {
+            // find where the message begins
+            int p = message.find("edit ");
+
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+
+            // propgate the result to the other clients in the spreadsheet
+            data.propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // focus
+        else if (message.find("focus ") > 0)
+        {
+            // find where the message begins
+            int p = message.find("focus ");
+
+            // get the cell id
+            std::string cell_id = message.substr(p + 6);
+
+            // build up the response message
+            std::string result  = "focus ";
+            result += message.substr(p + 6) + ":" + std::to_string(socket);
+            
+            // propogate the message to all the clients in the spreadsheet
+            data.propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // unfocus
+        else if (message.find("unfocus ") > 0)
+        {
+            // find where the message begins
+            int p = message.find("unfocus ");
         
-        // propogate the message to all the clients in the spreadsheet
-        data.propogate_to_spreadsheet(spreadsheet_name, result);
-    }
-
-    // unfocus
-    else if (message.find("unfocus ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("unfocus ");
-       
-        // build up the response message
-        std::string result  = "unfocus ";
-        result += std::to_string(socket);
-        
-        // propogate the message to all the clients in the spreadsheet
-        data.propogate_to_spreadsheet(spreadsheet_name, result);
-    }
-
-    // undo
-    else if (message.find("undo ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("undo ");
-
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
-
-        // get the spreadsheet object
-        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-        // ignore the message
-        if (s == NULL)
-        {
-            return;
+            // build up the response message
+            std::string result  = "unfocus ";
+            result += std::to_string(socket);
+            
+            // propogate the message to all the clients in the spreadsheet
+            data.propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
-        // update spreadsheet with the change 
-        std::string result = s->update(cleaned_up_message);
-
-        // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(spreadsheet_name, result);
-    }
-
-    // revert
-    else if (message.find("revert ") > 0)
-    {
-        // find where the message begins
-        int p = message.find("revert ");
-
-        // remove white space at the beginning of the message
-        std::string cleaned_up_message = message.substr(p);
-
-        // get the spreadsheet object
-        spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-        
-        // ignore the message
-        if (s == NULL)
+        // undo
+        else if (message.find("undo ") > 0)
         {
-            return;
+            // find where the message begins
+            int p = message.find("undo ");
+
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+
+            // propgate the result to the other clients in the spreadsheet
+            data.propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
-        // update spreadsheet with the change 
-        std::string result = s->update(cleaned_up_message);
+        // revert
+        else if (message.find("revert ") > 0)
+        {
+            // find where the message begins
+            int p = message.find("revert ");
 
-        // propgate the result to the other clients in the spreadsheet
-        data.propogate_to_spreadsheet(spreadsheet_name, result);
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+            
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+
+            // propgate the result to the other clients in the spreadsheet
+            data.propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // else not a valid message so we do nothing
     }
 
-    // else not a valid message so we do nothing
-}
+    /**
+     * Gets all the spreadsheets inside the spreadsheet directory
+     */
+    std::set<std::string> server::get_spreadsheet_names()
+    {
+        boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
+        
+        std::set<std::string> meSprds;
 
-/**
- * Gets all the spreadsheets inside the spreadsheet directory
- */
-std::set<std::string> server::get_spreadsheet_names()
-{
-    boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
-	
-    std::set<std::string> meSprds;
+        if(boost::filesystem::is_directory(directory))
+        {	
+            for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
+            {
+                boost::filesystem::directory_entry file = *rator;
+                std::string filename = ((boost::filesystem::path)file).filename().string();
+                std::string next = filename.substr(0, filename.length() - 11);
 
-	if(boost::filesystem::is_directory(directory))
-	{	
-		for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
-		{
-			boost::filesystem::directory_entry file = *rator;
-			std::string filename = ((boost::filesystem::path)file).filename().string();
-			std::string next = filename.substr(0, filename.length() - 11);
+                meSprds.insert(next);
+            }
+        }
 
-			meSprds.insert(next);
-		}
-	}
-
-    return meSprds;
-}
-
+        return meSprds;
+    }
 
 } // end of class
