@@ -12,8 +12,9 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: go through all messages in protocol, and make sure code is there for sending or receiving it
-// TODO: arrows move users around
+// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
+// TODO: all messages from protocol
+// TODO: arrow keys
 
 namespace SpreadsheetGUI
 {
@@ -27,7 +28,6 @@ namespace SpreadsheetGUI
         private Socket theServer; // reference to Networking
 
         private string[] sheetChoicesForUser;
-        private Dictionary<string, string> focusedCells = new Dictionary<string, string>();
 
         char THREE = (char)3;
 
@@ -57,8 +57,7 @@ namespace SpreadsheetGUI
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
-            //TODO: we do probably want to have a Closing action, just not this one!
-            //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            window.AddFormClosingAction(FormCloses);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
             // added for 3505
@@ -69,6 +68,12 @@ namespace SpreadsheetGUI
             // set default locations
             panel.SetSelection(0, 0);
             UpdateCurrentCellBoxes();
+        }
+
+        private void FormCloses()
+        {
+            Networking.Send(theServer, "disconnect " + THREE);
+            theServer.Close();
         }
 
 
@@ -119,6 +124,7 @@ namespace SpreadsheetGUI
 
             return "" + colName + "" + rowName;
         }
+
         /// <summary>
         /// creates a new sheet
         /// </summary>
@@ -387,6 +393,7 @@ namespace SpreadsheetGUI
             {
                 Networking.Send(theServer, "disconnect " + THREE);
                 MessageBox.Show("There was a connection error, please try again.", "Error");
+
                 return;
             }
             else
@@ -421,7 +428,7 @@ namespace SpreadsheetGUI
                 string totalData = state.sBuilder.ToString();
 
                 // Messages are separated by THREE
-                string[] parts = Regex.Split(totalData, @"(?<=[\3])"); //TODO: this might be an error
+                string[] parts = Regex.Split(totalData, @"(?<=[\3])");
 
                 foreach (string message in parts)
                 {
@@ -452,7 +459,6 @@ namespace SpreadsheetGUI
             // Find the first space and switch on the command found
             string command = message.Substring(0, message.IndexOf(" "));
             string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
-            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
 
             switch (command)
             {
@@ -468,6 +474,8 @@ namespace SpreadsheetGUI
 
                 // Disconnect, ending the session
                 case "disconnect":
+                    MessageBox.Show("There was a connection error, please try again.", "Error");
+                    EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
                     theServer.Close();
                     break;
 
@@ -491,19 +499,17 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    // contents example: "A9:unique_1"
-                    string[] parsed = contents.Split(':');
-                    focusedCells.Add(parsed[1], parsed[0]);
-                    ConvertCellNameToRowCol(parsed[0], out int row, out int col);
-                    panel.Focus(row, col); // TODO: wait... should I be passing this to the Form to deal with?
+                    // TODO: contents example: A9:unique_1
                     break;
 
                 case "unfocus":
-                    // contents example: unique_1
-                    ConvertCellNameToRowCol(focusedCells[contents], out int r, out int c);
-                    panel.Unfocus(r, c);
+                    // TODO: contents example: unique_1
                     break;
             }
+
+
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -525,7 +531,7 @@ namespace SpreadsheetGUI
         {
             // TODO: lock spreadsheet model before changing
             // TODO: add lock in local change mechanism as well, if that's a thing
-            // something with locking OnPaint... search in model
+            // onPaint in view
             throw new NotImplementedException();
         }
 

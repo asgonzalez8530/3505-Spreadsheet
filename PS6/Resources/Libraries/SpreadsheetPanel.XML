@@ -78,20 +78,6 @@
             <param name="col"></param>
             <param name="row"></param>
         </member>
-        <member name="M:SS.SpreadsheetPanel.Focus(System.Int32,System.Int32)">
-            <summary>
-            Adds this cell to the focused cells to be painted.
-            </summary>
-            <param name="row"></param>
-            <param name="col"></param>
-        </member>
-        <member name="M:SS.SpreadsheetPanel.Unfocus(System.Int32,System.Int32)">
-            <summary>
-            If the cell is currently painted as focused, stops doing so.
-            </summary>
-            <param name="row"></param>
-            <param name="col"></param>
-        </member>
         <member name="M:SS.SpreadsheetPanel.OnResize(System.EventArgs)">
             <summary>
             When the SpreadsheetPanel is resized, we set the size and locations of the three
