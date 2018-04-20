@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "spreadsheet.h"
 #include "ping.h"
+#include "message_queue.h"
 
 namespace cs3505
 {
@@ -44,6 +45,9 @@ namespace cs3505
 
             // the ping controller
             ping pings;
+
+            // The inbound/outbound message controller
+            message_queue messages;
 
         public:
             // constructor

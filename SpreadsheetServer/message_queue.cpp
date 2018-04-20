@@ -6,6 +6,7 @@
 
 #include "message_queue.h"
 #include <queue>
+#include <unistd.h>
 
 namespace cs3505
 {
@@ -56,4 +57,21 @@ namespace cs3505
 		inboundMessages.pop();
 		return nextMessage;
 	}
+
+    bool message_queue::outbound_empty()
+    {
+        return outboundMessages.empty();
+    }
+
+    bool message_queue::inbound_empty()
+    {
+        return inboundMessages.empty();
+    }
+
+    void send_message(Message message)
+    {
+        int socket = message.socket;
+        std::string tmp = message.message;
+        write(socket, &tmp, tmp.length());
+    }
 }
