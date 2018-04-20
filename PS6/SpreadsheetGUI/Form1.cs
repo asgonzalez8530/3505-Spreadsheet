@@ -13,7 +13,6 @@ namespace SpreadsheetGUI
         }
 
         // Action listeners
-        public event Action NewSheetAction;
         public event Action EnterContentsAction;
         public event Action SaveFileAction;
         public event Action OpenFileAction;
