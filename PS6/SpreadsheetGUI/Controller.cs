@@ -12,7 +12,6 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
 // TODO: all messages from protocol
 // TODO: arrow keys
 
@@ -28,8 +27,11 @@ namespace SpreadsheetGUI
         private Socket theServer; // reference to Networking
 
         private string[] sheetChoicesForUser;
-
-        char THREE = (char)3;
+        /// <summary>
+        /// Maps other client ID's to cellnames
+        /// </summary>
+        private Dictionary<string, string> otherClientsCurrentCells;
+        private const char THREE = (char)3;
 
         /// <summary>
         /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
@@ -47,13 +49,14 @@ namespace SpreadsheetGUI
             string version = "ps6";
             sheet = new SS.Spreadsheet(CellValidator, CellNormalizer, version);
 
+            otherClientsCurrentCells = new Dictionary<string, string>();
+
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             panel.SelectionChanged += DisplayCurrentCellName;
             panel.SelectionChanged += SetCellValueBox;
             panel.SelectionChanged += SetCellContentsBox;
 
-            window.NewSheetAction += OpenNewSheet;
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
@@ -72,12 +75,13 @@ namespace SpreadsheetGUI
 
         private void FormCloses()
         {
-            Networking.Send(theServer, "disconnect " + THREE);
-            theServer.Close();
+            if (theServer != null)
+            {
+                Networking.Send(theServer, "disconnect " + THREE);
+                theServer.Close();
+            }
         }
 
-
-        //******************************** Private Methods **************************//
 
         /// <summary>
         /// Default Cell Validator for the spreadsheet GUI. Takes in a cellName and 
@@ -311,14 +315,6 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
-            ////////TODO: remove this hacky test for ChooseSpreadsheetBox//////////
-            //string[] stringarr = { "one", "two", "three" };
-
-            //string result = ChooseSpreadsheetBox(stringarr);
-
-            //window.WindowText = result;
-            //return;
-            //////////////////////////////////////////////////////////////////
             Form2 getIP = new Form2();
 
             if (getIP.ShowDialog() == DialogResult.OK)
@@ -499,17 +495,57 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    // TODO: contents example: A9:unique_1
+                    // contents example: A9:unique_1d
+                    string[] parsed = contents.Split(':');
+                    
+                    // keep track of other client's selected cell
+                    if (!otherClientsCurrentCells.ContainsKey(parsed[1]))
+                    {
+                        otherClientsCurrentCells.Add(parsed[1], parsed[0]);
+                    }
+                    else
+                    {
+                        otherClientsCurrentCells[parsed[1]] = parsed[0];
+                    }
+
+                    // focus cell
+                    FocusCell(parsed[0]);
                     break;
 
                 case "unfocus":
-                    // TODO: contents example: unique_1
+                    // contents example: unique_1
+                    // unfocus cell
+                    UnfocusCell(otherClientsCurrentCells[contents]);
                     break;
             }
 
 
 
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Unfocus this cell in the SpreadsheetPanel in the view.
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void UnfocusCell(string cellName)
+        {
+            // TODO: oh wait, I can't just unfocus a cell... 
+            // I could (easily) end up unfocusing something that is focused on by two users.. UGH
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            ConvertCellNameToRowCol(cellName, out int row, out int col);
+            panel.Focus(row, col);
+        }
+
+        /// <summary>
+        /// Focus this cell in the SpreadsheetPanel in the view.
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void FocusCell(string cellName)
+        {
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            ConvertCellNameToRowCol(cellName, out int row, out int col);
+            panel.Focus(row, col);
         }
 
         /// <summary>
@@ -529,8 +565,9 @@ namespace SpreadsheetGUI
         /// <param name="change">example: A4:=A1+A3\</param>
         private void UpdateSheet(string change)
         {
-            // TODO: lock spreadsheet model before changing
-            // TODO: add lock in local change mechanism as well, if that's a thing
+            // TODO: lock? spreadsheet model before changing
+            // add lock in local change mechanism as well, if that's a thing
+            // I don't think we need a lock because the underlying sheet should only be changed by the server.
             // onPaint in view
             throw new NotImplementedException();
         }
