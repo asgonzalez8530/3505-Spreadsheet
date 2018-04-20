@@ -61,6 +61,7 @@ namespace cs3505
 		connfd = new ThreadData();
 		connfd->data = &data;
 		connfd->png = &pings;
+        connfd->q = &messages;
 
         // this boolean will tell us when we want to shut down the server
         terminate = false;
@@ -109,17 +110,22 @@ namespace cs3505
         {
             //check_for_new_clients();
             //verify_connections();
+            std::cout << "Process a message\n";
             sleeping = process_message();
 
             // if no new message then we sleep for 10ms
+            /*
             if (sleeping)
             {
                 std::this_thread::sleep_for (std::chrono::milliseconds(10));
                 sleeping = false;
             }
+            */
 
 			// Checks for "quit" to be input by user
             check_for_shutdown();
+            std::cout << "Process end\n";
+
         }
 
         shutdown();
@@ -219,6 +225,7 @@ namespace cs3505
         int socket = args->socket;
 		ping * png = (args->png);
 		interface * data = (args->data);
+        message_queue * msg = (args->q);
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
@@ -253,25 +260,23 @@ namespace cs3505
 			}
             else if (result.compare("1") == 0)
             {
-                std::cout << "Hit 1\n";
                 // current client pinged a response so we flag ping as true
                 (args->png)->ping_received(socket);
             }
             else if (result.compare("2") == 0)
             {
-                std::cout << "Hit 2\n";
-                // ping the client back 
+                // ping the client back
+                std::string sendThis = "Ping";
+                msg->add_to_outbound(socket, sendThis);
                 (args->data)->propogate_to_client(socket, result);
             }
             else if (result.compare("3") == 0)
             {
-                std::cout << "Hit 3\n";
                 // add the client to the disconnect list
                 (args->data)->disconnect_add(socket);
             }
             else
             {
-                std::cout << "Hit 4\n";
                 // add message to the list of messages that needs to be processed
                 (args->data)->messages_add(result);
             }
@@ -415,6 +420,13 @@ namespace cs3505
     {
         // incoming messages will most likely be an object of interface so we will be using the getter here
         // there are messages to process
+        if(!messages.outbound_empty())
+        {
+            std::cout << "Sending a message!\n";
+            Message temp = messages.next_outbound();
+            messages.send_message(temp);
+        }
+
         if (!data.messages_isempty())
         {
             // pop the message off the stack

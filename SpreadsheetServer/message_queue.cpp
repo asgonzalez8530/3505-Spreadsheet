@@ -7,6 +7,7 @@
 #include "message_queue.h"
 #include <queue>
 #include <unistd.h>
+#include <iostream>
 
 namespace cs3505
 {
@@ -68,10 +69,12 @@ namespace cs3505
         return inboundMessages.empty();
     }
 
-    void send_message(Message message)
+    void message_queue::send_message(Message message)
     {
         int socket = message.socket;
         std::string tmp = message.message;
+        std::cout << "Sending message " << tmp << " of size ";
+        std::cout << tmp.length() << " bytes to socket " << socket;
         write(socket, &tmp, tmp.length());
     }
 }
