@@ -641,6 +641,12 @@ void server::parse_and_respond_to_message(std::string spreadsheet_name, int sock
         // get the spreadsheet object
         spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
 
+        // ignore the message
+        if (s == NULL)
+        {
+            return;
+        }
+
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);
 
@@ -691,6 +697,12 @@ void server::parse_and_respond_to_message(std::string spreadsheet_name, int sock
         // get the spreadsheet object
         spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
 
+        // ignore the message
+        if (s == NULL)
+        {
+            return;
+        }
+
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);
 
@@ -709,6 +721,12 @@ void server::parse_and_respond_to_message(std::string spreadsheet_name, int sock
 
         // get the spreadsheet object
         spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
+        
+        // ignore the message
+        if (s == NULL)
+        {
+            return;
+        }
 
         // update spreadsheet with the change 
         std::string result = s->update(cleaned_up_message);

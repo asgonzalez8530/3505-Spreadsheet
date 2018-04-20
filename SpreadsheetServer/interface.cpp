@@ -37,15 +37,21 @@ namespace cs3505
      */
     bool interface::new_clients_isempty()
     {
+        // lock new clients
+
+        // check to see if new clients is empty
         return new_clients.empty();
     }
 
     /**
      * Adds the inputted client to the new client queue
      */
-    void interface::new_clients_add(int client)
+    void interface::new_clients_add(int socket)
     {
-        new_clients.push(client);
+        // lock new clients
+
+        // add the new socket to the list
+        new_clients.push(socket);
     }
 
     /**
@@ -67,6 +73,9 @@ namespace cs3505
      */
     bool interface::disconnect_isempty()
     {
+        // lock disconnect
+
+        // check to see disconnect is empty
         return disconnect.empty();
     }
 
@@ -75,7 +84,9 @@ namespace cs3505
      */
     void interface::disconnect_add(int socket)
     {
-        // lock
+        // lock disconnect
+
+        // insert the socket to disconnect list
         disconnect.insert(socket);
     }
 
@@ -84,7 +95,7 @@ namespace cs3505
      */
     void interface::disconnect_clients()
     {
-        // lock the disconnected list
+        // lock disconnect
 
         // for each client remove them from the list, the server, & their spreadsheet
         std::set<int>::iterator it;
@@ -96,7 +107,7 @@ namespace cs3505
             // remove the socket from the disconnect list
             disconnect.erase(*it);
 
-            // lock the spreadsheet
+            // lock map of spreadsheets
 
             // remove the client from the spreadsheet
             std::map<std::string, std::list<int>>::iterator it;
@@ -126,9 +137,9 @@ namespace cs3505
      */
     void interface::disconnect_all()
     {
-        // lock the spreadsheet
+        // lock map of spreadsheets
 
-        // remove the client from the spreadsheet
+        // for each spreadsheet in the map of spreadsheets
         std::map<std::string, std::list<int>>::iterator it;
         for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
         {
@@ -151,15 +162,14 @@ namespace cs3505
     {
         std::string message = "disconnect " + (char)3;
 
-        // lock the spreadsheet
+        // lock map of spreadsheets
 
-        // remove the client from the spreadsheet
+        // for each client in each spreadsheet send them the disconnect message
         std::map<std::string, std::list<int>>::iterator it;
         for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
         {
             std::list<int> clients = it->second;
 
-            // check to see if the client is in the list conenct to the spreadsheet
             std::list<int>::iterator j;
             for (j = clients.begin(); j != clients.end(); j++)
             {
@@ -173,6 +183,9 @@ namespace cs3505
      */
     bool interface::messages_isempty()
     {
+        // lock messages
+
+        // checks to see if the message queue is empty
         return messages.empty();
     }
 
@@ -181,6 +194,9 @@ namespace cs3505
      */
     std::string interface::get_message()
     {
+        // lock messages
+
+        // return and remove the first item in the message queue
         return messages.front();
     }
 
@@ -189,7 +205,9 @@ namespace cs3505
      */
     void interface::messages_add(std::string message)
     {
-        // lock 
+        // lock messages
+        
+        // add message to the queue
         messages.push(message);
     }
 
@@ -198,18 +216,24 @@ namespace cs3505
      */
 	void interface::propogate_to_spreadsheet(std::string spreadsheet_name, std::string message)
     {
-        //int clients = map_of_clients[s];
-        //map_of_clients.find(s)->second;
-        // std::map<spreadsheet, int>::const_iterator pos = map_of_clients.find(*s);
-        // if (pos != map_of_clients.end()) 
-        // {
-        //     int clients = pos->second;
-        // }
+        // lock map of spreadsheets
 
-        // get the client list using the spreadsheet and map_of_clients 
+        // get the list of clients connected to each spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            if (it->first.compare(spreadsheet_name) == 0)
+            {
+                std::list<int> clients = it->second;
 
-        // lock
-        // add the message to outgoing messages of the client
+                // send the message to each client in the list
+                std::list<int>::iterator j;
+                for (j = clients.begin(); j != clients.end(); j++)
+                {
+                    propogate_to_client(*j, message);
+                }
+            }
+        }
     }
     
     /**
@@ -217,14 +241,18 @@ namespace cs3505
      */
 	void interface::propogate_to_client(int socket, std::string message)
     {
-        // lock
+        // lock the outgoing messages
+
         // add the message to outgoing messages of the client
     }
 
     /**
+     * propogate all together the full state message to the client
      */
     void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
     {
+        // lock outbound messages (may cause a deadlock?)
+
         // build up the response message
         std::string result  = "full_state ";
 
@@ -255,6 +283,9 @@ namespace cs3505
      */
     bool interface::spreadsheet_exists(std::string spreadsheet_name)
     {
+        // lock map of spreadsheets
+
+        // trys to see if the spreadsheet is in the server
         std::map<std::string, socket_list>::iterator location;
         location = map_of_spreadsheets.find(spreadsheet_name);
         return location != map_of_spreadsheets.end();
@@ -265,6 +296,9 @@ namespace cs3505
      */
     void interface::add_client(std::string spreadsheet_name, int socket)
     {
+        // lock map of spreadsheets
+
+        // iterate through the spreadsheets and add the client to the proper spreadsheet
         std::map<std::string, socket_list>::iterator location;
         location = map_of_spreadsheets.find(spreadsheet_name);
         if (location != map_of_spreadsheets.end())
@@ -278,8 +312,13 @@ namespace cs3505
      */
     void interface::add_spreadsheet(std::string spreadsheet_name)
     {
+        // lock all spreadsheets
+
+        // add the spreadsheet to all spreadsheet list and map of spreadsheets with no clients
         spreadsheet s(spreadsheet_name);
         all_spreadsheets.insert( std::pair<std::string, spreadsheet>(spreadsheet_name, s) );
+        // unlock and lock map of spreadsheets
+
         std::list<int> empty_list({});
         map_of_spreadsheets.insert(std::pair<std::string, std::list<int>>(spreadsheet_name, empty_list));
     }
@@ -289,6 +328,9 @@ namespace cs3505
      */
     spreadsheet * interface::get_spreadsheet(std::string name)
     {
+        // lock all spreadsheets
+
+        // iterate through trying to find the spreadsheet object
         std::map<std::string, spreadsheet>::iterator it;
         for (it = all_spreadsheets.begin(); it != all_spreadsheets.end(); it++)
         {
@@ -302,6 +344,8 @@ namespace cs3505
 
     std::string interface::get_spreadsheet(int socket)
     {
+        // lock map of spreadsheets
+
         // get the list of clients connected to each spreadsheet
         std::map<std::string, std::list<int>>::iterator it;
         for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
@@ -327,7 +371,10 @@ namespace cs3505
      */
     void interface::stop_receiving_and_propogate_all_messages()
     {
+        // lock messages (may cause a deadlock?)
 
+        // parse and propogate the message
+        
     }
 
     /**
@@ -335,6 +382,8 @@ namespace cs3505
      */
     void interface::save_all_spreadsheets()
     {
+        // lock all spreadsheets
+
         // iterate through each spreadsheet
         std::map<std::string, spreadsheet>::iterator it;
         for (it = all_spreadsheets.begin(); it != all_spreadsheets.end(); it++)
