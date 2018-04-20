@@ -21,22 +21,15 @@
 
 namespace cs3505
 {
-    interface::interface() 
-    {
-		new_clients = std::queue<int>();
-        map_of_clients = std::map<spreadsheet, int>();
-        disconnect = std::set<int>();
-        messages = std::queue<std::string>();
-    }
-
+    /**
+     * Constructor for the interface
+     */
+    interface::interface() {}
 
     /**
      * Destructor for the interface
      */
-    interface::~interface() 
-    {
-
-    }
+    interface::~interface() {}
 
     /**
      * Returns true if there are clients to client. Otherwise returns false. 
@@ -122,64 +115,6 @@ namespace cs3505
     }
 
     /**
-     * Register socket in flag map
-     */
-    void interface::flag_map_add(int socket)
-    {
-        //mtx.lock();
-        ping_flags[socket] = 0;
-        //mtx.unlock();
-    }
-
-    /**
-     * Register socket in flag map
-     */
-    void interface::flag_map_remove(int socket)
-    {
-        //mtx.lock();
-        ping_flags.erase(socket);
-        //mtx.unlock();
-    }
-
-    /**
-     * Checks ping_flags for a response
-     */
-    int interface::check_ping_response(int socket)
-	{
-        //mtx.lock();
-        if(ping_flags[socket] == 1)
-        {
-            ping_flags[socket] = 0;
-            return true;
-        }
-        else
-        {
-		    return false;
-        }
-        //mtx.unlock();
-	}
-
-    /**
-     * Send a ping to the passed socket
-     */
-	void interface::send_ping(int socket)
-    {
-    }
-
-
-    /**
-     * Update socket ping response flag
-     */
-    void interface::ping_received(int socket)
-    {
-        std::cout << "MADE IT IN" << "\n";
-        //mtx.lock();
-        ping_flags.insert(std::pair<int ,int>(socket, 1));
-        //mtx.unlock();
-        std::cout << "MADE IT OUT\n";
-    }
-
-    /**
      * Propogate the inputted message to all the clients connected to that spreadsheet
      */
 	void interface::propogate_to_spreadsheet(spreadsheet * s, std::string message)
@@ -205,6 +140,67 @@ namespace cs3505
     {
         // lock
         // add the message to outgoing messages of the client
+    }
+
+    /**
+     */
+    void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
+    {
+        // build up the response message
+        std::string result  = "full_state ";
+
+        // propogate to the client the result response 
+        propogate_to_client(socket, result);
+
+        for(std::map<std::string, std::string>::iterator iter = contents->begin(); iter != contents->end(); iter++)
+        {
+            // get cell 
+            result = iter->first;
+
+            // propogate to the client the result response 
+            propogate_to_client(socket, result);
+            
+            // get cell contents
+            result = iter->second;
+
+            // propogate to the client the result response 
+            propogate_to_client(socket, result);
+        }
+
+        // propogate to the client the result response 
+        propogate_to_client(socket, "" + (char) 3);
+    }
+
+    /**
+     * Returns true if the spreadsheet already exists in the server
+     */
+    bool interface::spreadsheet_exists(std::string spreadsheet_name)
+    {
+        std::map<std::string, socket_list>::iterator location;
+        location = map_of_spreadsheets.find(spreadsheet_name);
+        return location != map_of_spreadsheets.end();
+    }
+
+    /**
+     * Adds the inputted socket (client) to the spreadsheet
+     */
+    void interface::add_client(std::string spreadsheet_name, int socket)
+    {
+        std::map<std::string, socket_list>::iterator location;
+        location = map_of_spreadsheets.find(spreadsheet_name);
+        if (location != map_of_spreadsheets.end())
+        {
+            map_of_spreadsheets.at(spreadsheet_name).push_back(socket);
+        }
+    }
+
+    /**
+     * add the inputted spreadsheet to the list of spreadsheets
+     */
+    void interface::add_spreadsheet(std::string spreadsheet_name)
+    {
+        spreadsheet s(spreadsheet_name);
+        all_spreadsheets.insert( std::pair<std::string, spreadsheet>(spreadsheet_name, s) );
     }
 
 } // end of class

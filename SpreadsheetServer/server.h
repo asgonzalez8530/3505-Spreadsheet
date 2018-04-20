@@ -17,21 +17,45 @@
 #include <ctime>
 #include "interface.h"
 #include "spreadsheet.h"
+#include "ping.h"
+#include "message_queue.h"
 
 namespace cs3505
 {
-    class server
+
+	typedef struct _ThreadData
+	{
+		int socket;
+		interface * data;
+		ping * png;
+        message_queue * q;
+
+	} ThreadData;    
+
+	class server
     {
         private:
+
+			ThreadData * connfd;
+
             // track whether the "quit" command has been issued
             bool terminate;
 
-	    // the hub for server-client interactions
+	        // the hub for server-client interactions
             interface data;
+
+            // the ping controller
+            ping pings;
+
+            // The inbound/outbound message controller
+            message_queue messages;
 
         public:
             // constructor
             server();
+
+			// destructor
+			~server();
 
             // master server loop
             void master_server_loop();
@@ -39,7 +63,7 @@ namespace cs3505
 
         private:
             // helper methods
-	        void server_awaiting_client_loop();
+	        int server_awaiting_client_loop();
             void check_for_new_clients();
             void verify_connections();
             bool process_message();

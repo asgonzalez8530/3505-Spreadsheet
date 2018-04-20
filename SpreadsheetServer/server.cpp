@@ -11,11 +11,13 @@
  * v3: April 6, 2018
  * v4: April 13, 2018
  * v5: April 18, 2018
+ * v6: April 19, 2018
  */
 
 #include "server.h"
 #include "interface.h"
 #include "spreadsheet.h"
+#include "ping.h"
 #include <errno.h> // includes for networking
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,6 +32,7 @@
 #include <fstream>
 #include <thread> 
 #include <chrono> 
+#include <regex>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/map.hpp>
@@ -50,21 +53,25 @@ namespace cs3505
     int init_listener();
     void *listener_loop(void *);
 
-	typedef struct _ThreadData
-	{
-		int socket;
-		interface * data;
-	} ThreadData;
-
     //**** public methods ****//
 
     // constructor
     server::server()
     {
+		connfd = new ThreadData();
+		connfd->data = &data;
+		connfd->png = &pings;
+        connfd->q = &messages;
+
         // this boolean will tell us when we want to shut down the server
         terminate = false;
 
         // TODO moved stubs relating to starting new threads to master_server_loop()
+    }
+
+	    // constructor
+    server::~server()
+    {
     }
 
     void server::master_server_loop()
@@ -73,10 +80,23 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool sleeping = false;
 
-        // new thread were we start the ping loop
+        std::set<std::string> file_names = get_spreadsheet_names();
+
+        if (!file_names.empty())
+        {
+            // get all the available spreadsheets
+            for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+            {
+                // get the spreadsheet name
+                std::string name = *iter;
+
+                // build and add the spreadsheet to the server
+                data.add_spreadsheet(name);
+            }
+        }
 
         // new thread were we start listening for multiple clients
-        server_awaiting_client_loop();
+        int serverSocket = server_awaiting_client_loop();
 
         std::cout << "Entering main server loop.\n";
 
@@ -88,22 +108,28 @@ namespace cs3505
         // run the main server loop
         while (!terminate && !sleeping)
         {
-            check_for_new_clients();
-            verify_connections();
+            //check_for_new_clients();
+            //verify_connections();
+            std::cout << "Process a message\n";
             sleeping = process_message();
 
             // if no new message then we sleep for 10ms
+            /*
             if (sleeping)
             {
                 std::this_thread::sleep_for (std::chrono::milliseconds(10));
                 sleeping = false;
             }
+            */
 
 			// Checks for "quit" to be input by user
             check_for_shutdown();
+            std::cout << "Process end\n";
+
         }
 
         shutdown();
+        close(serverSocket);
     }
 
     //**** private & helper methods ****//
@@ -112,7 +138,7 @@ namespace cs3505
      * This is a loop that listens for new TCP connections and processes those new
      * connections by connecting and initiating the Protocol Handshake.
      */
-    void server::server_awaiting_client_loop()
+    int server::server_awaiting_client_loop()
     {
         // initialize listener socket
         int serverSocket = init_listener();
@@ -120,15 +146,15 @@ namespace cs3505
         // print for debugging
         std::cout << "Finished listener initialize." << std::endl;
 
-		ThreadData * args = new ThreadData();
-		args->socket = serverSocket;
-		args->data = &data;
+        connfd->socket = serverSocket;
+
         pthread_t new_connection_thread;
-        pthread_create(&new_connection_thread, NULL, listener_loop, args);
-        pthread_create(&new_connection_thread, NULL, ping_loop, args);
+        pthread_create(&new_connection_thread, NULL, listener_loop, connfd);
 
         // Clean up thread resources as they finish
         pthread_detach(new_connection_thread);
+
+        return serverSocket;
     }
 
     /**
@@ -149,7 +175,7 @@ namespace cs3505
         pingTimer = clock();
 
         // Add socket to ping flag map
-        (args->data)->flag_map_add(socket);
+        (args->png)->flag_map_add(socket);
 
         while (true)
         {
@@ -159,7 +185,7 @@ namespace cs3505
             if (failed_pings >= 5)
             {
                 // remove socket from flag map
-				(args->data)->flag_map_remove(socket);
+				(args->png)->flag_map_remove(socket);
 
                 // add client to the disconnect list
 				(args->data)->disconnect_add(socket);
@@ -170,10 +196,11 @@ namespace cs3505
             // check for ping
             else if (getTime(pingTimer, timePassed) >= secondsToPing)
             {
-				(args->data)->send_ping(socket);
+
+				(args->png)->send_ping(socket);
 
                 //Check for a ping response
-				if((args->data)->check_ping_response(socket))
+				if((args->png)->check_ping_response(socket))
                 {
                     failed_pings = 0;
                 }
@@ -196,6 +223,9 @@ namespace cs3505
     {
         ThreadData * args = (ThreadData*)connection_file_descriptor;
         int socket = args->socket;
+		ping * png = (args->png);
+		interface * data = (args->data);
+        message_queue * msg = (args->q);
 
         write(socket, "Hello!\r\n", 8);
         char buffer[1024];
@@ -222,23 +252,25 @@ namespace cs3505
             std::string result = parseBuffer(&buff);
 
             // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << size << " bytes:\n" << buffer << std::endl;
+            std::cout << "Received " << size << " bytes:\n" << buffer << "\n";
 
             if (result.empty())
 			{
                 continue;
 			}
-            else if (result == "1")
+            else if (result.compare("1") == 0)
             {
                 // current client pinged a response so we flag ping as true
-                (args->data)->ping_received(socket);
+                (args->png)->ping_received(socket);
             }
-            else if (result == "2")
+            else if (result.compare("2") == 0)
             {
-                // ping the client back 
+                // ping the client back
+                std::string sendThis = "Ping";
+                msg->add_to_outbound(socket, sendThis);
                 (args->data)->propogate_to_client(socket, result);
             }
-            else if (result == "3")
+            else if (result.compare("3") == 0)
             {
                 // add the client to the disconnect list
                 (args->data)->disconnect_add(socket);
@@ -308,15 +340,17 @@ namespace cs3505
      * The server's listening loop.
      * Accepts new connections, starting a new thread for each one.
      */
-    void *listener_loop(void *server)
+    void *listener_loop(void * connection_file_descriptor)
     {
+        ThreadData * args = (ThreadData*)connection_file_descriptor;
+        int serverSocket = args->socket;
+
         // print for debugging
         std::cout << "Begin listening." << std::endl;
 
         while (true)
         {
             int newClient = 0;
-            int serverSocket = *((int *)server);
 
             // Accept a connection (the "accept" command waits for a connection with
             // no timeout limit...)
@@ -334,10 +368,10 @@ namespace cs3505
             // if the accept result value is positive, we have a new client!
             if (newClient > 0)
             {
-                int sock = newClient;  // copy the new client
-                void *conn_fd = &sock; // store as a void * so it can be passed to client_loop
+                args->socket = newClient;
                 pthread_t new_connection_thread;
-                pthread_create(&new_connection_thread, NULL, client_loop, conn_fd);
+                pthread_create(&new_connection_thread, NULL, client_loop, args);
+                pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
                 // Clean up thread resources as they finish
                 pthread_detach(new_connection_thread);
@@ -386,6 +420,13 @@ namespace cs3505
     {
         // incoming messages will most likely be an object of interface so we will be using the getter here
         // there are messages to process
+        if(!messages.outbound_empty())
+        {
+            std::cout << "Sending a message!\n";
+            Message temp = messages.next_outbound();
+            messages.send_message(temp);
+        }
+
         if (!data.messages_isempty())
         {
             // pop the message off the stack
@@ -435,25 +476,8 @@ namespace cs3505
         // save the spreadsheet
 
         // close our out of this program in a clean way
+        
     }
-
-    /**
-     * THIS METHODS FUNCTIONALITY WILL MOST LIKELY NEED TO CHANGE
-     * 
-     * parses the inputted message and if the message requires a server response then we return the server's response as a string
-     * 
-     * the following messages should be parsed by this message and result in the following response
-     */
-    // std::string server::parse_message(std::string message)
-    // {
-    //     // response message that the server will propogate if not an empty string
-    //     std::string response = "";
-
-    //     // TODO: parse message here
-    //     // register message will add the client to the new clients list
-
-    //     return response;
-    // }
 
   /**
    * This method takes two clock times and returns the difference
@@ -485,6 +509,7 @@ std::string parseBuffer(std::string * message)
 {   
     // get the position of \3
     int position = message->find((char)3);
+    std::cout << "Message is " << *message << "\n";
 
     // check to see if its a complete message
     if ( position > 0 )
@@ -493,20 +518,23 @@ std::string parseBuffer(std::string * message)
         std::string current_message = message->substr(0, position);
         *message = message->substr(position + 1);
 
+        std::cout << "Parse message is " << current_message << "\n";
+
+
         // ping_response (may be able to remove the char 3)
-        if (current_message.find("ping_response ") > 0)
+        if (std::regex_match(current_message, std::regex("ping_response ")))
         {
             return std::to_string(1);
         }
 
         // ping
-        else if (current_message.find("ping ") > 0)
+        else if (std::regex_match(current_message, std::regex("ping ")))
         {
             return std::to_string(2);
         }
 
         // disconnect
-        else if (current_message.find("ping_response ") > 0)
+        else if (std::regex_match(current_message, std::regex("disconnect ")))
         {
             return std::to_string(3);
         }
@@ -562,69 +590,34 @@ void server::parse_and_respond_to_message(spreadsheet * s, int socket, std::stri
         // get the cell id
         std::string spreadsheet_name = message.substr(p + 6);
 
-        // build up the response message
-        std::string result  = "full_state ";
-
-        // propogate to the client the result response 
-        data.propogate_to_client(socket, result);
-
         // try to make a open spreadsheet
         try 
         {
-            //if (data.spreadsheet_exists(s))
-            //{
+            if (data.spreadsheet_exists(spreadsheet_name))
+            {
                 // add client 
-                //data.add_client(s, socket);
+                data.add_client(spreadsheet_name, socket);
 
                 // load full state (iterate)
                 std::map<std::string, std::string> contents = s->full_state();
-                for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
-                {
-                    // get cell 
-                    result = iter->first;
 
-                    // propogate to the client the result response 
-                    data.propogate_to_client(socket, result);
-                    
-                    // get cell contents
-                    result = iter->second;
-
-                    // propogate to the client the result response 
-                    data.propogate_to_client(socket, result);
-                }
-            //}
-            // else
-            // {
-            //     // add client
-            //     data.add_client(s, socket);
+                data.propogate_full_state(&contents, socket);
+            }
+            else
+            {
+                // add client
+                data.add_client(spreadsheet_name, socket);
                 
-            //     // load full state (iterate)
-            //     std::map<std::string, std::string> contents = s->full_state();
-            //     for(std::map<std::string, std::string>::iterator iter = contents.begin(); iter != contents.end(); iter++)
-            //     {
-            //         // get cell 
-            //         result = iter->first;
-
-            //         // propogate to the client the result response 
-            //         data.propogate_to_client(socket, result);
-                    
-            //         // get cell contents
-            //         result = iter->second;
-
-            //         // propogate to the client the result response 
-            //         data.propogate_to_client(socket, result);
-            //     }
-            // }
+                // load full state (iterate)
+                std::map<std::string, std::string> contents = s->full_state();
+                data.propogate_full_state(&contents, socket);
+            }
         }
         catch (...)
         {
             // propogate to the client the file error message response 
             data.propogate_to_client(socket, "file_load_error" + (char) 3);
-            return;
         }
-
-        // propogate to the client the result response 
-        data.propogate_to_client(socket, "" + (char) 3);
     }
 
     // edit

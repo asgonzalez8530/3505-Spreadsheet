@@ -12,10 +12,8 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
-// TODO: send and receive focus messages
-// TODO: all messages
-// TODO: disable buttons while trying to connect and choose a spreadsheet?
+// TODO: all messages from protocol
+// TODO: arrow keys
 
 namespace SpreadsheetGUI
 {
@@ -28,10 +26,12 @@ namespace SpreadsheetGUI
         private ISpreadsheetWindow window; // reference to the GUI (view)
         private Socket theServer; // reference to Networking
 
-        // TODO: thoughts on this? it's intended to help pick a new sheet after a file_load_error
         private string[] sheetChoicesForUser;
-
-        char THREE = (char)3;
+        /// <summary>
+        /// Maps other client ID's to cellnames
+        /// </summary>
+        private Dictionary<string, string> otherClientsCurrentCells;
+        private const char THREE = (char)3;
 
         /// <summary>
         /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
@@ -49,18 +49,18 @@ namespace SpreadsheetGUI
             string version = "ps6";
             sheet = new SS.Spreadsheet(CellValidator, CellNormalizer, version);
 
+            otherClientsCurrentCells = new Dictionary<string, string>();
+
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             panel.SelectionChanged += DisplayCurrentCellName;
             panel.SelectionChanged += SetCellValueBox;
             panel.SelectionChanged += SetCellContentsBox;
 
-            window.NewSheetAction += OpenNewSheet;
             window.EnterContentsAction += SetCellContentsFromContentsBox;
             window.SetDefaultAcceptButton();
 
-            //TODO: we do probably want to have a Closing action, just not this one!
-            //window.AddFormClosingAction(ModifiedSpreadsheetDialogueBox);
+            window.AddFormClosingAction(FormCloses);
             window.AboutText += OpenAbout;
             window.HowToUseText += OpenHowToUse;
             // added for 3505
@@ -73,8 +73,15 @@ namespace SpreadsheetGUI
             UpdateCurrentCellBoxes();
         }
 
+        private void FormCloses()
+        {
+            if (theServer != null)
+            {
+                Networking.Send(theServer, "disconnect " + THREE);
+                theServer.Close();
+            }
+        }
 
-        //******************************** Private Methods **************************//
 
         /// <summary>
         /// Default Cell Validator for the spreadsheet GUI. Takes in a cellName and 
@@ -277,30 +284,7 @@ namespace SpreadsheetGUI
             }
         }
 
-        /// <summary>
-        /// Empties the spreadsheet pane and sets its contents to the new spreadsheet model at fileLocation
-        /// </summary>
-        private void OpenSpreadsheetFromFile(string fileLocation)
-        {
-            // TODO: take this method out
-            // empty the current spreadsheetpane
-            EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
-
-            // window text is now the name of the new file
-            window.WindowText = Path.GetFileName(fileLocation);
-
-            // open the spreadsheet
-            sheet = new SS.Spreadsheet(fileLocation, CellValidator, CellNormalizer, "ps6");
-
-            // set the contents of the spreadsheet pane
-            HashSet<string> nonEmpty = new HashSet<string>(sheet.GetNamesOfAllNonemptyCells());
-            SetSpreadsheetPanelValues(nonEmpty);
-
-            // update the current window selection
-            window.SetCellSelectionToDefault();
-            UpdateCurrentCellBoxes();
-
-        }
+       
 
         /// <summary>
         /// Opens the about file in the default text editor.
@@ -321,28 +305,7 @@ namespace SpreadsheetGUI
             string path = Path.Combine(Environment.CurrentDirectory, fileName);
             Process.Start(path);
         }
-
-        /// <summary>
-        /// Dialogue box that prompts the user to save current spreadsheet
-        /// </summary>
-        private void ModifiedSpreadsheetDialogueBox()
-        {
-            // TODO: take this out
-            if (sheet.Changed)
-            {
-                //prompt to save
-                string message = "Unsaved changes detected in current spreadsheet: " + window.WindowText;
-                message += "\n\nSave changes?";
-                string caption = "Save Changes?";
-                bool save = window.ShowOkayCancelMessageBox(message, caption);
-
-                //// if user clicks on save then save the changes
-                //if (save)
-                //{
-                //    Save();
-                //}
-            }
-        }
+        
 
         /*************************************Connecting to Server and NETWORKING*****************************************/
 
@@ -352,14 +315,6 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
-            ////////TODO: remove this hacky test for ChooseSpreadsheetBox//////////
-            //string[] stringarr = { "one", "two", "three" };
-
-            //string result = ChooseSpreadsheetBox(stringarr);
-
-            //window.WindowText = result;
-            //return;
-            //////////////////////////////////////////////////////////////////
             Form2 getIP = new Form2();
 
             if (getIP.ShowDialog() == DialogResult.OK)
@@ -409,7 +364,6 @@ namespace SpreadsheetGUI
             if (state.hasError)
             {
                 MessageBox.Show("There was a connection error, please try again.", "Error");
-                // TODO: do we need to do any disconnecting cleanup if we get to this point and have an error?
             }
             if (state.sBuilder == null)
             {
@@ -433,7 +387,10 @@ namespace SpreadsheetGUI
 
             if (!connectAcceptMessage.StartsWith(connect_accepted))
             {
-                return; // TODO: Server sent a bogus message.
+                Networking.Send(theServer, "disconnect " + THREE);
+                MessageBox.Show("There was a connection error, please try again.", "Error");
+
+                return;
             }
             else
             {
@@ -447,7 +404,6 @@ namespace SpreadsheetGUI
             window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
-            // TODO: could this clear too much?
             // clear sbuilder
             state.sBuilder.Clear();
 
@@ -461,7 +417,6 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void ProcessMessage(SocketState state)
         {
-            // TODO: test up to this point? Make a fake server?
 
             if (theServer.Connected && !state.hasError)
             {
@@ -469,10 +424,19 @@ namespace SpreadsheetGUI
                 string totalData = state.sBuilder.ToString();
 
                 // Messages are separated by THREE
-                string[] parts = Regex.Split(totalData, @"(?<=[\n])"); //TODO: figure out Regex for THREE
+                string[] parts = Regex.Split(totalData, @"(?<=[\3])");
 
                 foreach (string message in parts)
                 {
+                    // Ignore empty strings added by the regex splitter
+                    if (message.Length == 0)
+                        continue;
+
+                    // The regex splitter will include the last string even if it doesn't end with THREE,
+                    // So we need to ignore it if this happens. 
+                    if (message[message.Length - 1] != THREE)
+                        break;
+
                     ProcessNext(message);
                     state.sBuilder.Remove(0, message.Length);
                 }
@@ -488,15 +452,6 @@ namespace SpreadsheetGUI
         /// <param name="message">example: focus A9:unique_1\3</param>
         private void ProcessNext(string message)
         {
-            // Ignore empty strings added by the regex splitter
-            if (message.Length == 0)
-                return;
-
-            // The regex splitter will include the last string even if it doesn't end with THREE,
-            // So we need to ignore it if this happens. 
-            if (message[message.Length - 1] != THREE)
-                return;
-
             // Find the first space and switch on the command found
             string command = message.Substring(0, message.IndexOf(" "));
             string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
@@ -510,12 +465,14 @@ namespace SpreadsheetGUI
                     string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
 
                     window.WindowText = spreadsheet;
-                    Networking.Send(theServer, "load " + spreadsheet + THREE); // TODO: is it ok to send here?
+                    Networking.Send(theServer, "load " + spreadsheet + THREE);
                     break;
 
                 // Disconnect, ending the session
                 case "disconnect":
-                    // TODO: how do we want to do this? could we just set the hasError flag?
+                    MessageBox.Show("There was a connection error, please try again.", "Error");
+                    EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+                    theServer.Close();
                     break;
 
                 // Reply with ping_response
@@ -538,11 +495,27 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    // TODO: contents example: A9:unique_1
+                    // contents example: A9:unique_1d
+                    string[] parsed = contents.Split(':');
+                    
+                    // keep track of other client's selected cell
+                    if (!otherClientsCurrentCells.ContainsKey(parsed[1]))
+                    {
+                        otherClientsCurrentCells.Add(parsed[1], parsed[0]);
+                    }
+                    else
+                    {
+                        otherClientsCurrentCells[parsed[1]] = parsed[0];
+                    }
+
+                    // focus cell
+                    FocusCell(parsed[0]);
                     break;
 
                 case "unfocus":
-                    // TODO: contents example: unique_1
+                    // contents example: unique_1
+                    // unfocus cell
+                    UnfocusCell(otherClientsCurrentCells[contents]);
                     break;
             }
 
@@ -552,12 +525,37 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
+        /// Unfocus this cell in the SpreadsheetPanel in the view.
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void UnfocusCell(string cellName)
+        {
+            // TODO: oh wait, I can't just unfocus a cell... 
+            // I could (easily) end up unfocusing something that is focused on by two users.. UGH
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            ConvertCellNameToRowCol(cellName, out int row, out int col);
+            panel.Focus(row, col);
+        }
+
+        /// <summary>
+        /// Focus this cell in the SpreadsheetPanel in the view.
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void FocusCell(string cellName)
+        {
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+            ConvertCellNameToRowCol(cellName, out int row, out int col);
+            panel.Focus(row, col);
+        }
+
+        /// <summary>
         ///  Attempt to load the spreadsheet.
         /// </summary>
         /// <param name="contents">The spreadsheet as newline-separated 
         /// cell names and contents. A6:3\nA9:=A6/2\n\</param>
         private void LoadSheet(string contents)
         {
+            // EmptyAllCells
             throw new NotImplementedException();
         }
 
@@ -567,8 +565,10 @@ namespace SpreadsheetGUI
         /// <param name="change">example: A4:=A1+A3\</param>
         private void UpdateSheet(string change)
         {
-            // TODO: lock spreadsheet model before changing
-            // TODO: add lock in local change mechanism as well, if that's a thing
+            // TODO: lock? spreadsheet model before changing
+            // add lock in local change mechanism as well, if that's a thing
+            // I don't think we need a lock because the underlying sheet should only be changed by the server.
+            // onPaint in view
             throw new NotImplementedException();
         }
 

@@ -20,35 +20,22 @@
 #include <map>
 #include <list>
 #include "spreadsheet.h"
-#include <mutex>
 
 typedef std::list<int> socket_list;
 typedef std::map<std::string, socket_list> client_map;
-typedef std::map<int, int> ping_f;
 
 namespace cs3505
 {
     class interface
     {
         private:
-            // private variables (still need getters and setters for all)
-
-
-			/* TODO: Do we want to use data structures like these? */
-			 // list of all client sockets for a spreadsheet
-			socket_list clients;
-			 // map of client lists for spreadsheets
-			client_map map_of_spreadsheets;
-			// map of ping flags for sockets
-			ping_f ping_flags;
-
-            //std::mutex mtx;
-
-
-            std::queue<int> new_clients;
-            std::map<spreadsheet, int> map_of_clients;
-            std::set<int> disconnect;
-            std::queue<std::string> messages;
+            // private variables
+            std::queue<int> new_clients; // queue of clients that need to be added
+            std::set<int> disconnect; // set of sockets that need to be disconnected
+            std::queue<std::string> messages; // queue of messages that the server needs to parse
+            std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
+            socket_list clients; // list of all client sockets for a spreadsheet
+            client_map map_of_spreadsheets; // map of client lists for spreadsheets
 
         public:
             // constructor
@@ -65,15 +52,10 @@ namespace cs3505
             void messages_add(std::string);
             void propogate_to_spreadsheet(spreadsheet * s, std::string message);
             void propogate_to_client(int client, std::string message);
-
-            /* Ping control functions */
-            void flag_map_add(int socket);
-            void flag_map_remove(int socket);
-			int check_ping_response(int socket);
-			void send_ping(int socket);
-            void ping_received(int socket);
-
-
+            bool spreadsheet_exists(std::string spreadsheet_name);
+            void add_client(std::string spreadsheet_name, int socket);
+            void add_spreadsheet(std::string spreadsheet_name);
+            void propogate_full_state(std::map<std::string, std::string> * contents, int socket);
 
         private:
             // helper methods
