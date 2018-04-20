@@ -33,13 +33,6 @@
 #include <thread> 
 #include <chrono> 
 #include <regex>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/stack.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 namespace cs3505
 {
@@ -79,7 +72,7 @@ namespace cs3505
         bool inbound_sleep = false;
         bool outbound_sleep = false;
 
-        std::set<std::string> file_names = get_spreadsheet_names();
+        std::set<std::string> file_names = data.get_spreadsheet_names();
 
         if (!file_names.empty())
         {
@@ -408,8 +401,6 @@ namespace cs3505
     }
 
     /**
-     * THIS METHODS WAY OF PARSING/PROPOGATING MESSAGES MAY NEED TO CHANGE
-     * 
      * checks if there is a new message to process.
      * if there is a new message to process then it locks the list and takes one message. 
      * it then proceeds to parse and process the message.
@@ -417,19 +408,16 @@ namespace cs3505
      */
     bool server::process_message()
     {
-        // incoming messages will most likely be an object of interface so we will be using the getter here
         // there are messages to process
-
         if (!messages.inbound_empty())
         {
             // pop the message off the stack
             Message inbound = messages.next_inbound();
 
-            int socket = inbound.socket;
             // get the spreadsheet name that coorelates to the socket
-            std::string spreadsheet_name = data.get_spreadsheet(socket);
+            std::string spreadsheet_name = data.get_spreadsheet(inbound.socket);
             // parse the message and have the server respond apporiately
-            parse_and_respond_to_message(spreadsheet_name, socket, inbound.message);
+            data.parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
 
             return true;
         }
@@ -438,18 +426,13 @@ namespace cs3505
     }
 
     /**
-     * THIS METHODS WAY OF PARSING/PROPOGATING MESSAGES MAY NEED TO CHANGE
-     * 
-     * checks if there is a new message to process.
+     * checks if there is a new message to propogate.
      * if there is a new message to process then it locks the list and takes one message. 
-     * it then proceeds to parse and process the message.
-     * if the message needs to be propagated to the other clients then it propagates the message on a new thread
+     * it then proceeds to send the message to the appropriate socket.
      */
     bool server::send_message()
     {
-        // incoming messages will most likely be an object of interface so we will be using the getter here
-        // there are messages to process
-
+        // there are messages to send
         if (!messages.outbound_empty())
         {
             Message msg = messages.next_outbound();
@@ -567,219 +550,6 @@ namespace cs3505
         }
 
         return "";
-    }
-
-    /**
-     * parses the inputted message. And determines if its a valid message.
-     * Implements the servers response to the message.
-     */
-    void server::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
-    {
-        // register
-        if (message.find("register ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("register ");
-
-            std::set<std::string> file_names = get_spreadsheet_names();
-
-            // build of the response
-            std::string result = "connect_accepted ";
-
-            if (!file_names.empty())
-            {
-                // get all the available spreadsheets
-                for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
-                {
-                    result += *iter;
-                    result += "\n";
-                }
-            }
-            result += (char) 3;
-
-            // propogate to the client the result response 
-            data.propogate_to_client(socket, result);
-        }
-
-        // load
-        else if (message.find("load ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("load ");
-
-            // get the cell id
-            std::string spreadsheet_name = message.substr(p + 6);
-
-            // try to make a open spreadsheet
-            try 
-            {
-                if (data.spreadsheet_exists(spreadsheet_name))
-                {
-                    // add client 
-                    data.add_client(spreadsheet_name, socket);
-
-                    // get the spreadsheet object
-                    spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-                    // load full state (iterate)
-                    std::map<std::string, std::string> contents = s->full_state();
-
-                    data.propogate_full_state(&contents, socket);
-                }
-                else
-                {
-                    // add spreadsheet
-                    data.add_spreadsheet(spreadsheet_name);
-
-                    // add client
-                    data.add_client(spreadsheet_name, socket);
-
-                    // get the spreadsheet object
-                    spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-                    
-                    // load full state (iterate)
-                    std::map<std::string, std::string> contents = s->full_state();
-                    data.propogate_full_state(&contents, socket);
-                }
-            }
-            catch (...)
-            {
-                // propogate to the client the file error message response 
-                data.propogate_to_client(socket, "file_load_error" + (char) 3);
-            }
-        }
-
-        // edit
-        else if (message.find("edit ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("edit ");
-
-            // remove white space at the beginning of the message
-            std::string cleaned_up_message = message.substr(p);
-
-            // get the spreadsheet object
-            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-            // ignore the message
-            if (s == NULL)
-            {
-                return;
-            }
-
-            // update spreadsheet with the change 
-            std::string result = s->update(cleaned_up_message);
-
-            // propgate the result to the other clients in the spreadsheet
-            data.propogate_to_spreadsheet(spreadsheet_name, result);
-        }
-
-        // focus
-        else if (message.find("focus ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("focus ");
-
-            // get the cell id
-            std::string cell_id = message.substr(p + 6);
-
-            // build up the response message
-            std::string result  = "focus ";
-            result += message.substr(p + 6) + ":" + std::to_string(socket);
-            
-            // propogate the message to all the clients in the spreadsheet
-            data.propogate_to_spreadsheet(spreadsheet_name, result);
-        }
-
-        // unfocus
-        else if (message.find("unfocus ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("unfocus ");
-        
-            // build up the response message
-            std::string result  = "unfocus ";
-            result += std::to_string(socket);
-            
-            // propogate the message to all the clients in the spreadsheet
-            data.propogate_to_spreadsheet(spreadsheet_name, result);
-        }
-
-        // undo
-        else if (message.find("undo ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("undo ");
-
-            // remove white space at the beginning of the message
-            std::string cleaned_up_message = message.substr(p);
-
-            // get the spreadsheet object
-            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-
-            // ignore the message
-            if (s == NULL)
-            {
-                return;
-            }
-
-            // update spreadsheet with the change 
-            std::string result = s->update(cleaned_up_message);
-
-            // propgate the result to the other clients in the spreadsheet
-            data.propogate_to_spreadsheet(spreadsheet_name, result);
-        }
-
-        // revert
-        else if (message.find("revert ") > 0)
-        {
-            // find where the message begins
-            int p = message.find("revert ");
-
-            // remove white space at the beginning of the message
-            std::string cleaned_up_message = message.substr(p);
-
-            // get the spreadsheet object
-            spreadsheet * s = data.get_spreadsheet(spreadsheet_name);
-            
-            // ignore the message
-            if (s == NULL)
-            {
-                return;
-            }
-
-            // update spreadsheet with the change 
-            std::string result = s->update(cleaned_up_message);
-
-            // propgate the result to the other clients in the spreadsheet
-            data.propogate_to_spreadsheet(spreadsheet_name, result);
-        }
-
-        // else not a valid message so we do nothing
-    }
-
-    /**
-     * Gets all the spreadsheets inside the spreadsheet directory
-     */
-    std::set<std::string> server::get_spreadsheet_names()
-    {
-        boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
-        
-        std::set<std::string> meSprds;
-
-        if(boost::filesystem::is_directory(directory))
-        {	
-            for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
-            {
-                boost::filesystem::directory_entry file = *rator;
-                std::string filename = ((boost::filesystem::path)file).filename().string();
-                std::string next = filename.substr(0, filename.length() - 11);
-
-                meSprds.insert(next);
-            }
-        }
-
-        return meSprds;
     }
 
 } // end of class

@@ -71,6 +71,8 @@ namespace cs3505
             std::string get_spreadsheet(int);
             void stop_receiving_and_propogate_all_messages();
             void save_all_spreadsheets();
+            void parse_and_respond_to_message(std::string, int socket, std::string);
+            std::set<std::string> get_spreadsheet_names();
 
         private:
             // helper methods
