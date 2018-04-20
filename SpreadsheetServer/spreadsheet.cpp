@@ -54,7 +54,7 @@ namespace cs3505
 		    edits.push(cellName + ":" + oldContents); // push the old value onto edits
 		}
 
-		sheet[cellName].push(cellContents); // update sheet TODO NULL check here?
+		sheet[cellName].push(cellContents); // update sheet 
 
 		return "change " + cellName + ":" + cellContents; // return the change message
 	}
@@ -64,8 +64,6 @@ namespace cs3505
 	 */
 	std::string spreadsheet::revert(std::string cellName)
 	{
-		// TODO checking if it's empty, but may actually need to check if it's NULL too
-
 		if (sheet[cellName].empty()) return NULL; // nothing to revert, return null
 
 		else
@@ -96,8 +94,6 @@ namespace cs3505
 			std::string cellName = undo.substr(0, undo.find(":")); // grab the cell name
 			sheet[cellName].pop(); // undo the last edit to this cell
 
-			// TODO double check the undo process, draw it out
-
 			return "change " + undo; // return the change message
 		}
 
@@ -114,25 +110,22 @@ namespace cs3505
 	 */
 	void spreadsheet::save() 
 	{
-		// save if there's something to save
-		if(!edits.empty() && !sheet.empty())
-		{				
-			// build file path to edits stack
-			boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
+			
+		// build file path to edits stack
+		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
 
-			// build file path to sheet map
-			boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_sheet.sprd");
+		// build file path to sheet map
+		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_sheet.sprd");
 
 
-			boost::filesystem::ofstream  editsOut(myEdits); // set up out file streams
-			boost::filesystem::ofstream sheetOut(mySheet);
+		boost::filesystem::ofstream  editsOut(myEdits); // set up out file streams
+		boost::filesystem::ofstream sheetOut(mySheet);
 
-			boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
-			boost::archive::text_oarchive sheetArchive(sheetOut); 
+		boost::archive::text_oarchive editsArchive(editsOut); // set up out archives
+		boost::archive::text_oarchive sheetArchive(sheetOut); 
 
-			editsArchive << edits; // write to archives	
-			sheetArchive << sheet; 
-		}
+		editsArchive << edits; // write to archives	
+		sheetArchive << sheet; 
 	}
 
 	/*
@@ -154,9 +147,9 @@ namespace cs3505
 		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + fileName + "_edits.sprd");
 
 
-		// do the files exist, and are they non-zero in size?
-		bool sheetExists = boost::filesystem::exists(mySheet) && boost::filesystem::file_size(mySheet) > 0;		
-		bool editsExists = boost::filesystem::exists(myEdits) && boost::filesystem::file_size(myEdits) > 0;
+		// do the files exist
+		bool sheetExists = boost::filesystem::exists(mySheet);		
+		bool editsExists = boost::filesystem::exists(myEdits);
 
 		// if the "sheet" and "edits" files exist, read from it
 		if (sheetExists && editsExists)
@@ -171,18 +164,6 @@ namespace cs3505
 
 			// archive AND ifstream are closed when we leave scope 
 		}
-
-		// otherwise, create the files and close them.
-		else
-		{
-			boost::filesystem::ofstream sheetOut(mySheet);
-			sheetOut.close();
-
-			boost::filesystem::ofstream editsOut(myEdits);
-			editsOut.close();
-		}
-
-
 	}
 
 
@@ -205,12 +186,11 @@ namespace cs3505
 	{
 		try
 		{
-			//std::cout << "Hello from update." << std::endl;
 			
 		    if (update.find("edit ") == 0)
 		    {
-		        int colon = update.find(":");                   // useful index to know
-		        std::string name = update.substr(5, colon - 5); // TODO check for fencepost errors
+		        int colon = update.find(":");  // useful index to know
+		        std::string name = update.substr(5, colon - 5); 
 		        std::string value = update.substr(colon + 1, update.length() - colon - 1);
 
 		        return edit(name, value);
