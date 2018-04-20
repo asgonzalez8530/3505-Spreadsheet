@@ -12,7 +12,6 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: update SpreadsheetPanel.cs and dll for focus messages from other clients
 // TODO: all messages from protocol
 // TODO: arrow keys
 
@@ -72,8 +71,11 @@ namespace SpreadsheetGUI
 
         private void FormCloses()
         {
-            Networking.Send(theServer, "disconnect " + THREE);
-            theServer.Close();
+            if (theServer != null)
+            {
+                Networking.Send(theServer, "disconnect " + THREE);
+                theServer.Close();
+            }
         }
 
 
@@ -499,7 +501,12 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    // TODO: contents example: A9:unique_1
+                    // TODO: contents example: A9:unique_1d
+                    string[] parsed = contents.Split(':');
+                    // keep track of other client's selected cell
+                    // 
+
+                    // maybe use color id
                     break;
 
                 case "unfocus":
