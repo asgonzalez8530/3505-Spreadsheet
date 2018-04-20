@@ -50,6 +50,14 @@ namespace cs3505
 
 		// Return the next message to process.
 		Message next_inbound();
+
+        bool outbound_empty();
+
+        bool inbound_empty();
+
+        // Sends a message to a specific socket
+        void send_message(Message message);
+
 	};
 }
 

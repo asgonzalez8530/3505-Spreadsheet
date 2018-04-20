@@ -107,8 +107,8 @@ namespace cs3505
         // run the main server loop
         while (!terminate && !sleeping)
         {
-            check_for_new_clients();
-            verify_connections();
+            //check_for_new_clients();
+            //verify_connections();
             sleeping = process_message();
 
             // if no new message then we sleep for 10ms
