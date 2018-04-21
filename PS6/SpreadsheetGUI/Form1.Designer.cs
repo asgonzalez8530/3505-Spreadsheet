@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,10 +41,12 @@
             this.CellProperties = new System.Windows.Forms.GroupBox();
             this.connectButton = new System.Windows.Forms.Button();
             this.contents_button = new System.Windows.Forms.Button();
-            this.Contents_Text = new System.Windows.Forms.TextBox();
             this.CurrentCell_Text = new System.Windows.Forms.TextBox();
             this.Value_Text = new System.Windows.Forms.TextBox();
+            this.Contents_Text = new System.Windows.Forms.TextBox();
             this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
+            this.pingTimer = new System.Windows.Forms.Timer(this.components);
+            this.timeoutTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.CellProperties.SuspendLayout();
             this.SuspendLayout();
@@ -74,7 +77,7 @@
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.Close_click);
             // 
@@ -139,8 +142,8 @@
             this.CellProperties.Location = new System.Drawing.Point(0, 24);
             this.CellProperties.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.CellProperties.Name = "CellProperties";
-            this.CellProperties.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.CellProperties.Size = new System.Drawing.Size(1171, 76);
+            this.CellProperties.Padding = new System.Windows.Forms.Padding(4);
+            this.CellProperties.Size = new System.Drawing.Size(1171, 75);
             this.CellProperties.TabIndex = 4;
             this.CellProperties.TabStop = false;
             this.CellProperties.Text = "Current Selection";
@@ -169,15 +172,6 @@
             this.contents_button.UseVisualStyleBackColor = true;
             this.contents_button.Click += new System.EventHandler(this.contents_button_Click);
             // 
-            // Contents_Text
-            // 
-            this.Contents_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.Contents_Text.Location = new System.Drawing.Point(448, 237);
-            this.Contents_Text.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.Contents_Text.Name = "Contents_Text";
-            this.Contents_Text.Size = new System.Drawing.Size(176, 22);
-            this.Contents_Text.TabIndex = 5;
-            // 
             // CurrentCell_Text
             // 
             this.CurrentCell_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -199,16 +193,35 @@
             this.Value_Text.TabIndex = 3;
             this.Value_Text.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // Contents_Text
+            // 
+            this.Contents_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Contents_Text.Location = new System.Drawing.Point(448, 237);
+            this.Contents_Text.Margin = new System.Windows.Forms.Padding(4);
+            this.Contents_Text.Name = "Contents_Text";
+            this.Contents_Text.Size = new System.Drawing.Size(176, 22);
+            this.Contents_Text.TabIndex = 5;
+            // 
             // spreadsheetPanel1
             // 
             this.spreadsheetPanel1.AutoSize = true;
             this.spreadsheetPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 100);
+            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 99);
             this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(1171, 499);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1171, 500);
             this.spreadsheetPanel1.TabIndex = 5;
+            // 
+            // pingTimer
+            // 
+            this.pingTimer.Interval = 10000;
+            this.pingTimer.Tick += new System.EventHandler(this.pingTimer_Tick);
+            // 
+            // timeoutTimer
+            // 
+            this.timeoutTimer.Interval = 60000;
+            this.timeoutTimer.Tick += new System.EventHandler(this.timeoutTimer_Tick);
             // 
             // Spreadsheet
             // 
@@ -220,7 +233,7 @@
             this.Controls.Add(this.CellProperties);
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimumSize = new System.Drawing.Size(429, 310);
             this.Name = "Spreadsheet";
             this.Text = "Form1";
@@ -250,6 +263,8 @@
         private System.Windows.Forms.TextBox Contents_Text;
         private System.Windows.Forms.TextBox CurrentCell_Text;
         private System.Windows.Forms.TextBox Value_Text;
+        private System.Windows.Forms.Timer pingTimer;
+        private System.Windows.Forms.Timer timeoutTimer;
     }
 }
 

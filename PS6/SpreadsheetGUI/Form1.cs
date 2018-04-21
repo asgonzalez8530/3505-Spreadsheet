@@ -238,5 +238,15 @@ namespace SpreadsheetGUI
             Contents_Text.Width = width;
             Contents_Text.Height = height;
         }
+
+        private void pingTimer_Tick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timeoutTimer_Tick(object sender, EventArgs e)
+        {
+
+        }
     }
 }

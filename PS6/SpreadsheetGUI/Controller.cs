@@ -418,6 +418,12 @@ namespace SpreadsheetGUI
             // clear sbuilder
             state.sBuilder.Clear();
 
+            // TODO: start timers & pinging
+            // send ping
+            // start ping timer -- on tick send another ping
+            // start timeout timer -- on tick send disconnect (server is ignoring us)
+            // receive ping response -- restart timeout timer
+
             state.callMe = ProcessMessage;
             Networking.GetData(state);
         }
@@ -530,9 +536,6 @@ namespace SpreadsheetGUI
                     break;
             }
 
-
-
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -541,8 +544,6 @@ namespace SpreadsheetGUI
         /// <param name="cellName"></param>
         private void UnfocusCell(string cellName)
         {
-            // TODO: oh wait, I can't just unfocus a cell... 
-            // I could (easily) end up unfocusing something that is focused on by two users.. UGH
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             ConvertCellNameToRowCol(cellName, out int row, out int col);
             panel.Focus(row, col);
