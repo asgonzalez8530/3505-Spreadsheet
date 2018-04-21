@@ -13,20 +13,14 @@ namespace SpreadsheetGUI
     /// </summary>
     public interface ISpreadsheetWindow
     {
-        event Action NewSheetAction; // TODO: can we remove this?
-
         event Action EnterContentsAction;
-
-
         event Action AboutText;
-
         event Action HowToUseText;
-
         event Action Startup;
-
         event Action Revert;
-
         event Action Undo;
+        event Action Ping;
+        event Action Timeout;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -103,9 +97,25 @@ namespace SpreadsheetGUI
         /// </summary>
         void SetCellSelectionToDefault();
 
+        // TODO: this probably shouldn't be in the controller.. just saying
         /// <summary>
         /// Allows controller to move and change size of editable text box.
         /// </summary>
         void UpdateEditBoxLocation(int x, int y, int width, int height);
+
+        /// <summary>
+        /// Starts timers for pinging, which trigger events Ping and Timeout.
+        /// </summary>
+        void StartPinging();
+
+        /// <summary>
+        /// Stop timers for pinging.
+        /// </summary>
+        void StopPinging();
+
+        /// <summary>
+        /// Resets timeout.
+        /// </summary>
+        void ResetTimeout();
     }
 }

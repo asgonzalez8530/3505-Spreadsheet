@@ -23,7 +23,8 @@ namespace SpreadsheetGUI
         public event Action Startup;
         public event Action Undo;
         public event Action Revert;
-        public event Action NewSheetAction;
+        public event Action Ping;
+        public event Action Timeout;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -83,7 +84,7 @@ namespace SpreadsheetGUI
         /// </summary>
         public void ShowErrorMessageBox(string message)
         {
-            MessageBox.Show(message);
+            MessageBox.Show(message, "Error!");
         }
 
         /// <summary>
@@ -199,6 +200,31 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetSelection(0,0);
         }
 
+        public void UpdateEditBoxLocation(int x, int y, int width, int height)
+        {
+            Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
+            Contents_Text.Width = width;
+            Contents_Text.Height = height;
+        }
+
+        public void StartPinging()
+        {
+            pingTimer.Start();
+            timeoutTimer.Start();
+        }
+
+        public void StopPinging()
+        {
+            pingTimer.Stop();
+            timeoutTimer.Stop();
+        }
+
+        public void ResetTimeout()
+        {
+            timeoutTimer.Stop();
+            timeoutTimer.Start();
+        }
+
         /// <summary>
         /// Fired when about menu item is clicked
         /// </summary>
@@ -227,16 +253,21 @@ namespace SpreadsheetGUI
             Revert();
         }
 
+
         private void UndoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Undo();
         }
 
-        public void UpdateEditBoxLocation(int x, int y, int width, int height)
+        private void PingTimer_Tick(object sender, EventArgs e)
         {
-            Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
-            Contents_Text.Width = width;
-            Contents_Text.Height = height;
+            Ping();
+            pingTimer.Start();
+        }
+
+        private void TimeoutTimer_Tick(object sender, EventArgs e)
+        {
+            Timeout();
         }
     }
 }
