@@ -8,7 +8,6 @@
  * It also handles all the locking and logic that the server does.
  *
  * Pineapple upside down cake
- * v1: April 5, 2018
  */
 
 #ifndef INTERFACE_H
@@ -21,6 +20,7 @@
 #include <list>
 #include <pthread.h>
 #include "spreadsheet.h"
+#include "message_queue.h"
 
 typedef std::list<int> socket_list;
 typedef std::map<std::string, socket_list> client_map;
@@ -33,10 +33,11 @@ namespace cs3505
             // private variables
             std::queue<int> new_clients; // queue of clients that need to be added
             std::set<int> disconnect; // set of sockets that need to be disconnected
-            std::queue<std::string> messages; // queue of messages that the server needs to parse
+            //std::queue<std::string> messages; // queue of messages that the server needs to parse
             std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
+            message_queue messages; // The inbound/outbound message controller
 
             // Data structure locks
 			pthread_mutex_t map_lock;
@@ -61,22 +62,36 @@ namespace cs3505
             // bool messages_isempty();
             // std::string get_message();
             // void messages_add(std::string);
+
+            // propogate methods
             void propogate_to_spreadsheet(std::string, std::string);
             void propogate_to_client(int, std::string);
+            void propogate_full_state(std::map<std::string, std::string> *, int);
+            void stop_receiving_and_propogate_all_messages();
+
+            // parsing of messages and propogating 
+            void parse_and_respond_to_message(std::string, int socket, std::string);
+
+            // spreadsheet getters and setters
             bool spreadsheet_exists(std::string);
             void add_client(std::string, int);
             void add_spreadsheet(std::string);
-            void propogate_full_state(std::map<std::string, std::string> *, int);
             spreadsheet * get_spreadsheet(std::string);
             std::string get_spreadsheet(int);
-            void stop_receiving_and_propogate_all_messages();
             void save_all_spreadsheets();
-            void parse_and_respond_to_message(std::string, int socket, std::string);
             std::set<std::string> get_spreadsheet_names();
+
+            // message queues
+            bool outbound_empty();
+            void send_message();
+            void add_to_outbound_messages(int, std::string);
+            bool inbound_empty();
+            void get_inbound_message_parse_and_respond();
+            void add_to_inbound_messages(int, std::string);
 
         private:
             // helper methods
-
+            void propogate_to_client_without_a_lock(int, std::string);
     };
 } // end of class
 

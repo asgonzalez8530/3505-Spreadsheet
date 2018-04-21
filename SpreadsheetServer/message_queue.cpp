@@ -2,6 +2,7 @@
  * A simple class that handles inbound and
  * outbound messages.
  * 
+ * v7: April 20, 2018
  */
 
 #include "message_queue.h"
@@ -49,11 +50,8 @@ namespace cs3505
 	}
 
 	// Enqueue this message to parse and process later.
-	void message_queue::add_to_inbound(int socket, std::string & message)	
+	void message_queue::add_to_inbound(Message msg)	
 	{
-		Message msg;
-		msg.socket = socket;
-		msg.message = message;
 		inboundMessages.push(msg);
 	}
 

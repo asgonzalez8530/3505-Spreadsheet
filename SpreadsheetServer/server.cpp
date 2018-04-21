@@ -12,6 +12,7 @@
  * v4: April 13, 2018
  * v5: April 18, 2018
  * v6: April 19, 2018
+ * v7: April 20, 2018
  */
 
 #include "server.h"
@@ -54,7 +55,6 @@ namespace cs3505
 		connfd = new ThreadData();
 		connfd->data = &data;
 		connfd->png = &pings;
-        connfd->q = &messages;
 
         // this boolean will tell us when we want to shut down the server
         terminate = false;
@@ -408,17 +408,9 @@ namespace cs3505
      */
     bool server::process_message()
     {
-        // there are messages to process
+        // there are messages to process, parse, and add response to the outbound queue
         if (!messages.inbound_empty())
         {
-            // pop the message off the stack
-            Message inbound = messages.next_inbound();
-
-            // get the spreadsheet name that coorelates to the socket
-            std::string spreadsheet_name = data.get_spreadsheet(inbound.socket);
-            // parse the message and have the server respond apporiately
-            data.parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
-
             return true;
         }
 

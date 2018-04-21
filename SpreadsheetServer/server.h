@@ -6,8 +6,6 @@
  *  4) check for server shutdown
  *
  * Pineapple upside down cake
- * v1: April 4, 2018
- * v2: April 7, 2018
  */
 
 #ifndef SERVER_H
@@ -46,9 +44,6 @@ namespace cs3505
 
             // the ping controller
             ping pings;
-
-            // The inbound/outbound message controller
-            message_queue messages;
 
         public:
             // constructor

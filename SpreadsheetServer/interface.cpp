@@ -9,6 +9,7 @@
  *
  * Pineapple upside down cake
  * v1: April 5, 2018
+ * v7: April 20, 2018
  */
 
 #include "interface.h"
@@ -281,9 +282,20 @@ namespace cs3505
      */
 	void interface::propogate_to_client(int socket, std::string message)
     {
-        // lock the outgoing messages
-
         // add the message to outgoing messages of the client
+        add_to_outbound_messages(socket, message);
+    }
+
+    /**
+     * adds the message to the outbound queue without locking the message object
+     */
+    void propogate_to_client_without_a_lock(int socket, std::string message)
+    {
+        Message msg;
+        msg.socket = socket;
+        msg.message = message; 
+
+        messages.add_to_outbound(msg);
     }
 
     /**
@@ -291,7 +303,7 @@ namespace cs3505
      */
     void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
     {
-        // lock outbound messages (may cause a deadlock?)
+        // lock outbound messages
 
         // build up the response message
         std::string result  = "full_state ";
@@ -421,10 +433,19 @@ namespace cs3505
      */
     void interface::stop_receiving_and_propogate_all_messages()
     {
-        // lock messages (may cause a deadlock?)
+        // lock inbound messages
 
-        // parse and propogate the message
-        
+        // parse all the inbound messages
+        while (!messages.inbound_empty())
+        {
+            // get a message
+            Message inbound = messages.next_inbound();
+
+            // get the spreadsheet name that coorelates to the inbound message socket
+            std::string spreadsheet_name = get_spreadsheet(inbound.socket);
+            // parse the message and have the server respond apporiately
+            parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
+        }
     }
 
     /**
@@ -655,6 +676,84 @@ namespace cs3505
         }
 
         return meSprds;
+    }
+
+    /**
+     * returns true if there is nothing in the outbound queue
+     */
+    bool interface::outbound_empty()
+    {
+        // lock messages
+
+        return messages.outbound_empty();
+    }
+
+    /**
+     * pulls out on message from the outbound queue and sends it using the indicated socket
+     */
+    void interface::send_message()
+    {
+        // lock messages
+
+        // pop 
+        Message msg = messages.next_outbound();
+
+        // send 
+        messages.send_message(msg);
+    }
+
+    /**
+     * add message to outbound messages
+     */
+    void interface::add_to_outbound_messages(int socket, std::string message)
+    {
+        // lock messages
+
+        Message msg;
+        msg.socket = socket;
+        msg.message = messsage; 
+
+        messages.add_to_outbound(msg);
+    }
+
+    /**
+     * returns true if there is nothing in the inbound queue
+     */
+    bool interface::inbound_empty()
+    {
+        // lock messages
+
+        return messages.inbound_empty();
+    }
+
+    /**
+     * gets the next message in the inbound message queue
+     */
+    void interface::get_inbound_message_parse_and_respond()
+    {
+        Message inbound;
+        // lock messages
+
+        inbound = messages.next_inbound();
+
+        // get the spreadsheet name that coorelates to the socket
+        std::string spreadsheet_name = get_spreadsheet(inbound.socket);
+        // parse the message and have the server respond apporiately
+        parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
+    }
+
+    /**
+     * add the message and socket to the inbound queue of messages
+     */
+    void interface::add_to_inbound_messages(int socket, std::string message)
+    {
+        // lock messages
+
+        Message msg;
+        msg.socket = socket;
+        msg.message = message;
+
+        messages.add_to_inbound(msg);
     }
 
 
