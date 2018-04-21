@@ -50,17 +50,17 @@ namespace cs3505
             // constructor
             interface();
             ~interface();
-            bool new_clients_isempty();
-            void new_clients_add(int);
-            void new_clients_finish_handshake();
+            // bool new_clients_isempty();
+            // void new_clients_add(int);
+            // void new_clients_finish_handshake();
             bool disconnect_isempty();
             void disconnect_add(int);
             void disconnect_clients();
             void disconnect_all();
             void disconnecting();
-            bool messages_isempty();
-            std::string get_message();
-            void messages_add(std::string);
+            // bool messages_isempty();
+            // std::string get_message();
+            // void messages_add(std::string);
             void propogate_to_spreadsheet(std::string, std::string);
             void propogate_to_client(int, std::string);
             bool spreadsheet_exists(std::string);

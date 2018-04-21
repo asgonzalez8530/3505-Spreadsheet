@@ -260,7 +260,7 @@ namespace cs3505
             else if (result.compare("2") == 0)
             {
                 // ping the client back
-                (args->data)->propogate_to_client(socket, result);
+                (args->data)->propogate_to_client(socket, "ping_response " + (char)3);
             }
             else if (result.compare("3") == 0)
             {
@@ -270,7 +270,7 @@ namespace cs3505
             else
             {
                 // add message to the list of messages that needs to be processed
-                (args->data)->messages_add(result);
+                //(args->data)->messages_add(result);
             }
 
         }
@@ -377,14 +377,14 @@ namespace cs3505
      * removes each client (socket) from the list and connects the client to the server. It then 
      * proceeds to finish the TCP and spreadsheet handshake. (may do the handshake stuff on a seperate thread???)
      */
-    void server::check_for_new_clients()
-    {
-        // there are new clients
-        if (!data.new_clients_isempty())
-        {
-            data.new_clients_finish_handshake();
-        }
-    }
+    // void server::check_for_new_clients()
+    // {
+    //     // there are new clients
+    //     if (!data.new_clients_isempty())
+    //     {
+    //         data.new_clients_finish_handshake();
+    //     }
+    // }
 
     /**
      * checks if the not_connectioned list to see if there are any clients who are no longer connected.

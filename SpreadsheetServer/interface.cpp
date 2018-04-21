@@ -50,45 +50,45 @@ namespace cs3505
     /**
      * Returns true if there are clients to client. Otherwise returns false. 
      */
-    bool interface::new_clients_isempty()
-    {
-        bool flag;
+    // bool interface::new_clients_isempty()
+    // {
+    //     bool flag;
 
-        pthread_mutex_lock( &client_lock );
-        // check to see if new clients is empty
-        flag = new_clients.empty();
-        pthread_mutex_unlock( &client_lock );
+    //     pthread_mutex_lock( &client_lock );
+    //     // check to see if new clients is empty
+    //     flag = new_clients.empty();
+    //     pthread_mutex_unlock( &client_lock );
 
-        return flag;
-    }
+    //     return flag;
+    // }
 
     /**
      * Adds the inputted client to the new client queue
      */
-    void interface::new_clients_add(int socket)
-    {
-        pthread_mutex_lock( &client_lock );
-        // add the new socket to the list
-        new_clients.push(socket);
-        pthread_mutex_unlock( &client_lock );
-    }
+    // void interface::new_clients_add(int socket)
+    // {
+    //     pthread_mutex_lock( &client_lock );
+    //     // add the new socket to the list
+    //     new_clients.push(socket);
+    //     pthread_mutex_unlock( &client_lock );
+    // }
 
     /**
      * Locks the new clients queue and removes each client from the list and finishes the 
      * spreadsheet handshake. (may do the handshake stuff on a seperate thread???)
      */
-    void interface::new_clients_finish_handshake()
-    {
-        pthread_mutex_lock( &client_lock );
-        int socket = new_clients.front();
-        new_clients.pop();
+    // void interface::new_clients_finish_handshake()
+    // {
+    //     pthread_mutex_lock( &client_lock );
+    //     int socket = new_clients.front();
+    //     new_clients.pop();
 
-        // for each socket in the list
+    //     // for each socket in the list
 
-            // make new thread?
-            // finish TCP and spreadsheet handshake
-        pthread_mutex_unlock( &client_lock );
-    }
+    //         // make new thread?
+    //         // finish TCP and spreadsheet handshake
+    //     pthread_mutex_unlock( &client_lock );
+    // }
 
     /**
      * Returns true if there are no clients to disconnect. Otherwise returns false.
@@ -212,43 +212,43 @@ namespace cs3505
     /**
      * Returns true if there are messages to process. Otherwise returns false.
      */
-    bool interface::messages_isempty()
-    {
-        bool flag;
+    // bool interface::messages_isempty()
+    // {
+    //     bool flag;
 
-        pthread_mutex_lock( &message_lock );
-        // checks to see if the message queue is empty
-        flag = messages.empty();
-        pthread_mutex_unlock( &message_lock );
+    //     pthread_mutex_lock( &message_lock );
+    //     // checks to see if the message queue is empty
+    //     flag = messages.empty();
+    //     pthread_mutex_unlock( &message_lock );
 
-        return flag;
-    }
+    //     return flag;
+    // }
 
     /**
      * Returns first message in the queue.
      */
-    std::string interface::get_message()
-    {
-        std::string result;
+    // std::string interface::get_message()
+    // {
+    //     std::string result;
 
-        pthread_mutex_lock( &message_lock );
-        // return and remove the first item in the message queue
-        result = messages.front();
-        pthread_mutex_unlock( &message_lock );
+    //     pthread_mutex_lock( &message_lock );
+    //     // return and remove the first item in the message queue
+    //     result = messages.front();
+    //     pthread_mutex_unlock( &message_lock );
         
-        return result;
-    }
+    //     return result;
+    // }
 
     /**
      * Adds the inputted message to the message queue
      */
-    void interface::messages_add(std::string message)
-    {
-        pthread_mutex_lock( &message_lock );
-        // add message to the queue
-        messages.push(message);
-        pthread_mutex_unlock( &message_lock );
-    }
+    // void interface::messages_add(std::string message)
+    // {
+    //     pthread_mutex_lock( &message_lock );
+    //     // add message to the queue
+    //     messages.push(message);
+    //     pthread_mutex_unlock( &message_lock );
+    // }
 
     /**
      * Propogate the inputted message to all the clients connected to that spreadsheet
