@@ -44,9 +44,9 @@
             this.CurrentCell_Text = new System.Windows.Forms.TextBox();
             this.Value_Text = new System.Windows.Forms.TextBox();
             this.Contents_Text = new System.Windows.Forms.TextBox();
-            this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.pingTimer = new System.Windows.Forms.Timer(this.components);
             this.timeoutTimer = new System.Windows.Forms.Timer(this.components);
+            this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.menuStrip1.SuspendLayout();
             this.CellProperties.SuspendLayout();
             this.SuspendLayout();
@@ -202,6 +202,16 @@
             this.Contents_Text.Size = new System.Drawing.Size(176, 22);
             this.Contents_Text.TabIndex = 5;
             // 
+            // pingTimer
+            // 
+            this.pingTimer.Interval = 10000;
+            this.pingTimer.Tick += new System.EventHandler(this.PingTimer_Tick);
+            // 
+            // timeoutTimer
+            // 
+            this.timeoutTimer.Interval = 60000;
+            this.timeoutTimer.Tick += new System.EventHandler(this.TimeoutTimer_Tick);
+            // 
             // spreadsheetPanel1
             // 
             this.spreadsheetPanel1.AutoSize = true;
@@ -212,16 +222,6 @@
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
             this.spreadsheetPanel1.Size = new System.Drawing.Size(1171, 500);
             this.spreadsheetPanel1.TabIndex = 5;
-            // 
-            // pingTimer
-            // 
-            this.pingTimer.Interval = 10000;
-            this.pingTimer.Tick += new System.EventHandler(this.pingTimer_Tick);
-            // 
-            // timeoutTimer
-            // 
-            this.timeoutTimer.Interval = 60000;
-            this.timeoutTimer.Tick += new System.EventHandler(this.timeoutTimer_Tick);
             // 
             // Spreadsheet
             // 
@@ -263,8 +263,8 @@
         private System.Windows.Forms.TextBox Contents_Text;
         private System.Windows.Forms.TextBox CurrentCell_Text;
         private System.Windows.Forms.TextBox Value_Text;
-        private System.Windows.Forms.Timer pingTimer;
         private System.Windows.Forms.Timer timeoutTimer;
+        public System.Windows.Forms.Timer pingTimer;
     }
 }
 

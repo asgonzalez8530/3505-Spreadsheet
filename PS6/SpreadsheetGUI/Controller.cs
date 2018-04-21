@@ -12,7 +12,6 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: all messages from protocol
 // TODO: arrow keys
 // TODO: add locks on the sheet -- update sheet in the controller, view painting values in the panel (UpdateSpreadsheetPanelValues)
 
@@ -71,8 +70,12 @@ namespace SpreadsheetGUI
             window.Undo += SendUndoToServer;
             window.Revert += SendRevertToServer;
 
+            window.Ping += Ping;
+            window.Timeout += Timeout;
+
             // set default locations
             panel.SetSelection(0, 0);
+            panel.Focus(0, 2);
             UpdateCurrentCellBoxes();
         }
 
@@ -90,6 +93,7 @@ namespace SpreadsheetGUI
         {
             if (theServer != null)
             {
+                Networking.Send(theServer, "unfocus " + THREE);
                 Networking.Send(theServer, "disconnect " + THREE);
                 theServer.Close();
             }
@@ -210,8 +214,9 @@ namespace SpreadsheetGUI
 
         /// <summary>
         /// Sets the model's cell contents and updates the panel with the correct values.
+        /// <contents>example is "A1:3"</contents>
         /// </summary>
-        private void ReceiveChange(string contents)
+        private void ApplyChange(string contents)
         {
             // contents = "A1:=hello"
             string[] parsed = contents.Split(':');
@@ -316,16 +321,32 @@ namespace SpreadsheetGUI
             string path = Path.Combine(Environment.CurrentDirectory, fileName);
             Process.Start(path);
         }
+
+        private void Ping()
+        {
+            Networking.Send(theServer, "ping " + THREE);
+        }
         
-
-        /*************************************Connecting to Server and NETWORKING*****************************************/
-
+        private void Timeout()
+        {
+            Networking.Send(theServer, "unfocus " + THREE);
+            Networking.Send(theServer, "disconnect " + THREE);
+            EndSession("TIMEOUT");
+        }
 
         /// <summary>
         /// Shows a dialog box for getting the IP address of the spreadsheet server, and connecting appropriately.
         /// </summary>
         private void IPInputBox()
         {
+            // if we have connected to a server previously, we need to disconnect and reset Server...
+            if (theServer != null)
+            {
+                Networking.Send(theServer, "unfocus " + THREE);
+                Networking.Send(theServer, "disconnect " + THREE);
+                EndSession("STARTUP");
+            }
+
             Form2 getIP = new Form2();
 
             if (getIP.ShowDialog() == DialogResult.OK)
@@ -338,7 +359,7 @@ namespace SpreadsheetGUI
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("There was a connection error, please try again.", "Error");
+                    window.ShowErrorMessageBox("There was a connection error, please try again.");
                 }
             }
             
@@ -360,7 +381,7 @@ namespace SpreadsheetGUI
             }
             else
             {
-                MessageBox.Show("There was a connection error, please try again.", "Error");
+                window.ShowErrorMessageBox("There was a connection error, please try again.");
             }
         }
 
@@ -374,7 +395,7 @@ namespace SpreadsheetGUI
             // state error or sbuilder null
             if (state.hasError)
             {
-                MessageBox.Show("There was a connection error, please try again.", "Error");
+                window.ShowErrorMessageBox("There was a connection error, please try again.");
             }
             if (state.sBuilder == null)
             {
@@ -398,9 +419,9 @@ namespace SpreadsheetGUI
 
             if (!connectAcceptMessage.StartsWith(connect_accepted))
             {
+                Networking.Send(theServer, "unfocus " + THREE);
                 Networking.Send(theServer, "disconnect " + THREE);
-                MessageBox.Show("There was a connection error, please try again.", "Error");
-
+                EndSession("SERVER_ERROR");
                 return;
             }
             else
@@ -415,15 +436,7 @@ namespace SpreadsheetGUI
             window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
-            // clear sbuilder
             state.sBuilder.Clear();
-
-            // TODO: start timers & pinging
-            // send ping
-            // start ping timer -- on tick send another ping
-            // start timeout timer -- on tick send disconnect (server is ignoring us)
-            // receive ping response -- restart timeout timer
-
             state.callMe = ProcessMessage;
             Networking.GetData(state);
         }
@@ -478,37 +491,39 @@ namespace SpreadsheetGUI
                 // Error loading the file, prompt user to select a file again
                 case "file_load_error":
                     // Show an error dialog
+                    window.ShowErrorMessageBox("File Load Error, please try again.");
+
                     // in combo box dialog, choose another spreadsheet
                     string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
-
                     window.WindowText = spreadsheet;
                     Networking.Send(theServer, "load " + spreadsheet + THREE);
                     break;
 
                 // Disconnect, ending the session
                 case "disconnect":
-                    MessageBox.Show("There was a connection error, please try again.", "Error");
-                    EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
-                    theServer.Close();
+                    EndSession("SERVER_ERROR");
                     break;
 
-                // Reply with ping_response
                 case "ping":
-                    Networking.Send(theServer, "ping_response ");
+                    Networking.Send(theServer, "ping_response " + THREE);
                     break;
 
                 // A ping response arrived, so reset our ping timer
                 case "ping_response":
+                    window.ResetTimeout();
                     break;
 
-                // Load the new sheet
                 case "full_state":
                     LoadSheet(contents);
+
+                    // do some startup
+                    Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
+                    Networking.Send(theServer, "ping " + THREE);
+                    window.StartPinging();
                     break;
 
-                // Apply the Change
                 case "change":
-                    ReceiveChange(contents);
+                    ApplyChange(contents);
                     break;
 
                 case "focus":
@@ -525,17 +540,26 @@ namespace SpreadsheetGUI
                         otherClientsCurrentCells[parsed[1]] = parsed[0];
                     }
 
-                    // focus cell
                     FocusCell(parsed[0]);
                     break;
 
                 case "unfocus":
-                    // contents example: unique_1
-                    // unfocus cell
                     UnfocusCell(otherClientsCurrentCells[contents]);
                     break;
             }
 
+        }
+
+        /// <summary>
+        /// Notifies the user that the session ended, stops pinging, empties out old sheet, and closes the server.
+        /// </summary>
+        private void EndSession(string reason)
+        {
+            window.ShowErrorMessageBox(reason + ": The session has ended.");
+            window.StopPinging();
+            EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            theServer.Close();
+            theServer = null;
         }
 
         /// <summary>
@@ -567,8 +591,15 @@ namespace SpreadsheetGUI
         /// cell names and contents. A6:3\nA9:=A6/2\n\</param>
         private void LoadSheet(string contents)
         {
-            // EmptyAllCells
-            throw new NotImplementedException();
+            // Clear out old sheet
+            EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
+            // Update each cell
+            string[] parsed = contents.Split('\n');
+            foreach(string cellUpdate in parsed)
+            {
+                ApplyChange(cellUpdate);
+            }
         }
 
 
