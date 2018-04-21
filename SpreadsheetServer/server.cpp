@@ -187,6 +187,7 @@ namespace cs3505
                 (args->data)->add_to_outbound_messages(socket, "Sent ping!");
 
                 // when are we pinging???
+                // (args->data)->add_to_outbound_messages(socket, "ping ");
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
