@@ -149,7 +149,6 @@ namespace cs3505
         int socket = args->socket;
         ping * png = (args->png);
 		interface * data = (args->data);
-        message_queue * msg = (args->q);
 
         int failed_pings = 0;
         double secondsToPing = 20;
@@ -161,14 +160,6 @@ namespace cs3505
         // Add socket to ping flag map
         (args->png)->flag_map_add(socket);
 
-        Message message2;
-        message2.socket = socket;
-        message2.message = "Sent ping!";
-
-        Message message3;
-        message3.socket = socket;
-        message3.message = "Disconnect!";
-
         while (true)
         {
 
@@ -177,7 +168,8 @@ namespace cs3505
             // check for timeout
             if (failed_pings > 5)
             {
-                msg->add_to_outbound(message3);
+                // REMOVE!!!!
+                (args->data)->add_to_outbound_messages(socket, "Disconnect!");
 
                 // remove socket from flag map
 				(args->png)->flag_map_remove(socket);
@@ -191,7 +183,10 @@ namespace cs3505
             // check for ping
             else if (getTime(timePassed, pingTimer) >= secondsToPing)
             {
-                msg->add_to_outbound(message2);
+                // REMOVE!!!!
+                (args->data)->add_to_outbound_messages(socket, "Sent ping!");
+
+                // when are we pinging???
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
@@ -220,7 +215,6 @@ namespace cs3505
         int socket = args->socket;
 		ping * png = (args->png);
 		interface * data = (args->data);
-        message_queue * msg = (args->q);
 
         char buffer[1024];
         int size = 0;
@@ -270,7 +264,7 @@ namespace cs3505
             else
             {
                 // add message to the list of messages that needs to be processed
-                //(args->data)->messages_add(result);
+                (args->data)->add_to_inbound_messages(socket, result);
             }
 
         }
