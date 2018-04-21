@@ -289,7 +289,7 @@ namespace cs3505
     /**
      * adds the message to the outbound queue without locking the message object
      */
-    void propogate_to_client_without_a_lock(int socket, std::string message)
+    void interface::propogate_to_client_without_a_lock(int socket, std::string message)
     {
         Message msg;
         msg.socket = socket;
@@ -711,7 +711,7 @@ namespace cs3505
 
         Message msg;
         msg.socket = socket;
-        msg.message = messsage; 
+        msg.message = message; 
 
         messages.add_to_outbound(msg);
     }

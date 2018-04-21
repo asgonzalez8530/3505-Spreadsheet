@@ -408,8 +408,8 @@ namespace cs3505
      */
     bool server::process_message()
     {
-        // there are messages to process, parse, and add response to the outbound queue
-        if (!messages.inbound_empty())
+        // there are messages in the inbound queue to process, parse, and add response to the outbound queue
+        if (!data.inbound_empty())
         {
             return true;
         }
@@ -424,11 +424,10 @@ namespace cs3505
      */
     bool server::send_message()
     {
-        // there are messages to send
-        if (!messages.outbound_empty())
+        // there are messages in the outbound queue to send
+        if (!data.outbound_empty())
         {
-            Message msg = messages.next_outbound();
-            messages.send_message(msg);
+            data.send_message();
 
             return true;
         }

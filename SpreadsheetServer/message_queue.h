@@ -60,7 +60,7 @@ namespace cs3505
         bool inbound_empty();
 
         // Sends a message to a specific socket
-        void send_message(Message;
+        void send_message(Message);
 
 	};
 }
