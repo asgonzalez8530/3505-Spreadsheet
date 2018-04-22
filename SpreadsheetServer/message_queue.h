@@ -11,6 +11,7 @@
 
 #include <string>
 #include <queue>
+#include <pthread.h>
 
 namespace cs3505
 {
