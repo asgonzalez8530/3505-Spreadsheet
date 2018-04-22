@@ -185,8 +185,16 @@ namespace cs3505
             // check for ping
             else if (getTime(timePassed, pingTimer) >= secondsToPing)
             {
+<<<<<<< HEAD
                 // Send a ping message
                 (args->data)->add_to_outbound_messages(ping);
+=======
+                // REMOVE!!!!
+                (args->data)->add_to_outbound_messages(socket, "Sent ping!");
+
+                // when are we pinging???
+                // (args->data)->add_to_outbound_messages(socket, "ping ");
+>>>>>>> c0165ff6ee38dedea7ca5306f41bb04a6f3e26d9
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
