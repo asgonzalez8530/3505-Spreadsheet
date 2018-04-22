@@ -100,6 +100,9 @@ namespace cs3505
         {
             inbound_sleep = process_message();
             outbound_sleep = send_message();
+            verify_connections();
+            usleep(100000);
+            std::cout << "Still running\n";
 
             // if no new message then we sleep for 10ms
             if (inbound_sleep && outbound_sleep)
@@ -155,7 +158,8 @@ namespace cs3505
         clock_t pingTimer, timePassed;
 
         // Setup the ping message
-        std::string ping_message = ("ping " + (char)3);
+        std::string ping_message = "ping ";
+        ping_message.push_back((char)3);
 
         // begin ping timer
         pingTimer = clock();
@@ -414,7 +418,6 @@ namespace cs3505
         // there are messages in the outbound queue to send
         if (!data.outbound_empty())
         {
-            std::cout << "Sending a message!\n"; 
             data.send_message();
 
             return true;

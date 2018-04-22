@@ -100,7 +100,7 @@ namespace cs3505
 
         pthread_mutex_lock( &disconnect_lock );
         // check to see disconnect is empty
-        disconnect.empty();
+        flag = disconnect.empty();
         pthread_mutex_unlock( &disconnect_lock );
 
         return flag;
@@ -131,8 +131,21 @@ namespace cs3505
             // pull out the socket
             int socket = *it;
 
+            std::string str = "disconnect ";
+            str.push_back((char)3);
+
+            pthread_mutex_lock( &message_lock );
+            Message msg;
+
+            msg.socket = socket;
+            msg.message = str;
+
+            std::cout << "Disconnect!\n";
+            messages.add_to_outbound(msg);
+            pthread_mutex_unlock( &message_lock );
+
             // remove the socket from the disconnect list
-            disconnect.erase(*it);
+            disconnect.erase(socket);
 
             pthread_mutex_lock( &spreadsheet_lock );
 
@@ -192,7 +205,8 @@ namespace cs3505
      */
     void interface::disconnecting()
     {
-        std::string message = "disconnect " + (char)3;
+        std::string message = "disconnect ";
+        message.push_back((char)3);
 
         pthread_mutex_lock( &spreadsheet_lock );
 

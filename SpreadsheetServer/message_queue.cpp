@@ -75,16 +75,9 @@ namespace cs3505
 
     void message_queue::send_message(Message message)
     {
-		std::string control = "1";
-		write(message.socket, "ping ", 1);
-		std::string control = "1";
-		write(message.socket, "ping ", 1);
-		std::cout << "send a messsage!!\n";
-        write(message.socket, "ping ", 5);
-        write(message.socket, control.c_str(), 1);
-
         int socket = message.socket;
         std::string tmp = message.message;
+		std::cout << "Sending " << tmp << " on socket " << socket << "\n";
         write(socket, tmp.c_str(), tmp.length());
     }
 }
