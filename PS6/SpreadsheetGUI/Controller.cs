@@ -54,10 +54,15 @@ namespace SpreadsheetGUI
 
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
-            panel.SelectionChanged += DisplayCurrentCellName;
-            panel.SelectionChanged += SetCellValueBox;
-            panel.SelectionChanged += SetCellContentsBox;
-            panel.SelectionChanged += SendFocusToServer;
+            panel.SelectionChanged += DisplayCurrentCellNameDelegate;
+            panel.SelectionChanged += SetCellValueBoxDelegate;
+            panel.SelectionChanged += SetCellContentsBoxDelegate;
+            panel.SelectionChanged += SendFocusToServerDelegate;
+
+            window.ArrowSelectionChanged += DisplayCurrentCellName;
+            window.ArrowSelectionChanged += SetCellValueBox;
+            window.ArrowSelectionChanged += SetCellContentsBox;
+            window.ArrowSelectionChanged += SendFocusToServer;
 
             window.EnterContentsAction += SendEditToServer;
             window.SetDefaultAcceptButton();
@@ -75,15 +80,19 @@ namespace SpreadsheetGUI
 
             // set default locations
             panel.SetSelection(0, 0);
-            panel.Focus(0, 2);
             UpdateCurrentCellBoxes();
         }
+
+        private void SendFocusToServerDelegate(SpreadsheetPanel sender) { SendFocusToServer(); }
+        private void DisplayCurrentCellNameDelegate(SpreadsheetPanel sender) { DisplayCurrentCellName(); }
+        private void SetCellValueBoxDelegate(SpreadsheetPanel sender) { SetCellValueBox(); }
+        private void SetCellContentsBoxDelegate(SpreadsheetPanel sender) { SetCellContentsBox(); }
 
         /// <summary>
         /// Send an unfocus and focus message to the server.
         /// </summary>
         /// <param name="sender"></param>
-        private void SendFocusToServer(SpreadsheetPanel sender)
+        private void SendFocusToServer()
         {
             Networking.Send(theServer, "unfocus " + THREE);
             Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
@@ -125,9 +134,10 @@ namespace SpreadsheetGUI
         /// Gets the currently selected cell's zero indexed row and column and sets
         /// the CurrentCellText to the normalized cell name. 
         /// </summary>
-        private void DisplayCurrentCellName(SpreadsheetPanel ss)
+        private void DisplayCurrentCellName()
         {
             int row, col;
+            SpreadsheetPanel ss = window.GetSpreadsheetPanel();
             ss.GetSelection(out col, out row);
             window.CurrentCellText = ConvertRowColToCellName(row, col);
 
@@ -162,8 +172,10 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Replaces the current value text box to the looked-up value of the cell
         /// </summary>
-        private void SetCellValueBox(SpreadsheetPanel panel)
+        private void SetCellValueBox()
         {
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
+
             // locates the current cell in the grid and converts it to a variable
             panel.GetSelection(out int col, out int row);
             string cellName = ConvertRowColToCellName(row, col);
@@ -187,8 +199,9 @@ namespace SpreadsheetGUI
         /// Gets the contents of a given cell from the model and places it in the current cell contents box
         /// for updating
         /// </summary>
-        private void SetCellContentsBox(SpreadsheetPanel panel)
+        private void SetCellContentsBox()
         {
+            SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             // set the location of this textbox
             int x, y, width, height;
             panel.GetSelectionLocation(out x, out y, out width, out height);
@@ -247,9 +260,9 @@ namespace SpreadsheetGUI
         private void UpdateCurrentCellBoxes()
         {
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
-            DisplayCurrentCellName(panel);
-            SetCellValueBox(panel);
-            SetCellContentsBox(panel);
+            DisplayCurrentCellName();
+            SetCellValueBox();
+            SetCellContentsBox();
 
             window.SetFocusToContentBox();
         }

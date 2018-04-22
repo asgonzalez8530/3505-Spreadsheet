@@ -21,6 +21,7 @@ namespace SpreadsheetGUI
         event Action Undo;
         event Action Ping;
         event Action Timeout;
+        event Action ArrowSelectionChanged;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
