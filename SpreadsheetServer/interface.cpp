@@ -694,11 +694,11 @@ namespace cs3505
     {
         bool flag;
 
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         flag = messages.outbound_empty();
 
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
 
         return flag;
     }
@@ -708,7 +708,7 @@ namespace cs3505
      */
     void interface::send_message()
     {
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         // pop 
         Message msg = messages.next_outbound();
@@ -716,7 +716,7 @@ namespace cs3505
         // send 
         messages.send_message(msg);
 
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
     }
 
     /**
@@ -724,7 +724,7 @@ namespace cs3505
      */
     void interface::add_to_outbound_messages(int socket, std::string message)
     {
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         Message msg;
         msg.socket = socket;
@@ -732,7 +732,7 @@ namespace cs3505
 
         messages.add_to_outbound(msg);
         
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
     }
 
     /**
@@ -742,11 +742,11 @@ namespace cs3505
     {
         bool flag;
 
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         flag = messages.inbound_empty();
 
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
 
         return flag;
     }
@@ -758,7 +758,7 @@ namespace cs3505
     {
         Message inbound;
         
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         inbound = messages.next_inbound();
 
@@ -767,7 +767,7 @@ namespace cs3505
         // parse the message and have the server respond apporiately
         parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
 
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
     }
 
     /**
@@ -775,7 +775,7 @@ namespace cs3505
      */
     void interface::add_to_inbound_messages(int socket, std::string message)
     {
-        pthread_mutex_lock( &lock );
+        pthread_mutex_lock( &message_lock );
 
         Message msg;
         msg.socket = socket;
@@ -783,7 +783,7 @@ namespace cs3505
 
         messages.add_to_inbound(msg);
 
-        pthread_mutex_unlock( &lock );
+        pthread_mutex_unlock( &message_lock );
     }
 
 
