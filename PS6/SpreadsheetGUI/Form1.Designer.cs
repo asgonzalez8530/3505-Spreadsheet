@@ -61,7 +61,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1171, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1064, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -143,7 +143,7 @@
             this.CellProperties.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.CellProperties.Name = "CellProperties";
             this.CellProperties.Padding = new System.Windows.Forms.Padding(4);
-            this.CellProperties.Size = new System.Drawing.Size(1171, 75);
+            this.CellProperties.Size = new System.Drawing.Size(1064, 75);
             this.CellProperties.TabIndex = 4;
             this.CellProperties.TabStop = false;
             this.CellProperties.Text = "Current Selection";
@@ -151,7 +151,7 @@
             // connectButton
             // 
             this.connectButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.connectButton.Location = new System.Drawing.Point(744, 19);
+            this.connectButton.Location = new System.Drawing.Point(691, 19);
             this.connectButton.Margin = new System.Windows.Forms.Padding(0);
             this.connectButton.Name = "connectButton";
             this.connectButton.Size = new System.Drawing.Size(253, 37);
@@ -163,7 +163,7 @@
             // contents_button
             // 
             this.contents_button.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.contents_button.Location = new System.Drawing.Point(620, 20);
+            this.contents_button.Location = new System.Drawing.Point(567, 20);
             this.contents_button.Margin = new System.Windows.Forms.Padding(0);
             this.contents_button.Name = "contents_button";
             this.contents_button.Size = new System.Drawing.Size(117, 36);
@@ -174,9 +174,9 @@
             // 
             // CurrentCell_Text
             // 
-            this.CurrentCell_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.CurrentCell_Text.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.CurrentCell_Text.Enabled = false;
-            this.CurrentCell_Text.Location = new System.Drawing.Point(11, 33);
+            this.CurrentCell_Text.Location = new System.Drawing.Point(6, 33);
             this.CurrentCell_Text.Margin = new System.Windows.Forms.Padding(0);
             this.CurrentCell_Text.Name = "CurrentCell_Text";
             this.CurrentCell_Text.Size = new System.Drawing.Size(89, 22);
@@ -184,9 +184,9 @@
             // 
             // Value_Text
             // 
-            this.Value_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Value_Text.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.Value_Text.Enabled = false;
-            this.Value_Text.Location = new System.Drawing.Point(108, 33);
+            this.Value_Text.Location = new System.Drawing.Point(103, 33);
             this.Value_Text.Margin = new System.Windows.Forms.Padding(0);
             this.Value_Text.Name = "Value_Text";
             this.Value_Text.Size = new System.Drawing.Size(132, 22);
@@ -196,7 +196,7 @@
             // Contents_Text
             // 
             this.Contents_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.Contents_Text.Location = new System.Drawing.Point(448, 237);
+            this.Contents_Text.Location = new System.Drawing.Point(26, 128);
             this.Contents_Text.Margin = new System.Windows.Forms.Padding(4);
             this.Contents_Text.Name = "Contents_Text";
             this.Contents_Text.Size = new System.Drawing.Size(176, 22);
@@ -220,14 +220,14 @@
             this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 99);
             this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(1171, 500);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1064, 331);
             this.spreadsheetPanel1.TabIndex = 5;
             // 
             // Spreadsheet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1171, 599);
+            this.ClientSize = new System.Drawing.Size(1064, 430);
             this.Controls.Add(this.Contents_Text);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.CellProperties);

@@ -25,6 +25,7 @@ namespace SpreadsheetGUI
         public event Action Revert;
         public event Action Ping;
         public event Action Timeout;
+        public event Action ArrowSelectionChanged;
 
         /// <summary>
         /// Gets the spreadsheet panel component in this window
@@ -268,6 +269,34 @@ namespace SpreadsheetGUI
         private void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             Timeout();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Right || keyData == Keys.Left || keyData == Keys.Up || keyData == Keys.Down)
+            {
+                int MAX_ROW = 98;
+                int MAX_COL = 25;
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+
+                if (keyData == Keys.Right && col != MAX_COL)
+                    col++;
+                if (keyData == Keys.Left && col != 0)
+                     col--;
+                if (keyData == Keys.Up && row != 0)
+                    row--;
+                if (keyData == Keys.Down && row != MAX_ROW)
+                    row++;
+
+                spreadsheetPanel1.SetSelection(col, row);
+
+                ArrowSelectionChanged();
+                return true;
+            }
+            else
+            {
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
         }
     }
 }
