@@ -6,8 +6,6 @@
  *  4) check for server shutdown
  *
  * Pineapple upside down cake
- * v1: April 4, 2018
- * v2: April 7, 2018
  */
 
 #ifndef SERVER_H
@@ -47,9 +45,6 @@ namespace cs3505
             // the ping controller
             ping pings;
 
-            // The inbound/outbound message controller
-            message_queue messages;
-
         public:
             // constructor
             server();
@@ -70,8 +65,6 @@ namespace cs3505
             bool send_message();
             void check_for_shutdown();
             void shutdown(int);
-			void parse_and_respond_to_message(std::string, int socket, std::string);
-            std::set<std::string> get_spreadsheet_names();
 
 
     };

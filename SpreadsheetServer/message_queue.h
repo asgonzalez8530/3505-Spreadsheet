@@ -1,7 +1,9 @@
 /*
- * A simple class that handles inbound and
- * outbound messages.
+ * A simple class that handles inbound and outbound messages.
+ * Keeps track of the life of a message while in the server. 
+ * Stores the socket (client) and the message that was from the socket
  * 
+ * Pineapple upside down cake
  */
 
 #ifndef MESSAGE_QUEUE_H
@@ -40,15 +42,15 @@ namespace cs3505
 		~message_queue();
 
 		// Enqueue this message to send to the client later.
-		void add_to_outbound(int socket, std::string & message);
+		void add_to_outbound(int, std::string &);
 
-		void add_to_outbound(Message message);
+		void add_to_outbound(Message);
 
 		// Return the next message to send.
 		Message next_outbound();
 
 		// Enqueue this message parse and process later.
-		void add_to_inbound(int socket, std::string & message);
+		void add_to_inbound(Message);
 
 		// Return the next message to process.
 		Message next_inbound();
@@ -58,7 +60,7 @@ namespace cs3505
         bool inbound_empty();
 
         // Sends a message to a specific socket
-        void send_message(Message message);
+        void send_message(Message);
 
 	};
 }
