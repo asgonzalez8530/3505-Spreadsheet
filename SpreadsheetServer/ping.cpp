@@ -61,17 +61,6 @@ namespace cs3505
 	}
 
     /**
-     * Send a ping to the passed socket
-     */
-	void ping::send_ping(int socket)
-    {
-        pthread_mutex_lock( &lock );
-		std::cout << "Send ping\n";
-        pthread_mutex_unlock( &lock );
-    }
-
-
-    /**
      * Update socket ping response flag
      */
     void ping::ping_received(int socket)

@@ -154,6 +154,11 @@ namespace cs3505
         double secondsToPing = 20;
         clock_t pingTimer, timePassed;
 
+        // Setup the ping message
+        Message ping;
+        ping.socket = socket;
+        ping.message = ("ping " + (char)3);
+
         // begin ping timer
         pingTimer = clock();
 
@@ -168,9 +173,6 @@ namespace cs3505
             // check for timeout
             if (failed_pings > 5)
             {
-                // REMOVE!!!!
-                (args->data)->add_to_outbound_messages(socket, "Disconnect!");
-
                 // remove socket from flag map
 				(args->png)->flag_map_remove(socket);
 
@@ -183,10 +185,8 @@ namespace cs3505
             // check for ping
             else if (getTime(timePassed, pingTimer) >= secondsToPing)
             {
-                // REMOVE!!!!
-                (args->data)->add_to_outbound_messages(socket, "Sent ping!");
-
-                // when are we pinging???
+                // Send a ping message
+                (args->data)->add_to_outbound_messages(ping);
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
@@ -238,9 +238,6 @@ namespace cs3505
             std::string buff = buffer;
 
             std::string result = parseBuffer(&buff);
-
-            // Print number of received bytes AND the contents of the buffer
-            std::cout << "Received " << size << " bytes:\n" << buffer << "\n";
 
             if (result.empty())
 			{
@@ -330,9 +327,6 @@ namespace cs3505
     {
         ThreadData * args = (ThreadData*)connection_file_descriptor;
         int serverSocket = args->socket;
-
-        // print for debugging
-        std::cout << "Begin listening." << std::endl;
 
         while (true)
         {

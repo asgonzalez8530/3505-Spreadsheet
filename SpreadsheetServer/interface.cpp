@@ -134,7 +134,7 @@ namespace cs3505
             // remove the socket from the disconnect list
             disconnect.erase(*it);
 
-            // lock map of spreadsheets
+            pthread_mutex_lock( &spreadsheet_lock );
 
             // remove the client from the spreadsheet
             std::map<std::string, std::list<int>>::iterator it;
@@ -153,6 +153,8 @@ namespace cs3505
                     }
                 }
             }
+            pthread_mutex_unlock( &spreadsheet_lock );
+
             // now we close the socket and remove them from the server
             close(socket);
         }
@@ -303,8 +305,6 @@ namespace cs3505
      */
     void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
     {
-        // lock outbound messages
-
         // build up the response message
         std::string result  = "full_state ";
 
@@ -338,10 +338,12 @@ namespace cs3505
         bool flag;
 
         pthread_mutex_lock( &spreadsheet_lock );
+
         // trys to see if the spreadsheet is in the server
         std::map<std::string, socket_list>::iterator location;
         location = map_of_spreadsheets.find(spreadsheet_name);
         flag = location != map_of_spreadsheets.end();
+
         pthread_mutex_unlock( &spreadsheet_lock );
         
         return flag;
@@ -353,6 +355,7 @@ namespace cs3505
     void interface::add_client(std::string spreadsheet_name, int socket)
     {
         pthread_mutex_lock( &spreadsheet_lock );
+
         // iterate through the spreadsheets and add the client to the proper spreadsheet
         std::map<std::string, socket_list>::iterator location;
         location = map_of_spreadsheets.find(spreadsheet_name);
@@ -360,6 +363,7 @@ namespace cs3505
         {
             map_of_spreadsheets.at(spreadsheet_name).push_back(socket);
         }
+
         pthread_mutex_unlock( &spreadsheet_lock );
     }
 
@@ -377,6 +381,7 @@ namespace cs3505
 
         std::list<int> empty_list({});
         map_of_spreadsheets.insert(std::pair<std::string, std::list<int>>(spreadsheet_name, empty_list));
+
         pthread_mutex_unlock( &spreadsheet_lock );
     }
 
@@ -388,6 +393,7 @@ namespace cs3505
         spreadsheet * ptr = NULL;
 
         pthread_mutex_lock( &spreadsheet_lock );
+
         // iterate through trying to find the spreadsheet object
         std::map<std::string, spreadsheet>::iterator it;
         for (it = all_spreadsheets.begin(); it != all_spreadsheets.end(); it++)
@@ -397,6 +403,7 @@ namespace cs3505
                 ptr = &(it->second);
             }
         }
+
         pthread_mutex_unlock( &spreadsheet_lock );
 
         return ptr;
@@ -407,6 +414,7 @@ namespace cs3505
         std::string result = "";
 
         pthread_mutex_lock( &spreadsheet_lock );
+
         // get the list of clients connected to each spreadsheet
         std::map<std::string, std::list<int>>::iterator it;
         for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
@@ -423,6 +431,7 @@ namespace cs3505
                 }
             }
         }
+
         pthread_mutex_unlock( &spreadsheet_lock );
 
         return result;
@@ -441,7 +450,7 @@ namespace cs3505
             // get a message
             Message inbound = messages.next_inbound();
 
-            // get the spreadsheet name that coorelates to the inbound message socket
+            // get the spreadsheet name that correlates to the inbound message socket
             std::string spreadsheet_name = get_spreadsheet(inbound.socket);
             // parse the message and have the server respond apporiately
             parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);

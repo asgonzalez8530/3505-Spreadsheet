@@ -26,7 +26,6 @@ namespace cs3505
 		int socket;
 		interface * data;
 		ping * png;
-        message_queue * q;
 
 	} ThreadData;    
 

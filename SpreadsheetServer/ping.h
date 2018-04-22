@@ -26,7 +26,6 @@ namespace cs3505
 		    void flag_map_add(int socket);
 		    void flag_map_remove(int socket);
 			int check_ping_response(int socket);
-			void send_ping(int socket);
 		    void ping_received(int socket);
 
 
