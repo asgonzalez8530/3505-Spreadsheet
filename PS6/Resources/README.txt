@@ -1,8 +1,19 @@
-﻿Authors: Rebekah Peterson
-Update: 4/6/2018
+﻿/// <summary>
+/// This program is a GUI of the client spreadsheet for a multi-client Spreadsheet Server.
+/// 
+/// 3505 version of ClientGUI by Rebekah Peterson, Jacqulyn Machardy, Anastasia Gonzalez, Michael Raleigh
+/// 3500 version of SpreadsheetGUI by Anastasia Gonzalez, Aaron Bellis
+/// </summary>
 
+Last Updated: Spring 2018
+
+Shortcuts for Close (CTR+Q), Revert (CTR+R), and Undo (CTR+Z)
+Controller updated to connect to a server, send, and receive protocol messages appropriately.
+SpreadsheetPanel updated for other client's focus messages.
+Arrow keys change current selection.
+Editable TextBox moves around with current selection -- editting a cell in a cell
 Formulas can now evaluate to FormatError, so the Formula.dll and Spreadsheet.dll have been updated.
-/////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Name: Anastasia Gonzalez and Aaron Bellis
 UID: u0985898 & u0981638

@@ -12,8 +12,13 @@ using SpreadsheetUtilities;
 using NetworkController;
 using System.Net.Sockets;
 
-// TODO: arrow keys
-// TODO: add locks on the sheet -- update sheet in the controller, view painting values in the panel (UpdateSpreadsheetPanelValues)
+/// <summary>
+/// This program is a GUI of the client spreadsheet for a multi-client Spreadsheet Server.
+/// 
+/// 3505 version of ClientGUI by Rebekah Peterson, Jacqulyn Machardy, Anastasia Gonzalez, Michael Raleigh
+/// 3500 version of SpreadsheetGUI by Anastasia Gonzalez, Aaron Bellis
+/// </summary>
+
 
 namespace SpreadsheetGUI
 {
@@ -104,6 +109,7 @@ namespace SpreadsheetGUI
             {
                 Networking.Send(theServer, "unfocus " + THREE);
                 Networking.Send(theServer, "disconnect " + THREE);
+                theServer.Shutdown(SocketShutdown.Both);
                 theServer.Close();
             }
         }
@@ -569,9 +575,16 @@ namespace SpreadsheetGUI
         private void EndSession(string reason)
         {
             window.ShowErrorMessageBox(reason + ": The session has ended.");
-            window.StopPinging();
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
-            theServer.Close();
+
+            window.StopPinging();
+
+            if (theServer.Connected)
+            {
+                theServer.Shutdown(SocketShutdown.Both);
+                theServer.Close();
+            }
+
             theServer = null;
         }
 
