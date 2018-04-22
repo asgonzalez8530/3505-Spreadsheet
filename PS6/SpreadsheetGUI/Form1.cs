@@ -92,7 +92,7 @@ namespace SpreadsheetGUI
         /// </summary>
         public void ShowErrorMessageBox(string message)
         {
-            MessageBox.Show(message, "Error!");
+            MessageBox.Show(message, "Connection state");
         }
 
         /// <summary>

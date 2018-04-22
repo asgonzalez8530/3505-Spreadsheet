@@ -363,7 +363,7 @@ namespace SpreadsheetGUI
             {
                 Networking.Send(theServer, "unfocus " + THREE);
                 Networking.Send(theServer, "disconnect " + THREE);
-                EndSession("STARTUP");
+                EndSession("RESTART");
             }
 
             Form2 getIP = new Form2();
@@ -378,7 +378,7 @@ namespace SpreadsheetGUI
                 }
                 catch (Exception)
                 {
-                    window.ShowErrorMessageBox("There was a connection error, please try again.");
+                    EndSession("CONNECTION_ERROR");
                 }
             }
             
@@ -396,11 +396,12 @@ namespace SpreadsheetGUI
             {
                 state.callMe = ReceiveStartup;
                 Networking.Send(state.theSocket, "register " + THREE);
+                Debug.WriteLine("register sent");
                 Networking.GetData(state);
             }
             else
             {
-                window.ShowErrorMessageBox("There was a connection error, please try again.");
+                EndSession("CONNECTION_ERROR");
             }
         }
 
@@ -414,7 +415,7 @@ namespace SpreadsheetGUI
             // state error or sbuilder null
             if (state.hasError)
             {
-                window.ShowErrorMessageBox("There was a connection error, please try again.");
+                EndSession("CONNECTION_ERROR");
             }
             if (state.sBuilder == null)
             {
