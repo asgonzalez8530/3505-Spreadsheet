@@ -397,6 +397,7 @@ namespace cs3505
         // there are messages in the inbound queue to process, parse, and add response to the outbound queue
         if (!data.inbound_empty())
         {
+            data.get_inbound_message_parse_and_respond();
             return true;
         }
 
@@ -413,6 +414,7 @@ namespace cs3505
         // there are messages in the outbound queue to send
         if (!data.outbound_empty())
         {
+            std::cout << "Sending a message!\n"; 
             data.send_message();
 
             return true;
