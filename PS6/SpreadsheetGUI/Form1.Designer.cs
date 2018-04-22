@@ -195,7 +195,6 @@
             // 
             // Contents_Text
             // 
-            this.Contents_Text.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Contents_Text.Location = new System.Drawing.Point(26, 128);
             this.Contents_Text.Margin = new System.Windows.Forms.Padding(4);
             this.Contents_Text.Name = "Contents_Text";
