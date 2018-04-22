@@ -155,9 +155,7 @@ namespace cs3505
         clock_t pingTimer, timePassed;
 
         // Setup the ping message
-        Message ping;
-        ping.socket = socket;
-        ping.message = ("ping " + (char)3);
+        std::string ping_message = ("ping " + (char)3);
 
         // begin ping timer
         pingTimer = clock();
@@ -185,16 +183,8 @@ namespace cs3505
             // check for ping
             else if (getTime(timePassed, pingTimer) >= secondsToPing)
             {
-<<<<<<< HEAD
                 // Send a ping message
-                (args->data)->add_to_outbound_messages(ping);
-=======
-                // REMOVE!!!!
-                (args->data)->add_to_outbound_messages(socket, "Sent ping!");
-
-                // when are we pinging???
-                // (args->data)->add_to_outbound_messages(socket, "ping ");
->>>>>>> c0165ff6ee38dedea7ca5306f41bb04a6f3e26d9
+                (args->data)->add_to_outbound_messages(socket, ping_message);
 
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
