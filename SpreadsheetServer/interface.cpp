@@ -401,9 +401,10 @@ namespace cs3505
         pthread_mutex_lock( &spreadsheet_lock );
 
         // trys to see if the spreadsheet is in the server
-        std::map<std::string, socket_list>::iterator location;
-        location = map_of_spreadsheets.find(spreadsheet_name);
-        flag = location != map_of_spreadsheets.end();
+        std::map<std::string, spreadsheet>::iterator location;
+        location = all_spreadsheets.find(spreadsheet_name);
+        flag = (location != all_spreadsheets.end());
+        std::cout << "spreadsheet exists " << flag << "\n";
 
         pthread_mutex_unlock( &spreadsheet_lock );
         
@@ -438,7 +439,6 @@ namespace cs3505
         // add the spreadsheet to all spreadsheet list and map of spreadsheets with no clients
         spreadsheet s(spreadsheet_name);
         all_spreadsheets.insert( std::pair<std::string, spreadsheet>(spreadsheet_name, s) );
-        // unlock and lock map of spreadsheets
 
         std::list<int> empty_list({});
         map_of_spreadsheets.insert(std::pair<std::string, std::list<int>>(spreadsheet_name, empty_list));
@@ -551,7 +551,7 @@ namespace cs3505
         // register
         if (std::regex_match(header, std::regex("register ")))
         {
-            std::cout << "register message... preparing to respond\n";
+            //std::cout << "register message... preparing to respond\n";
             std::set<std::string> file_names = get_spreadsheet_names();
 
             // build of the response
@@ -566,12 +566,13 @@ namespace cs3505
                     result += "\n";
                 }
             }
-            std::cout << "got filesnames... about to send\n";
+            //std::cout << "got filesnames... about to send\n";
 
             result.push_back((char)3);
             // propogate to the client the result response 
             propogate_to_client(socket, result);
         }
+
         // load
         else if (std::regex_match(header, std::regex("load ")))
         {
@@ -579,13 +580,15 @@ namespace cs3505
             // find where the message begins
             int p = message.find("load ");
 
-            if (p + 6 >= message.length())
+            if (p + 5 >= message.length())
             {
                 return ret_val;
             }
 
             // get the cell id
-            std::string spreadsheet_name = message.substr(p + 6);
+            std::string spreadsheet_name = message.substr(p + 5);
+
+            std::cout << "spreadsheet name we are trying to load is " << spreadsheet_name << "\n";
 
             // try to make a open spreadsheet
             try 
@@ -804,13 +807,13 @@ namespace cs3505
             // find where the message begins
             int p = message.find("load ");
 
-            if (p + 6 >= message.length())
+            if (p + 5 >= message.length())
             {
                 return;
             }
 
             // get the cell id
-            std::string spreadsheet_name = message.substr(p + 6);
+            std::string spreadsheet_name = message.substr(p + 5);
 
             // try to make a open spreadsheet
             try 
@@ -987,21 +990,26 @@ namespace cs3505
      */
     std::set<std::string> interface::get_spreadsheet_names()
     {
+        std::cout << "getting spreadsheet names\n";
         boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
         
         std::set<std::string> meSprds;
 
         if(boost::filesystem::is_directory(directory))
         {	
+            //std::cout << "in directory\n";
             for(boost::filesystem::directory_iterator rator(directory); rator != boost::filesystem::directory_iterator(); rator++)	
             {
                 boost::filesystem::directory_entry file = *rator;
                 std::string filename = ((boost::filesystem::path)file).filename().string();
                 std::string next = filename.substr(0, filename.length() - 11);
 
+                //std::cout << "spreadsheet " << next << "has been added\n";
                 meSprds.insert(next);
             }
         }
+
+        std::cout << "leaving get spreadsheet names\n";
 
         return meSprds;
     }

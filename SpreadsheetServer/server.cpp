@@ -87,12 +87,14 @@ namespace cs3505
 
         if (!file_names.empty())
         {
+            std::cout << "loading spreadsheet files\n";
             // get all the available spreadsheets
             for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
             {
                 // get the spreadsheet name
                 std::string name = *iter;
 
+                std::cout << "about to add spreadsheet\n";
                 // build and add the spreadsheet to the server
                 data.add_spreadsheet(name);
             }
@@ -102,9 +104,6 @@ namespace cs3505
         int serverSocket = server_awaiting_client_loop();
 
         std::cout << "Entering main server loop.\n";
-
-        // server shutdown listener
-        //check_for_shutdown();
 
         // run the main server loop
         while (!terminate)
