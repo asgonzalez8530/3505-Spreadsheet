@@ -225,6 +225,23 @@ namespace cs3505
     }
 
     /**
+     * removes the client from the spreadsheet and tells the other clients on the spreadsheet to 
+     * unfocus the client
+     */
+    void interface::client_wants_to_disconnect(int socket)
+    {
+        // message to send 
+        std::string unfocus = "unfocus " + std::to_string(socket);
+        unfocus.push_back((char)3);
+        
+        // get the spreadsheet the client is connected to 
+        std::string spreadsheet_name = get_spreadsheet(socket);
+
+        // send to each client the unfocus message
+        propogate_to_spreadsheet(spreadsheet_name, unfocus);
+    }
+
+    /**
      * Returns true if there are messages to process. Otherwise returns false.
      */
     // bool interface::messages_isempty()
@@ -752,8 +769,12 @@ namespace cs3505
      */
     void interface::parse_and_respond_to_message_without_lock(std::string spreadsheet_name, int socket, std::string message)
     {
+        // isolate the header 
+        int position = message.find(" ");
+        std::string header = message.substr(0, position + 1);
+
         // register
-        if (std::regex_match(message, std::regex("register ")))
+        if (std::regex_match(header, std::regex("register ")))
         {
             std::cout << "register message... preparing to respond\n";
             std::set<std::string> file_names = get_spreadsheet_names();
@@ -774,14 +795,19 @@ namespace cs3505
 
             result.push_back((char)3);
             // propogate to the client the result response 
-            propogate_to_client_without_a_lock(socket, result);
+            propogate_to_client(socket, result);
         }
-
         // load
-        else if (std::regex_match(message, std::regex("load ")))
+        else if (std::regex_match(header, std::regex("load ")))
         {
+            std::cout << "got load message\n";
             // find where the message begins
             int p = message.find("load ");
+
+            if (p + 6 >= message.length())
+            {
+                return;
+            }
 
             // get the cell id
             std::string spreadsheet_name = message.substr(p + 6);
@@ -789,8 +815,10 @@ namespace cs3505
             // try to make a open spreadsheet
             try 
             {
+                std::cout << "in try\n";
                 if (spreadsheet_exists(spreadsheet_name))
                 {
+                    std::cout << "spreadsheet exists\n";
                     // add client 
                     add_client(spreadsheet_name, socket);
 
@@ -804,6 +832,7 @@ namespace cs3505
                 }
                 else
                 {
+                    std::cout << "spreadsheet does NOT exists\n";
                     // add spreadsheet
                     add_spreadsheet(spreadsheet_name);
 
@@ -820,16 +849,18 @@ namespace cs3505
             }
             catch (...)
             {
+                std::cout << "in catch... something went wrong!\n";
                 // propogate to the client the file error message response 
                 std::string result = "file_load_error ";
                 result.push_back((char)3);
-                propogate_to_client_without_a_lock(socket, result);
+                propogate_to_client(socket, result);
             }
         }
 
         // edit
-        else if (std::regex_match(message, std::regex("edit ")))
+        else if (std::regex_match(header, std::regex("edit ")))
         {
+            std::cout << "got edit message\n";
             // find where the message begins
             int p = message.find("edit ");
 
@@ -850,42 +881,55 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // focus
-        else if (std::regex_match(message, std::regex("focus ")))
+        else if (std::regex_match(header, std::regex("focus ")))
         {
+            std::cout << "got focus message\n";
             // find where the message begins
             int p = message.find("focus ");
 
+            if (p + 6 >= message.length())
+            {
+                return;
+            }
+
             // get the cell id
-            std::string cell_id = message.substr(p + 7);
+            std::string cell_id = message.substr(p + 6);
+            std::cout << "cell id" << cell_id << "\n";
 
             // build up the response message
             std::string result  = "focus ";
-            result += message.substr(p + 7) + ":" + std::to_string(socket);
+            result += cell_id + ":" + std::to_string(socket);
             result.push_back((char)3);
+
+            std::cout << result << "\n";
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // unfocus
-        else if (std::regex_match(message, std::regex("unfocus ")))
+        else if (std::regex_match(header, std::regex("unfocus ")))
         {
+            std::cout << "got unfocus message\n";
             // build up the response message
             std::string result  = "unfocus ";
             result += std::to_string(socket);
             result.push_back((char)3);
+
+            std::cout << result << std::endl;
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // undo
-        else if (std::regex_match(message, std::regex("undo ")))
+        else if (std::regex_match(header, std::regex("undo ")))
         {
+            std::cout << "got undo message\n";
             // find where the message begins
             int p = message.find("undo ");
 
@@ -906,12 +950,13 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // revert
-        else if (std::regex_match(message, std::regex("revert ")))
+        else if (std::regex_match(header, std::regex("revert ")))
         {
+            std::cout << "got revert message\n";
             // find where the message begins
             int p = message.find("revert ");
 
@@ -932,9 +977,8 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            propogate_to_spreadsheet(spreadsheet_name, result);
         }
-
         // else not a valid message so we do nothing
     }
 

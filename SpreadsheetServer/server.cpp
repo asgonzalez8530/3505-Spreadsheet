@@ -272,8 +272,9 @@ namespace cs3505
             }
             else if (result.compare("3") == 0)
             {
-                // add the client to the disconnect list
-                (args->data)->disconnect_add(socket);
+                // send to all the other clients connected to the same spreadsheet that client disconnected
+                (args->data)->client_wants_to_disconnect(socket);
+                break;
             }
             else
             {
@@ -282,7 +283,7 @@ namespace cs3505
             }
 
         }
-
+        std::cout << "closing client's socket\n";
         close(socket);
     }
 

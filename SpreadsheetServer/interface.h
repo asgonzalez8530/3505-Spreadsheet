@@ -59,20 +59,19 @@ namespace cs3505
             void disconnect_clients();
             void disconnect_all();
             void disconnecting();
+            void client_wants_to_disconnect(int);
             // bool messages_isempty();
             // std::string get_message();
             // void messages_add(std::string);
 
             // propogate methods
             void propogate_to_spreadsheet(std::string, std::string);
-            void propogate_to_spreadsheet_without_lock(std::string, std::string);
             void propogate_to_client(int, std::string);
             void propogate_full_state(std::map<std::string, std::string> *, int);
             void stop_receiving_and_propogate_all_messages();
 
             // parsing of messages and propogating 
             int parse_and_respond_to_message(std::string, int socket, std::string);
-            void parse_and_respond_to_message_without_lock(std::string, int socket, std::string);
 
             // spreadsheet getters and setters
             bool spreadsheet_exists(std::string);
@@ -92,8 +91,10 @@ namespace cs3505
             void add_to_inbound_messages(int, std::string);
 
         private:
-            // helper methods
+            // helper methods (without locks to prevent deadlocks)
             void propogate_to_client_without_a_lock(int, std::string);
+            void parse_and_respond_to_message_without_lock(std::string, int socket, std::string);
+            void propogate_to_spreadsheet_without_lock(std::string, std::string);
     };
 } // end of class
 
