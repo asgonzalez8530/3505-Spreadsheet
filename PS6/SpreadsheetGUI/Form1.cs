@@ -64,7 +64,23 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Sets the text of this window
         /// </summary>
-        public string WindowText { get => Text; set => Text = value; }
+        public string WindowText
+        {
+            get => Text;
+            set
+            {
+                MethodInvoker m = new MethodInvoker(() => { Text = value; });
+                try
+                {
+                    Invoke(m);
+                }
+                catch(Exception)
+                {
+                    // this prevents the exception being thrown at the end of the program
+                }
+            }
+
+        }
 
         /// <summary>
         /// Method evoked when the File -> new is clicked
