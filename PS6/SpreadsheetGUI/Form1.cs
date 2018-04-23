@@ -70,7 +70,14 @@ namespace SpreadsheetGUI
             set
             {
                 MethodInvoker m = new MethodInvoker(() => { Text = value; });
-                Invoke(m);
+                try
+                {
+                    Invoke(m);
+                }
+                catch(Exception)
+                {
+                    // this prevents the exception being thrown at the end of the program
+                }
             }
 
         }
