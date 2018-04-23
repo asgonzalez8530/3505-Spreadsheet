@@ -154,6 +154,7 @@ namespace cs3505
 		// if the "sheet" and "edits" files exist, read from it
 		if (sheetExists && editsExists)
 		{
+			std::cout << fileName << " spreadsheet exists so we load up the info\n";
 			boost::filesystem::ifstream sheetIn(mySheet); // set up in file streams
 			boost::archive::text_iarchive sheetArchive(sheetIn); // set up in archives
 			sheetArchive >> sheet; // populate this->sheet and this-> edits
