@@ -38,8 +38,9 @@
 namespace cs3505
 {
     // forward declare delegate for thread
-    void *client_loop(void *connection_file_descriptor);
-    void *ping_loop(void *connection_file_descriptor);
+    void * client_loop(void *connection_file_descriptor);
+    void * ping_loop(void *connection_file_descriptor);
+    void * check_for_shutdown(void * connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     std::string parseBuffer(std::string * message);
 
@@ -71,6 +72,16 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool inbound_sleep = false;
         bool outbound_sleep = false;
+        bool terminate_flag = false;
+
+            {
+                void * connection_file_descriptor = &terminate_flag;
+                pthread_t th;
+                pthread_create(&th, NULL, check_for_shutdown, connection_file_descriptor);
+
+                // Clean up thread resources as they finish
+                pthread_detach(th);
+            }
 
         std::set<std::string> file_names = data.get_spreadsheet_names();
 
@@ -109,6 +120,9 @@ namespace cs3505
                 inbound_sleep = false;
                 outbound_sleep = false;
             }
+
+            // check the shutdown thread flag
+            terminate = terminate_flag;
         }
 
         shutdown(serverSocket);
@@ -430,17 +444,16 @@ namespace cs3505
     /**
      * waits and listens for the "quit" keyword to tell the server to terminate the program
      */
-    void server::check_for_shutdown()
+    void * check_for_shutdown(void * connfd)
     {
+
         std::string input = "";
         std::getline(std::cin, input);
 
         if (input.compare("quit") == 0)
         {
-            // lock terminate
-
             // flip the boolean flag terminate to tell the program to terminate
-            terminate = true;
+            *((bool *)connfd) = true;
         }
     }
 

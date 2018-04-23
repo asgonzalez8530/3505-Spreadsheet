@@ -27,7 +27,7 @@ namespace cs3505
 		interface * data;
 		ping * png;
 
-	} ThreadData;    
+	} ThreadData;
 
 	class server
     {
@@ -62,7 +62,6 @@ namespace cs3505
             void verify_connections();
             bool process_message();
             bool send_message();
-            void check_for_shutdown();
             void shutdown(int);
 
 
