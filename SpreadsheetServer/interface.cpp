@@ -20,6 +20,7 @@
 #include <map>
 #include <unistd.h>
 #include <iostream>
+#include <regex>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/map.hpp>
@@ -113,7 +114,7 @@ namespace cs3505
     {
         pthread_mutex_lock( &disconnect_lock );
         // insert the socket to disconnect list
-        disconnect.insert(socket);
+        disconnect.push(socket);
         pthread_mutex_unlock( &disconnect_lock );
     }
 
@@ -125,11 +126,13 @@ namespace cs3505
         pthread_mutex_lock( &disconnect_lock );
 
         // for each client remove them from the list, the server, & their spreadsheet
-        std::set<int>::iterator it;
-        for (it = disconnect.begin(); it != disconnect.end(); it++)
+        //std::set<int>::iterator it;
+        //for (it = disconnect.begin(); it != disconnect.end(); it++)
+        while (!disconnect.empty())
         {
             // pull out the socket
-            int socket = *it;
+            int socket = disconnect.front();
+            disconnect.pop();
 
             std::string str = "disconnect ";
             str.push_back((char)3);
@@ -143,9 +146,6 @@ namespace cs3505
             std::cout << "Disconnect!\n";
             messages.add_to_outbound(msg);
             pthread_mutex_unlock( &message_lock );
-
-            // remove the socket from the disconnect list
-            disconnect.erase(socket);
 
             pthread_mutex_lock( &spreadsheet_lock );
 
@@ -163,13 +163,14 @@ namespace cs3505
                     {
                         clients.remove(*j);
                         map_of_spreadsheets.insert(std::pair<std::string, std::list<int>> (it->first, clients));
+                        break;
                     }
                 }
             }
             pthread_mutex_unlock( &spreadsheet_lock );
 
             // now we close the socket and remove them from the server
-            close(socket);
+            //close(socket);
         }
 
         pthread_mutex_unlock( &disconnect_lock );
@@ -178,27 +179,27 @@ namespace cs3505
     /**
      * removes each client from the server 
      */
-    void interface::disconnect_all()
-    {
-        pthread_mutex_lock( &spreadsheet_lock );
+    // void interface::disconnect_all()
+    // {
+    //     pthread_mutex_lock( &spreadsheet_lock );
 
-        // for each spreadsheet in the map of spreadsheets
-        std::map<std::string, std::list<int>>::iterator it;
-        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
-        {
-            std::list<int> clients = it->second;
+    //     // for each spreadsheet in the map of spreadsheets
+    //     std::map<std::string, std::list<int>>::iterator it;
+    //     for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+    //     {
+    //         std::list<int> clients = it->second;
 
-            // check to see if the client is in the list conenct to the spreadsheet
-            std::list<int>::iterator j;
-            for (j = clients.begin(); j != clients.end(); j++)
-            {
-                // now we close the socket and remove them from the server
-                close(*j);
-            }
-        }
+    //         // check to see if the client is in the list conenct to the spreadsheet
+    //         std::list<int>::iterator j;
+    //         for (j = clients.begin(); j != clients.end(); j++)
+    //         {
+    //             // now we close the socket and remove them from the server
+    //             close(*j);
+    //         }
+    //     }
 
-        pthread_mutex_unlock( &spreadsheet_lock );
-    }
+    //     pthread_mutex_unlock( &spreadsheet_lock );
+    // }
 
     /**
      * send the disconnect message to each client
@@ -340,8 +341,10 @@ namespace cs3505
             propogate_to_client(socket, result);
         }
 
+        std:: string last_char = "";
+        last_char.push_back((char)3);
         // propogate to the client the result response 
-        propogate_to_client(socket, "" + (char) 3);
+        propogate_to_client(socket, last_char);
     }
 
     /**
@@ -495,11 +498,9 @@ namespace cs3505
     void interface::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
     {
         // register
-        if (message.find("register ") > 0)
+        if (std::regex_match(message, std::regex("register ")))
         {
-            // find where the message begins
-            int p = message.find("register ");
-
+            std::cout << "register message... preparing to respond\n";
             std::set<std::string> file_names = get_spreadsheet_names();
 
             // build of the response
@@ -514,14 +515,14 @@ namespace cs3505
                     result += "\n";
                 }
             }
-            result += (char) 3;
 
+            result.push_back((char)3);
             // propogate to the client the result response 
             propogate_to_client(socket, result);
         }
 
         // load
-        else if (message.find("load ") > 0)
+        else if (std::regex_match(message, std::regex("load ")))
         {
             // find where the message begins
             int p = message.find("load ");
@@ -564,12 +565,14 @@ namespace cs3505
             catch (...)
             {
                 // propogate to the client the file error message response 
-                propogate_to_client(socket, "file_load_error" + (char) 3);
+                std::string result = "file_load_error ";
+                result.push_back((char)3);
+                propogate_to_client(socket, result);
             }
         }
 
         // edit
-        else if (message.find("edit ") > 0)
+        else if (std::regex_match(message, std::regex("edit ")))
         {
             // find where the message begins
             int p = message.find("edit ");
@@ -588,44 +591,44 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // focus
-        else if (message.find("focus ") > 0)
+        else if (std::regex_match(message, std::regex("focus ")))
         {
             // find where the message begins
             int p = message.find("focus ");
 
             // get the cell id
-            std::string cell_id = message.substr(p + 6);
+            std::string cell_id = message.substr(p + 7);
 
             // build up the response message
             std::string result  = "focus ";
-            result += message.substr(p + 6) + ":" + std::to_string(socket);
+            result += message.substr(p + 7) + ":" + std::to_string(socket);
+            result.push_back((char)3);
             
             // propogate the message to all the clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // unfocus
-        else if (message.find("unfocus ") > 0)
+        else if (std::regex_match(message, std::regex("unfocus ")))
         {
-            // find where the message begins
-            int p = message.find("unfocus ");
-        
             // build up the response message
             std::string result  = "unfocus ";
             result += std::to_string(socket);
+            result.push_back((char)3);
             
             // propogate the message to all the clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // undo
-        else if (message.find("undo ") > 0)
+        else if (std::regex_match(message, std::regex("undo ")))
         {
             // find where the message begins
             int p = message.find("undo ");
@@ -644,13 +647,14 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
 
         // revert
-        else if (message.find("revert ") > 0)
+        else if (std::regex_match(message, std::regex("revert ")))
         {
             // find where the message begins
             int p = message.find("revert ");
@@ -669,6 +673,7 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);

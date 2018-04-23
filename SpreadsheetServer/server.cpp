@@ -101,8 +101,8 @@ namespace cs3505
             inbound_sleep = process_message();
             outbound_sleep = send_message();
             verify_connections();
-            usleep(100000);
-            std::cout << "Still running\n";
+            //usleep(100000);
+            //std::cout << "Still running\n";
 
             // if no new message then we sleep for 10ms
             if (inbound_sleep && outbound_sleep)
@@ -154,7 +154,7 @@ namespace cs3505
 		interface * data = (args->data);
 
         int failed_pings = 0;
-        double secondsToPing = 20;
+        double secondsToPing = 5;
         clock_t pingTimer, timePassed;
 
         // Setup the ping message
@@ -462,7 +462,7 @@ namespace cs3505
         data.save_all_spreadsheets();
 
         // disconnect all clients (close all the sockets) 
-        data.disconnect_all();
+        //data.disconnect_all();
 
         // close out of this program in a clean way
         close(serverSocket);

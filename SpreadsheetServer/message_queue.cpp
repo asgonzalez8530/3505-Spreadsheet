@@ -7,6 +7,7 @@
 
 #include "message_queue.h"
 #include <queue>
+#include <regex>
 #include <unistd.h>
 #include <iostream>
 
@@ -79,5 +80,11 @@ namespace cs3505
         std::string tmp = message.message;
 		std::cout << "Sending " << tmp << " on socket " << socket << "\n";
         write(socket, tmp.c_str(), tmp.length());
+
+		// close the socket after we disconnect the client
+		if (std::regex_match(tmp, std::regex("disconnect ")))
+		{
+			close(socket);
+		}
     }
 }

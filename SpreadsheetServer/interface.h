@@ -32,7 +32,7 @@ namespace cs3505
         private:
             // private variables
             std::queue<int> new_clients; // queue of clients that need to be added
-            std::set<int> disconnect; // set of sockets that need to be disconnected
+            std::queue<int> disconnect; // set of sockets that need to be disconnected
             //std::queue<std::string> messages; // queue of messages that the server needs to parse
             std::map<std::string, spreadsheet> all_spreadsheets; // map of spreadsheet names and spreadsheet objects
             socket_list clients; // list of all client sockets for a spreadsheet
