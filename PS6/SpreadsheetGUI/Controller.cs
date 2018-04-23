@@ -38,6 +38,7 @@ namespace SpreadsheetGUI
         private Dictionary<string, string> otherClientsCurrentCells;
         private const char THREE = (char)3;
         private string[] sheetChoicesForUser;
+        private bool fullStateReceived = false;
 
         /// <summary>
         /// Creates a new controller which controls an ISpreadsheetWindow and contains a reference to 
@@ -197,7 +198,7 @@ namespace SpreadsheetGUI
             // else text box value will be set to Error
             else 
             {
-                window.ValueBoxText = "CellError";
+                window.ValueBoxText = "#CellError";
             }
         }
 
@@ -255,7 +256,10 @@ namespace SpreadsheetGUI
         {
             string name = window.CurrentCellText;
             string contents = window.ContentsBoxText; 
-            Networking.Send(theServer, "edit " + name + ":" + contents + THREE);
+            if (fullStateReceived)
+            {
+                Networking.Send(theServer, "edit " + name + ":" + contents + THREE);
+            }
 
             window.SetFocusToContentBox();
         }
@@ -301,7 +305,7 @@ namespace SpreadsheetGUI
             // else text box value will be set to Error
             else
             {
-                window.SetCellText(row, col, "CellError");
+                window.SetCellText(row, col, "#CellError");
             }
             
         }
@@ -535,6 +539,7 @@ namespace SpreadsheetGUI
 
                 case "full_state":
                     LoadSheet(contents);
+                    fullStateReceived = true;
 
                     // do some startup
                     Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
@@ -564,7 +569,10 @@ namespace SpreadsheetGUI
                     break;
 
                 case "unfocus":
-                    UnfocusCell(otherClientsCurrentCells[contents]);
+                    if (otherClientsCurrentCells.ContainsKey(contents))
+                    {
+                        UnfocusCell(otherClientsCurrentCells[contents]);
+                    }
                     break;
             }
 
@@ -575,6 +583,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void EndSession(string reason)
         {
+            fullStateReceived = false;
             window.ShowErrorMessageBox(reason + ": The session has ended.");
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
 
@@ -668,7 +677,10 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SendUndoToServer()
         {
-            Networking.Send(theServer, "undo " + THREE);
+            if (fullStateReceived)
+            {
+                Networking.Send(theServer, "undo " + THREE);
+            }
         }
 
         /// <summary>
@@ -677,7 +689,10 @@ namespace SpreadsheetGUI
         private void SendRevertToServer()
         {
             string cellToRevert = window.CurrentCellText;
-            Networking.Send(theServer, "revert " + cellToRevert + THREE);
+            if (fullStateReceived)
+            {
+                Networking.Send(theServer, "revert " + cellToRevert + THREE);
+            }
         }
     }
 }
