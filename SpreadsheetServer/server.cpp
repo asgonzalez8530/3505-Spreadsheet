@@ -368,7 +368,6 @@ namespace cs3505
                 args->socket = newClient;
                 pthread_t new_connection_thread;
                 pthread_create(&new_connection_thread, NULL, client_loop, args);
-                pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
                 // Clean up thread resources as they finish
                 pthread_detach(new_connection_thread);
@@ -417,7 +416,7 @@ namespace cs3505
         if (!data.inbound_empty())
         {
             int ping_result = data.get_inbound_message_parse_and_respond();
-            if(ping_result == 1)
+            if(ping_result > 0)
             {
                 ThreadData * args = new ThreadData();
                 args->socket = ping_result;
