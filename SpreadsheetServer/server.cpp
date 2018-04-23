@@ -38,8 +38,9 @@
 namespace cs3505
 {
     // forward declare delegate for thread
-    void *client_loop(void *connection_file_descriptor);
-    void *ping_loop(void *connection_file_descriptor);
+    void * client_loop(void *connection_file_descriptor);
+    void * ping_loop(void *connection_file_descriptor);
+    void * check_for_shutdown(void * connection_file_descriptor);
     double getTime(clock_t startTime, clock_t testTime);
     std::string parseBuffer(std::string * message);
 
@@ -71,6 +72,16 @@ namespace cs3505
         // after execution or it will sleep 10 ms before running again
         bool inbound_sleep = false;
         bool outbound_sleep = false;
+        bool terminate_flag = false;
+
+            {
+                void * connection_file_descriptor = &terminate_flag;
+                pthread_t th;
+                pthread_create(&th, NULL, check_for_shutdown, connection_file_descriptor);
+
+                // Clean up thread resources as they finish
+                pthread_detach(th);
+            }
 
         std::set<std::string> file_names = data.get_spreadsheet_names();
 
@@ -109,6 +120,9 @@ namespace cs3505
                 inbound_sleep = false;
                 outbound_sleep = false;
             }
+
+            // check the shutdown thread flag
+            terminate = terminate_flag;
         }
 
         shutdown(serverSocket);
@@ -147,7 +161,7 @@ namespace cs3505
     void *ping_loop(void *connection_file_descriptor)
     {
 		ThreadData * args = (ThreadData*)connection_file_descriptor;
-        int socket = args->socket;
+        int socket = (args->socket);
         ping * png = (args->png);
 		interface * data = (args->data);
 
@@ -258,8 +272,9 @@ namespace cs3505
             }
             else if (result.compare("3") == 0)
             {
-                // add the client to the disconnect list
-                (args->data)->disconnect_add(socket);
+                // send to all the other clients connected to the same spreadsheet that client disconnected
+                (args->data)->client_wants_to_disconnect(socket);
+                break;
             }
             else
             {
@@ -268,7 +283,7 @@ namespace cs3505
             }
 
         }
-
+        std::cout << "closing client's socket\n";
         close(socket);
     }
 
@@ -354,7 +369,6 @@ namespace cs3505
                 args->socket = newClient;
                 pthread_t new_connection_thread;
                 pthread_create(&new_connection_thread, NULL, client_loop, args);
-                pthread_create(&new_connection_thread, NULL, ping_loop, args);
 
                 // Clean up thread resources as they finish
                 pthread_detach(new_connection_thread);
@@ -402,7 +416,19 @@ namespace cs3505
         // there are messages in the inbound queue to process, parse, and add response to the outbound queue
         if (!data.inbound_empty())
         {
-            data.get_inbound_message_parse_and_respond();
+            int ping_result = data.get_inbound_message_parse_and_respond();
+            if(ping_result > 0)
+            {
+                ThreadData * args = new ThreadData();
+                args->socket = ping_result;
+                args->data = connfd->data;
+                args->png = connfd->png;
+                pthread_t new_connection_thread;
+                pthread_create(&new_connection_thread, NULL, ping_loop, args);
+
+                // Clean up thread resources as they finish
+                pthread_detach(new_connection_thread);
+            }
             return true;
         }
 
@@ -430,17 +456,16 @@ namespace cs3505
     /**
      * waits and listens for the "quit" keyword to tell the server to terminate the program
      */
-    void server::check_for_shutdown()
+    void * check_for_shutdown(void * connfd)
     {
+
         std::string input = "";
         std::getline(std::cin, input);
 
         if (input.compare("quit") == 0)
         {
-            // lock terminate
-
             // flip the boolean flag terminate to tell the program to terminate
-            terminate = true;
+            *((bool *)connfd) = true;
         }
     }
 
