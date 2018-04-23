@@ -161,7 +161,7 @@ namespace cs3505
     void *ping_loop(void *connection_file_descriptor)
     {
 		ThreadData * args = (ThreadData*)connection_file_descriptor;
-        int socket = args->socket;
+        int socket = (args->socket);
         ping * png = (args->png);
 		interface * data = (args->data);
 
@@ -416,7 +416,19 @@ namespace cs3505
         // there are messages in the inbound queue to process, parse, and add response to the outbound queue
         if (!data.inbound_empty())
         {
-            data.get_inbound_message_parse_and_respond();
+            int ping_result = data.get_inbound_message_parse_and_respond();
+            if(ping_result == 1)
+            {
+                ThreadData * args = new ThreadData();
+                args->socket = ping_result;
+                args->data = connfd->data;
+                args->png = connfd->png;
+                pthread_t new_connection_thread;
+                pthread_create(&new_connection_thread, NULL, ping_loop, args);
+
+                // Clean up thread resources as they finish
+                pthread_detach(new_connection_thread);
+            }
             return true;
         }
 

@@ -38,9 +38,11 @@ namespace cs3505
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
             message_queue messages; // The inbound/outbound message controller
+            std::map<int, int> ping_loop_running; // Checks whether a ping loop is running for a given socket
 
             // Data structure locks
 			pthread_mutex_t map_lock;
+            pthread_mutex_t ping_lock;
             pthread_mutex_t queue_lock;
             pthread_mutex_t client_lock;
             pthread_mutex_t message_lock;
@@ -71,7 +73,7 @@ namespace cs3505
             void stop_receiving_and_propogate_all_messages();
 
             // parsing of messages and propogating 
-            void parse_and_respond_to_message(std::string, int socket, std::string);
+            int parse_and_respond_to_message(std::string, int socket, std::string);
             void parse_and_respond_to_message_without_lock(std::string, int socket, std::string);
 
             // spreadsheet getters and setters
@@ -88,7 +90,7 @@ namespace cs3505
             void send_message();
             void add_to_outbound_messages(int, std::string);
             bool inbound_empty();
-            void get_inbound_message_parse_and_respond();
+            int get_inbound_message_parse_and_respond();
             void add_to_inbound_messages(int, std::string);
 
         private:

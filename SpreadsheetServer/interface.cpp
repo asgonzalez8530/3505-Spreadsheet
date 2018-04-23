@@ -524,8 +524,9 @@ namespace cs3505
      * parses the inputted message. And determines if its a valid message.
      * Implements the servers response to the message.
      */
-    void interface::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
+    int interface::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
     {
+        int result = -1;
         // isolate the header 
         int position = message.find(" ");
         std::string header = message.substr(0, position + 1);
@@ -535,6 +536,10 @@ namespace cs3505
         {
             std::cout << "register message... preparing to respond\n";
             std::set<std::string> file_names = get_spreadsheet_names();
+
+            pthread_mutex_lock( &ping_lock );
+            ping_loop_running[socket] = 0;
+            pthread_mutex_unlock( &ping_lock );
 
             // build of the response
             std::string result = "connect_accepted ";
@@ -563,7 +568,7 @@ namespace cs3505
 
             if (p + 6 >= message.length())
             {
-                return;
+                return result;
             }
 
             // get the cell id
@@ -586,6 +591,14 @@ namespace cs3505
                     std::map<std::string, std::string> contents = s->full_state();
 
                     propogate_full_state(&contents, socket);
+
+                    // Check whether a ping loop is running
+                    pthread_mutex_lock( &ping_lock );
+                    if(ping_loop_running[socket] == 0)
+                    {
+                        result = socket;
+                    }
+                    pthread_mutex_unlock( &ping_lock );
                 }
                 else
                 {
@@ -602,6 +615,15 @@ namespace cs3505
                     // load full state (iterate)
                     std::map<std::string, std::string> contents = s->full_state();
                     propogate_full_state(&contents, socket);
+
+                    // Check whether a ping loop is running
+                    pthread_mutex_lock( &ping_lock );
+                    if(ping_loop_running[socket] == 0)
+                    {
+                        ping_loop_running[socket] = 1;
+                        result = socket;
+                    }
+                    pthread_mutex_unlock( &ping_lock );
                 }
             }
             catch (...)
@@ -630,7 +652,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return;
+                return result;
             }
 
             // update spreadsheet with the change 
@@ -650,7 +672,7 @@ namespace cs3505
 
             if (p + 6 >= message.length())
             {
-                return;
+                return result;
             }
 
             // get the cell id
@@ -699,7 +721,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return;
+                return result;
             }
 
             // update spreadsheet with the change 
@@ -726,7 +748,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return;
+                return result;
             }
 
             // update spreadsheet with the change 
@@ -737,6 +759,7 @@ namespace cs3505
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
         // else not a valid message so we do nothing
+        return result;
     }
 
     /**
@@ -1022,7 +1045,7 @@ namespace cs3505
     /**
      * gets the next message in the inbound message queue
      */
-    void interface::get_inbound_message_parse_and_respond()
+    int interface::get_inbound_message_parse_and_respond()
     {
         Message inbound;
         
@@ -1035,7 +1058,9 @@ namespace cs3505
         // get the spreadsheet name that coorelates to the socket
         std::string spreadsheet_name = get_spreadsheet(inbound.socket);
         // parse the message and have the server respond apporiately
-        parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
+        int result = parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
+
+        return result;
     }
 
     /**
