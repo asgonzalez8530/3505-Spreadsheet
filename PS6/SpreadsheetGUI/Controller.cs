@@ -474,7 +474,7 @@ namespace SpreadsheetGUI
                 string totalData = state.sBuilder.ToString();
 
                 // Messages are separated by THREE
-                string[] parts = Regex.Split(totalData, @"(?<=[\3])");
+                string[] parts = Regex.Split(totalData, @"(?<=[\u0003])");
 
                 foreach (string message in parts)
                 {
