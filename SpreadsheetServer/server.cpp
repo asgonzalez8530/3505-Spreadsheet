@@ -101,8 +101,6 @@ namespace cs3505
             inbound_sleep = process_message();
             outbound_sleep = send_message();
             verify_connections();
-            //usleep(100000);
-            //std::cout << "Still running\n";
 
             // if no new message then we sleep for 10ms
             if (inbound_sleep && outbound_sleep)
@@ -154,7 +152,7 @@ namespace cs3505
 		interface * data = (args->data);
 
         int failed_pings = 0;
-        double secondsToPing = 5;
+        double secondsToPing = 20;
         clock_t pingTimer, timePassed;
 
         // Setup the ping message
@@ -247,13 +245,16 @@ namespace cs3505
 			}
             else if (result.compare("1") == 0)
             {
+                std::cout << "ping_response registered\n";
                 // current client pinged a response so we flag ping as true
                 (args->png)->ping_received(socket);
             }
             else if (result.compare("2") == 0)
             {
                 // ping the client back
-                (args->data)->propogate_to_client(socket, "ping_response " + (char)3);
+                std::string result = "ping_response ";
+                result.push_back((char)3);
+                (args->data)->propogate_to_client(socket, result);
             }
             else if (result.compare("3") == 0)
             {

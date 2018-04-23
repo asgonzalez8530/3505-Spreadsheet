@@ -65,12 +65,14 @@ namespace cs3505
 
             // propogate methods
             void propogate_to_spreadsheet(std::string, std::string);
+            void propogate_to_spreadsheet_without_lock(std::string, std::string);
             void propogate_to_client(int, std::string);
             void propogate_full_state(std::map<std::string, std::string> *, int);
             void stop_receiving_and_propogate_all_messages();
 
             // parsing of messages and propogating 
             void parse_and_respond_to_message(std::string, int socket, std::string);
+            void parse_and_respond_to_message_without_lock(std::string, int socket, std::string);
 
             // spreadsheet getters and setters
             bool spreadsheet_exists(std::string);

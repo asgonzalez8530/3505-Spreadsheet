@@ -168,9 +168,6 @@ namespace cs3505
                 }
             }
             pthread_mutex_unlock( &spreadsheet_lock );
-
-            // now we close the socket and remove them from the server
-            //close(socket);
         }
 
         pthread_mutex_unlock( &disconnect_lock );
@@ -293,6 +290,32 @@ namespace cs3505
         }
         pthread_mutex_unlock( &spreadsheet_lock );
     }
+
+    /**
+     * Propogate the inputted message to all the clients connected to that spreadsheet
+     */
+	void interface::propogate_to_spreadsheet_without_lock(std::string spreadsheet_name, std::string message)
+    {
+        pthread_mutex_lock( &spreadsheet_lock );
+
+        // get the list of clients connected to each spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            if (it->first.compare(spreadsheet_name) == 0)
+            {
+                std::list<int> clients = it->second;
+
+                // send the message to each client in the list
+                std::list<int>::iterator j;
+                for (j = clients.begin(); j != clients.end(); j++)
+                {
+                    propogate_to_client_without_a_lock(*j, message);
+                }
+            }
+        }
+        pthread_mutex_unlock( &spreadsheet_lock );
+    }
     
     /**
      * Propogate the inputted message to the clients passed in
@@ -320,11 +343,13 @@ namespace cs3505
      */
     void interface::propogate_full_state(std::map<std::string, std::string> * contents, int socket)
     {
+        pthread_mutex_lock( &message_lock );
+
         // build up the response message
         std::string result  = "full_state ";
 
         // propogate to the client the result response 
-        propogate_to_client(socket, result);
+        propogate_to_client_without_a_lock(socket, result);
 
         for(std::map<std::string, std::string>::iterator iter = contents->begin(); iter != contents->end(); iter++)
         {
@@ -332,19 +357,21 @@ namespace cs3505
             result = iter->first;
 
             // propogate to the client the result response 
-            propogate_to_client(socket, result);
+            propogate_to_client_without_a_lock(socket, result);
             
             // get cell contents
             result = iter->second;
 
             // propogate to the client the result response 
-            propogate_to_client(socket, result);
+            propogate_to_client_without_a_lock(socket, result);
         }
 
         std:: string last_char = "";
         last_char.push_back((char)3);
         // propogate to the client the result response 
-        propogate_to_client(socket, last_char);
+        propogate_to_client_without_a_lock(socket, last_char);
+
+        pthread_mutex_unlock( &message_lock );
     }
 
     /**
@@ -459,7 +486,7 @@ namespace cs3505
      */
     void interface::stop_receiving_and_propogate_all_messages()
     {
-        // lock inbound messages
+        pthread_mutex_lock( &message_lock );
 
         // parse all the inbound messages
         while (!messages.inbound_empty())
@@ -470,8 +497,10 @@ namespace cs3505
             // get the spreadsheet name that correlates to the inbound message socket
             std::string spreadsheet_name = get_spreadsheet(inbound.socket);
             // parse the message and have the server respond apporiately
-            parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
+            parse_and_respond_to_message_without_lock(spreadsheet_name, inbound.socket, inbound.message);
         }
+
+        pthread_mutex_unlock( &message_lock );
     }
 
     /**
@@ -497,6 +526,225 @@ namespace cs3505
      */
     void interface::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
     {
+        // isolate the header 
+        int position = message.find(" ");
+        std::string header = message.substr(0, position + 1);
+
+        // register
+        if (std::regex_match(header, std::regex("register ")))
+        {
+            std::cout << "register message... preparing to respond\n";
+            std::set<std::string> file_names = get_spreadsheet_names();
+
+            // build of the response
+            std::string result = "connect_accepted ";
+
+            if (!file_names.empty())
+            {
+                // get all the available spreadsheets
+                for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
+                {
+                    result += *iter;
+                    result += "\n";
+                }
+            }
+            std::cout << "got filesnames... about to send\n";
+
+            result.push_back((char)3);
+            // propogate to the client the result response 
+            propogate_to_client(socket, result);
+        }
+        // load
+        else if (std::regex_match(header, std::regex("load ")))
+        {
+            std::cout << "got load message\n";
+            // find where the message begins
+            int p = message.find("load ");
+
+            if (p + 6 >= message.length())
+            {
+                return;
+            }
+
+            // get the cell id
+            std::string spreadsheet_name = message.substr(p + 6);
+
+            // try to make a open spreadsheet
+            try 
+            {
+                std::cout << "in try\n";
+                if (spreadsheet_exists(spreadsheet_name))
+                {
+                    std::cout << "spreadsheet exists\n";
+                    // add client 
+                    add_client(spreadsheet_name, socket);
+
+                    // get the spreadsheet object
+                    spreadsheet * s = get_spreadsheet(spreadsheet_name);
+
+                    // load full state (iterate)
+                    std::map<std::string, std::string> contents = s->full_state();
+
+                    propogate_full_state(&contents, socket);
+                }
+                else
+                {
+                    std::cout << "spreadsheet does NOT exists\n";
+                    // add spreadsheet
+                    add_spreadsheet(spreadsheet_name);
+
+                    // add client
+                    add_client(spreadsheet_name, socket);
+
+                    // get the spreadsheet object
+                    spreadsheet * s = get_spreadsheet(spreadsheet_name);
+                    
+                    // load full state (iterate)
+                    std::map<std::string, std::string> contents = s->full_state();
+                    propogate_full_state(&contents, socket);
+                }
+            }
+            catch (...)
+            {
+                std::cout << "in catch... something went wrong!\n";
+                // propogate to the client the file error message response 
+                std::string result = "file_load_error ";
+                result.push_back((char)3);
+                propogate_to_client(socket, result);
+            }
+        }
+
+        // edit
+        else if (std::regex_match(header, std::regex("edit ")))
+        {
+            std::cout << "got edit message\n";
+            // find where the message begins
+            int p = message.find("edit ");
+
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = get_spreadsheet(spreadsheet_name);
+
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
+
+            // propgate the result to the other clients in the spreadsheet
+            propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // focus
+        else if (std::regex_match(header, std::regex("focus ")))
+        {
+            std::cout << "got focus message\n";
+            // find where the message begins
+            int p = message.find("focus ");
+
+            if (p + 6 >= message.length())
+            {
+                return;
+            }
+
+            // get the cell id
+            std::string cell_id = message.substr(p + 6);
+            std::cout << "cell id" << cell_id << "\n";
+
+            // build up the response message
+            std::string result  = "focus ";
+            result += cell_id + ":" + std::to_string(socket);
+            result.push_back((char)3);
+
+            std::cout << result << "\n";
+            
+            // propogate the message to all the clients in the spreadsheet
+            propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // unfocus
+        else if (std::regex_match(header, std::regex("unfocus ")))
+        {
+            std::cout << "got unfocus message\n";
+            // build up the response message
+            std::string result  = "unfocus ";
+            result += std::to_string(socket);
+            result.push_back((char)3);
+
+            std::cout << result << std::endl;
+            
+            // propogate the message to all the clients in the spreadsheet
+            propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // undo
+        else if (std::regex_match(header, std::regex("undo ")))
+        {
+            std::cout << "got undo message\n";
+            // find where the message begins
+            int p = message.find("undo ");
+
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = get_spreadsheet(spreadsheet_name);
+
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
+
+            // propgate the result to the other clients in the spreadsheet
+            propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+
+        // revert
+        else if (std::regex_match(header, std::regex("revert ")))
+        {
+            std::cout << "got revert message\n";
+            // find where the message begins
+            int p = message.find("revert ");
+
+            // remove white space at the beginning of the message
+            std::string cleaned_up_message = message.substr(p);
+
+            // get the spreadsheet object
+            spreadsheet * s = get_spreadsheet(spreadsheet_name);
+            
+            // ignore the message
+            if (s == NULL)
+            {
+                return;
+            }
+
+            // update spreadsheet with the change 
+            std::string result = s->update(cleaned_up_message);
+            result.push_back((char)3);
+
+            // propgate the result to the other clients in the spreadsheet
+            propogate_to_spreadsheet(spreadsheet_name, result);
+        }
+        // else not a valid message so we do nothing
+    }
+
+    /**
+     * parses the inputted message. And determines if its a valid message.
+     * Implements the servers response to the message.
+     */
+    void interface::parse_and_respond_to_message_without_lock(std::string spreadsheet_name, int socket, std::string message)
+    {
         // register
         if (std::regex_match(message, std::regex("register ")))
         {
@@ -515,10 +763,11 @@ namespace cs3505
                     result += "\n";
                 }
             }
+            std::cout << "got filesnames... about to send\n";
 
             result.push_back((char)3);
             // propogate to the client the result response 
-            propogate_to_client(socket, result);
+            propogate_to_client_without_a_lock(socket, result);
         }
 
         // load
@@ -567,7 +816,7 @@ namespace cs3505
                 // propogate to the client the file error message response 
                 std::string result = "file_load_error ";
                 result.push_back((char)3);
-                propogate_to_client(socket, result);
+                propogate_to_client_without_a_lock(socket, result);
             }
         }
 
@@ -594,7 +843,7 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // focus
@@ -612,7 +861,7 @@ namespace cs3505
             result.push_back((char)3);
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // unfocus
@@ -624,7 +873,7 @@ namespace cs3505
             result.push_back((char)3);
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // undo
@@ -650,7 +899,7 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // revert
@@ -676,7 +925,7 @@ namespace cs3505
             result.push_back((char)3);
 
             // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // else not a valid message so we do nothing
@@ -781,12 +1030,12 @@ namespace cs3505
 
         inbound = messages.next_inbound();
 
+        pthread_mutex_unlock( &message_lock );
+
         // get the spreadsheet name that coorelates to the socket
         std::string spreadsheet_name = get_spreadsheet(inbound.socket);
         // parse the message and have the server respond apporiately
         parse_and_respond_to_message(spreadsheet_name, inbound.socket, inbound.message);
-
-        pthread_mutex_unlock( &message_lock );
     }
 
     /**
