@@ -506,8 +506,9 @@ namespace SpreadsheetGUI
         private void ProcessNext(string message)
         {
             // Find the first space and switch on the command found
-            string command = message.Substring(0, message.IndexOf(" "));
-            string contents = message.Substring(message.IndexOf(" "), message.Length - 1);
+            string[] parse = message.Split(' ');
+            string command = parse[0];
+            string contents = parse[1];
 
             switch (command)
             {
