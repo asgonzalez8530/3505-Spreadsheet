@@ -400,7 +400,6 @@ namespace SpreadsheetGUI
             {
                 state.callMe = ReceiveStartup;
                 Networking.Send(state.theSocket, "register " + THREE);
-                Debug.WriteLine("register sent");
                 Networking.GetData(state);
             }
             else
