@@ -240,6 +240,7 @@ namespace SpreadsheetGUI
         {
             // contents = "A1:=hello"
             string[] parsed = contents.Split(':');
+            if (parsed.Length != 2) return; // discard (message was bad)
             
             // convert row and column to a cell name
             string cellName = parsed[0];
@@ -505,10 +506,14 @@ namespace SpreadsheetGUI
         /// <param name="message">example: focus A9:unique_1\3</param>
         private void ProcessNext(string message)
         {
-            // Find the first space and switch on the command found
+            // Parse command/contents and switch on the command found
             string[] parse = message.Split(' ');
             string command = parse[0];
-            string contents = parse[1];
+            string contents = "";
+            if (parse.Length > 1)
+            {
+                contents = parse[1];
+            }
 
             switch (command)
             {
@@ -554,6 +559,7 @@ namespace SpreadsheetGUI
                 case "focus":
                     // contents example: A9:unique_1d
                     string[] parsed = contents.Split(':');
+                    if (parsed.Length != 2) return; // discard
                     
                     // keep track of other client's selected cell
                     if (!otherClientsCurrentCells.ContainsKey(parsed[1]))
