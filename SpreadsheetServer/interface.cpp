@@ -526,7 +526,7 @@ namespace cs3505
      */
     int interface::parse_and_respond_to_message(std::string spreadsheet_name, int socket, std::string message)
     {
-        int result = -1;
+        int ret_val = -1;
         // isolate the header 
         int position = message.find(" ");
         std::string header = message.substr(0, position + 1);
@@ -536,10 +536,6 @@ namespace cs3505
         {
             std::cout << "register message... preparing to respond\n";
             std::set<std::string> file_names = get_spreadsheet_names();
-
-            pthread_mutex_lock( &ping_lock );
-            ping_loop_running[socket] = 0;
-            pthread_mutex_unlock( &ping_lock );
 
             // build of the response
             std::string result = "connect_accepted ";
@@ -568,7 +564,7 @@ namespace cs3505
 
             if (p + 6 >= message.length())
             {
-                return result;
+                return ret_val;
             }
 
             // get the cell id
@@ -593,12 +589,7 @@ namespace cs3505
                     propogate_full_state(&contents, socket);
 
                     // Check whether a ping loop is running
-                    pthread_mutex_lock( &ping_lock );
-                    if(ping_loop_running[socket] == 0)
-                    {
-                        result = socket;
-                    }
-                    pthread_mutex_unlock( &ping_lock );
+                    ret_val = socket;
                 }
                 else
                 {
@@ -616,14 +607,7 @@ namespace cs3505
                     std::map<std::string, std::string> contents = s->full_state();
                     propogate_full_state(&contents, socket);
 
-                    // Check whether a ping loop is running
-                    pthread_mutex_lock( &ping_lock );
-                    if(ping_loop_running[socket] == 0)
-                    {
-                        ping_loop_running[socket] = 1;
-                        result = socket;
-                    }
-                    pthread_mutex_unlock( &ping_lock );
+                    ret_val = socket;
                 }
             }
             catch (...)
@@ -652,7 +636,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return result;
+                return ret_val;
             }
 
             // update spreadsheet with the change 
@@ -672,7 +656,7 @@ namespace cs3505
 
             if (p + 6 >= message.length())
             {
-                return result;
+                return ret_val;
             }
 
             // get the cell id
@@ -721,7 +705,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return result;
+                return ret_val;
             }
 
             // update spreadsheet with the change 
@@ -748,7 +732,7 @@ namespace cs3505
             // ignore the message
             if (s == NULL)
             {
-                return result;
+                return ret_val;
             }
 
             // update spreadsheet with the change 
@@ -759,7 +743,7 @@ namespace cs3505
             propogate_to_spreadsheet(spreadsheet_name, result);
         }
         // else not a valid message so we do nothing
-        return result;
+        return ret_val;
     }
 
     /**

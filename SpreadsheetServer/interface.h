@@ -38,11 +38,9 @@ namespace cs3505
             socket_list clients; // list of all client sockets for a spreadsheet
             client_map map_of_spreadsheets; // map of client lists for spreadsheets
             message_queue messages; // The inbound/outbound message controller
-            std::map<int, int> ping_loop_running; // Checks whether a ping loop is running for a given socket
 
             // Data structure locks
 			pthread_mutex_t map_lock;
-            pthread_mutex_t ping_lock;
             pthread_mutex_t queue_lock;
             pthread_mutex_t client_lock;
             pthread_mutex_t message_lock;
