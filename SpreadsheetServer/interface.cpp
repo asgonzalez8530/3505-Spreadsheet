@@ -948,7 +948,7 @@ namespace cs3505
             std::string result = s->update(cleaned_up_message);
             if (result.empty())
             {
-                return ret_val;
+                return;
             }
             else
             {
@@ -1024,7 +1024,7 @@ namespace cs3505
             std::string result = s->update(cleaned_up_message);
             if (result.empty())
             {
-                return ret_val;
+                return;
             }
             else
             {
@@ -1058,7 +1058,7 @@ namespace cs3505
             std::string result = s->update(cleaned_up_message);
             if (result.empty())
             {
-                return ret_val;
+                return;
             }
             else
             {
