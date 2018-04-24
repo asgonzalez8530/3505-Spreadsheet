@@ -29,7 +29,10 @@ namespace cs3505
 	}
 
 
-	// Enqueue this message to send to the client later.
+	/**
+	 * Enqueue this message to send to the client later.
+	 * 
+	 */
 	void message_queue::add_to_outbound(int socket, std::string & message)
 	{
 		Message msg;
@@ -38,7 +41,10 @@ namespace cs3505
 		outboundMessages.push(msg);
 	}
 
-		// Enqueue this message to send to the client later.
+	/* 
+	 * Enqueue this message to send to the client later.
+	 *
+	 */
 	void message_queue::add_to_outbound(Message msg)
 	{
 		outboundMessages.push(msg);
