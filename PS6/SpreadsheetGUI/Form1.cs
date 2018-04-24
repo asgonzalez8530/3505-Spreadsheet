@@ -90,7 +90,8 @@ namespace SpreadsheetGUI
                 }
                 catch(Exception)
                 {
-                    // this prevents the exception being thrown at the end of the program
+                    // this prevents the exception being thrown 
+                    // at the end of the program if it is in the queue for form changes
                 }
             }
 
@@ -254,7 +255,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);            
-            ValueBoxText = "STARTPINGING"; // TODO: debug
+            //ValueBoxText = "STARTPINGING"; // DEBUG: for pings
         }
 
         public void StopPinging()
@@ -266,7 +267,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            ValueBoxText = "STOPPINGiNG"; // TODO: debug
+            //ValueBoxText = "STOPPINGiNG"; // DEBUG: for pings
         }
 
         public void ResetTimeout()
@@ -278,7 +279,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            ValueBoxText = "RESETTIMEouT"; // TODO: debug
+            //ValueBoxText = "RESETTIMEouT"; // DEBUG: for pings
         }
 
         /// <summary>
@@ -319,14 +320,14 @@ namespace SpreadsheetGUI
         {
             Ping();
             pingTimer.Start();
-            ValueBoxText = "ping tick"; // TODO: debug
+            //ValueBoxText = "ping tick"; // DEBUG: for pings
 
         }
 
         private void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             Timeout();
-            ValueBoxText = "timeout tick"; // TODO: debug
+            //ValueBoxText = "timeout tick"; // DEBUG: for pings
 
         }
 
@@ -356,6 +357,34 @@ namespace SpreadsheetGUI
             {
                 return base.ProcessCmdKey(ref msg, keyData);
             }
+        }
+
+        /// <summary>
+        /// Draws the most current version of our form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void frameTimer_Tick(object sender, EventArgs e)
+        {
+            // Invalidate this form and all its children (true)
+            // This will cause the form to redraw as soon as it can
+            MethodInvoker m = new MethodInvoker(() => { spreadsheetPanel1.Invalidate(true); });
+            try
+            {
+                this.Invoke(m);
+            }
+            catch (Exception)
+            {
+                // this try catch protects from an exception being thrown when the program is closed.
+            }
+        }
+
+        /// <summary>
+        /// Starts the timer for redrawing the panel
+        /// </summary>
+        public void StartPanelTimer()
+        {
+            panelTimer.Start();
         }
     }
 }

@@ -90,6 +90,7 @@ namespace SS
             hScroll.Scroll += drawingPanel.HandleHScroll;
             vScroll.Scroll += drawingPanel.HandleVScroll;
 
+            DoubleBuffered = true;
         }
 
 
@@ -180,6 +181,7 @@ namespace SS
         public void Focus(int row, int col)
         {
             drawingPanel.Focus(col, row);
+            Invalidate();
         }
 
         /// <summary>
@@ -190,6 +192,7 @@ namespace SS
         public void Unfocus(int row, int col)
         {
             drawingPanel.Unfocus(col, row);
+            Invalidate();
         }
 
         /// <summary>
@@ -213,11 +216,6 @@ namespace SS
             }
         }
 
-        private void Setup()
-        {
-
-        }
-        
         
         /// <summary>
         /// The event used to send notifications of a selection change

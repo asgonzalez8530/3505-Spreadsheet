@@ -124,5 +124,10 @@ namespace SpreadsheetGUI
         /// Resets timeout.
         /// </summary>
         void ResetTimeout();
+
+        /// <summary>
+        /// Starts frame timer for drawing more accurately.
+        /// </summary>
+        void StartPanelTimer();
     }
 }

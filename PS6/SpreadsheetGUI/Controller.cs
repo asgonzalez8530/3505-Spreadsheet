@@ -246,14 +246,20 @@ namespace SpreadsheetGUI
             
             // convert row and column to a cell name
             string cellName = parsed[0];
-            if(cellName == window.CurrentCellText)
-            {
-                SetCellValueBox();
-            }
+
 
             // reset the contents of the cell and recalculate dependent cells
             ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, parsed[1]);
             SetSpreadsheetPanelValues(cellsToUpdate);
+
+            if (cellName == window.CurrentCellText)
+            {
+                SetCellValueBox();
+                //SpreadsheetPanel mySheet = window.GetSpreadsheetPanel();
+                //int row, col;
+                //ConvertCellNameToRowCol(cellName, out row, out col);
+                //mySheet.SetSelection(col, row);
+            }
         }
 
         /// <summary>
@@ -372,6 +378,8 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
+            window.StartPanelTimer();
+
             // if we have connected to a server previously, we need to disconnect and reset Server...
             if (theServer != null)
             {
@@ -611,13 +619,15 @@ namespace SpreadsheetGUI
             fullStateReceived = false;
             window.ShowErrorMessageBox(reason + ": The session has ended.");
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            ResetSheet(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
 
             foreach(string cell in clientCells.Values)
             {
                 UnfocusCell(cell);
             }
-
             clientCells.Clear();
+
 
             window.StopPinging();
 
@@ -628,6 +638,18 @@ namespace SpreadsheetGUI
             }
 
             theServer = null;
+        }
+
+        /// <summary>
+        /// Resets the underlying spreadsheet.
+        /// </summary>
+        /// <param name="hashSet"></param>
+        private void ResetSheet(HashSet<string> nonEmptyCells)
+        {
+            foreach(string cellName in nonEmptyCells)
+            {
+                sheet.SetContentsOfCell(cellName, "");
+            }
         }
 
         /// <summary>
