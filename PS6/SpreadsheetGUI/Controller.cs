@@ -101,10 +101,8 @@ namespace SpreadsheetGUI
         private void SendFocusToServer()
         {
             Networking.Send(theServer, "unfocus " + THREE);
-            Debug.WriteLine("unfocus sent");
 
             Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
-            Debug.WriteLine("focus sent");
 
         }
 
@@ -357,10 +355,13 @@ namespace SpreadsheetGUI
         private void Ping()
         {
             Networking.Send(theServer, "ping " + THREE);
+
+            Debug.WriteLine("ping sent");
         }
         
         private void Timeout()
         {
+            Debug.WriteLine("timeout!!!");
             Networking.Send(theServer, "unfocus " + THREE);
             Networking.Send(theServer, "disconnect " + THREE);
             EndSession("TIMEOUT");
@@ -550,6 +551,7 @@ namespace SpreadsheetGUI
                 // A ping response arrived, so reset our ping timer
                 case "ping_response":
                     window.ResetTimeout();
+                    Debug.WriteLine("ping_response received");
                     break;
 
                 case "full_state":
@@ -558,8 +560,8 @@ namespace SpreadsheetGUI
 
                     // do some startup
                     Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
-                    Debug.WriteLine("focus sent");
                     Networking.Send(theServer, "ping " + THREE);
+                    Debug.WriteLine("first ping sent");
                     window.StartPinging();
                     break;
 
@@ -568,7 +570,6 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
-                    Debug.WriteLine("focus received");
 
                     // contents example: A9:unique_1d
                     string[] parsed = contents.Split(':');
@@ -588,7 +589,6 @@ namespace SpreadsheetGUI
                     break;
 
                 case "unfocus":
-                    Debug.WriteLine("unfocus received");
 
                     string clientID = contents;
                     if (clientCells.ContainsKey(clientID))
