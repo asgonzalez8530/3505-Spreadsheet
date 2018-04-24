@@ -87,14 +87,14 @@ namespace cs3505
 
         if (!file_names.empty())
         {
-            std::cout << "loading spreadsheet files\n";
+            //std::cout << "loading spreadsheet files\n";
             // get all the available spreadsheets
             for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
             {
                 // get the spreadsheet name
                 std::string name = *iter;
 
-                std::cout << "about to add spreadsheet\n";
+                //std::cout << "about to add spreadsheet\n";
                 // build and add the spreadsheet to the server
                 data.add_spreadsheet(name);
             }
@@ -239,10 +239,12 @@ namespace cs3505
 
             size = read(socket, buffer, 1023);
 
-            if (size < 0)
+            if (size <= 0)
             {
                 std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
-                exit(1);
+                (args->data)->client_wants_to_disconnect(socket);
+                close(socket);
+                pthread_exit(0);
             }
 
             // Insert null terminator in buffer
@@ -271,6 +273,7 @@ namespace cs3505
             }
             else if (result.compare("3") == 0)
             {
+                std::cout << "client wants to disconnect\n";
                 // send to all the other clients connected to the same spreadsheet that client disconnected
                 (args->data)->client_wants_to_disconnect(socket);
                 break;
@@ -376,21 +379,6 @@ namespace cs3505
     }
 
     /**
-     * checks if the client list has a new client.
-     * if the new_client list size is not zero (there is/are new client/s) then it locks the list and 
-     * removes each client (socket) from the list and connects the client to the server. It then 
-     * proceeds to finish the TCP and spreadsheet handshake. (may do the handshake stuff on a seperate thread???)
-     */
-    // void server::check_for_new_clients()
-    // {
-    //     // there are new clients
-    //     if (!data.new_clients_isempty())
-    //     {
-    //         data.new_clients_finish_handshake();
-    //     }
-    // }
-
-    /**
      * checks if the not_connectioned list to see if there are any clients who are no longer connected.
      * if the not_connected list size is not zero (there is/are disconnected client/s) then it locks the list and 
      * removes each client from the list and from being connected to the server and spreadsheet. 
@@ -476,6 +464,7 @@ namespace cs3505
      */
     void server::shutdown(int serverSocket)
     {
+        //std::cout << "hello from shutdown\n";
         // stop receiving messages and propogate appropriate changes
         // (i.e. call the process message method to process all previous messages)
         data.stop_receiving_and_propogate_all_messages();
@@ -490,7 +479,7 @@ namespace cs3505
         //data.disconnect_all();
 
         // close out of this program in a clean way
-        close(serverSocket);
+        //close(serverSocket);
     }
 
     /**

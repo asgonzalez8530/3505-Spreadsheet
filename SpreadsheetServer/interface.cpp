@@ -212,6 +212,7 @@ namespace cs3505
      */
     void interface::disconnecting()
     {
+        //std::cout << "hello from disconnecting\n";
         std::string message = "disconnect ";
         message.push_back((char)3);
 
@@ -226,11 +227,15 @@ namespace cs3505
             std::list<int>::iterator j;
             for (j = clients.begin(); j != clients.end(); j++)
             {
-                propogate_to_client(*j, message);
+                Message m;
+                m.socket = *j;
+                m.message = message;
+                messages.send_message(m);
             }
         }
 
         pthread_mutex_unlock( &spreadsheet_lock );
+        //std::cout << "goodbye from disconnecting\n";
     }
 
     /**
@@ -260,47 +265,6 @@ namespace cs3505
         }
         pthread_mutex_unlock( &spreadsheet_lock );
     }
-
-    /**
-     * Returns true if there are messages to process. Otherwise returns false.
-     */
-    // bool interface::messages_isempty()
-    // {
-    //     bool flag;
-
-    //     pthread_mutex_lock( &message_lock );
-    //     // checks to see if the message queue is empty
-    //     flag = messages.empty();
-    //     pthread_mutex_unlock( &message_lock );
-
-    //     return flag;
-    // }
-
-    /**
-     * Returns first message in the queue.
-     */
-    // std::string interface::get_message()
-    // {
-    //     std::string result;
-
-    //     pthread_mutex_lock( &message_lock );
-    //     // return and remove the first item in the message queue
-    //     result = messages.front();
-    //     pthread_mutex_unlock( &message_lock );
-        
-    //     return result;
-    // }
-
-    /**
-     * Adds the inputted message to the message queue
-     */
-    // void interface::messages_add(std::string message)
-    // {
-    //     pthread_mutex_lock( &message_lock );
-    //     // add message to the queue
-    //     messages.push(message);
-    //     pthread_mutex_unlock( &message_lock );
-    // }
 
     /**
      * Propogate the inputted message to all the clients connected to that spreadsheet
@@ -569,6 +533,8 @@ namespace cs3505
     {
         pthread_mutex_lock( &message_lock );
 
+        //std::cout << "hello from stop receiving\n";
+
         // parse all the inbound messages
         while (!messages.inbound_empty())
         {
@@ -582,6 +548,8 @@ namespace cs3505
         }
 
         pthread_mutex_unlock( &message_lock );
+
+        //std::cout << "goodbye from stop receiving\n";
     }
 
     /**
@@ -589,6 +557,7 @@ namespace cs3505
      */
     void interface::save_all_spreadsheets()
     {
+        //std::cout << "hello from save\n";
         pthread_mutex_lock( &spreadsheet_lock );
         // iterate through each spreadsheet
         std::map<std::string, spreadsheet>::iterator it;
@@ -599,6 +568,7 @@ namespace cs3505
             s.save();
         }
         pthread_mutex_unlock( &spreadsheet_lock );
+        //std::cout << "goodbye from save\n";
     }
 
     /**
@@ -1100,7 +1070,7 @@ namespace cs3505
      */
     std::set<std::string> interface::get_spreadsheet_names()
     {
-        std::cout << "getting spreadsheet names\n";
+        //std::cout << "getting spreadsheet names\n";
         boost::filesystem::path directory(boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets"));
         
         std::set<std::string> meSprds;
@@ -1119,7 +1089,7 @@ namespace cs3505
             }
         }
 
-        std::cout << "leaving get spreadsheet names\n";
+        //std::cout << "leaving get spreadsheet names\n";
 
         return meSprds;
     }
