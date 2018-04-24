@@ -667,10 +667,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+            }
         }
 
         // focus
@@ -736,10 +743,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+            }
         }
 
         // revert
@@ -763,10 +777,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+            }
         }
         // else not a valid message so we do nothing
         return ret_val;
