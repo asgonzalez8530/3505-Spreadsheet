@@ -299,8 +299,10 @@ namespace SS
                 }
 
                 Address a = new Address(col, row);
-
-                focusedCells.Add(a);
+                lock (focusedCells)
+                {
+                    focusedCells.Add(a);
+                }
             }
 
             public void Unfocus(int col, int row)
@@ -311,8 +313,10 @@ namespace SS
                 }
 
                 Address a = new Address(col, row);
-
-                focusedCells.Remove(a);
+                lock (focusedCells)
+                {
+                    focusedCells.Remove(a);
+                }
             }
 
 
@@ -324,42 +328,51 @@ namespace SS
 
             public void Clear()
             {
-                _values.Clear();
-                Invalidate();
+                lock (_values)
+                {
+                    _values.Clear();
+                    Invalidate();
+                }
             }
 
 
             public bool SetValue(int col, int row, string c)
             {
-                if (InvalidAddress(col, row))
+                lock (_values)
                 {
-                    return false;
-                }
+                    if (InvalidAddress(col, row))
+                    {
+                        return false;
+                    }
 
-                Address a = new Address(col, row);
-                if (c == null || c == "")
-                {
-                    _values.Remove(a);
+                    Address a = new Address(col, row);
+                    if (c == null || c == "")
+                    {
+                        _values.Remove(a);
+                    }
+                    else
+                    {
+                        _values[a] = c;
+                    }
+                    Invalidate();
                 }
-                else
-                {
-                    _values[a] = c;
-                }
-                Invalidate();
                 return true;
             }
 
 
             public bool GetValue(int col, int row, out string c)
             {
-                if (InvalidAddress(col, row))
+                lock(_values)
                 {
-                    c = null;
-                    return false;
-                }
-                if (!_values.TryGetValue(new Address(col, row), out c))
-                {
-                    c = "";
+                    if (InvalidAddress(col, row))
+                    {
+                        c = null;
+                        return false;
+                    }
+                    if (!_values.TryGetValue(new Address(col, row), out c))
+                    {
+                        c = "";
+                    }
                 }
                 return true;
             }
@@ -469,19 +482,21 @@ namespace SS
                     Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
                 }
-                
-                // Highlight all focused cells, if they are visible
-                foreach (Address a in focusedCells)
+                lock (focusedCells)
                 {
-
-                    if ((a.Col - _firstColumn >= 0) && (a.Row - _firstRow >= 0))
+                    // Highlight all focused cells, if they are visible
+                    foreach (Address a in focusedCells)
                     {
-                        e.Graphics.DrawRectangle(
-                            redPen,
-                            new Rectangle(LABEL_COL_WIDTH + (a.Col - _firstColumn) * DATA_COL_WIDTH + 1,
-                                          LABEL_ROW_HEIGHT + (a.Row - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                          DATA_COL_WIDTH - 2,
-                                          DATA_ROW_HEIGHT - 2));
+
+                        if ((a.Col - _firstColumn >= 0) && (a.Row - _firstRow >= 0))
+                        {
+                            e.Graphics.DrawRectangle(
+                                redPen,
+                                new Rectangle(LABEL_COL_WIDTH + (a.Col - _firstColumn) * DATA_COL_WIDTH + 1,
+                                              LABEL_ROW_HEIGHT + (a.Row - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                              DATA_COL_WIDTH - 2,
+                                              DATA_ROW_HEIGHT - 2));
+                        }
                     }
                 }
 
@@ -495,29 +510,31 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-
-                // Draw the text
-                foreach (KeyValuePair<Address, String> address in _values)
+                lock (_values)
                 {
-                    String text = address.Value;
-                    int x = address.Key.Col - _firstColumn;
-                    int y = address.Key.Row - _firstRow;
-                    float height = e.Graphics.MeasureString(text, regularFont).Height;
-                    float width = e.Graphics.MeasureString(text, regularFont).Width;
-                    if (x >= 0 && y >= 0)
+                    // Draw the text
+                    foreach (KeyValuePair<Address, String> address in _values)
                     {
-                        Region cellClip = new Region(new Rectangle(LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
-                                                                   LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
-                                                                   DATA_COL_WIDTH - 2*PADDING,
-                                                                   DATA_ROW_HEIGHT));
-                        cellClip.Intersect(clip);
-                        e.Graphics.Clip = cellClip;
-                        e.Graphics.DrawString(
-                            text,
-                            regularFont,
-                            brush,
-                            LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
-                            LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
+                        String text = address.Value;
+                        int x = address.Key.Col - _firstColumn;
+                        int y = address.Key.Row - _firstRow;
+                        float height = e.Graphics.MeasureString(text, regularFont).Height;
+                        float width = e.Graphics.MeasureString(text, regularFont).Width;
+                        if (x >= 0 && y >= 0)
+                        {
+                            Region cellClip = new Region(new Rectangle(LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
+                                                                       LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
+                                                                       DATA_COL_WIDTH - 2*PADDING,
+                                                                       DATA_ROW_HEIGHT));
+                            cellClip.Intersect(clip);
+                            e.Graphics.Clip = cellClip;
+                            e.Graphics.DrawString(
+                                text,
+                                regularFont,
+                                brush,
+                                LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
+                                LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
+                        }
                     }
                 }
 

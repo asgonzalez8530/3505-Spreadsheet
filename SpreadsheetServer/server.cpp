@@ -102,8 +102,6 @@ namespace cs3505
         // new thread were we start listening for multiple clients
         int serverSocket = server_awaiting_client_loop();
 
-        std::cout << "Entering main server loop.\n";
-
         // run the main server loop
         while (!terminate)
         {
@@ -136,9 +134,6 @@ namespace cs3505
     {
         // initialize listener socket
         int serverSocket = init_listener();
-
-        // print for debugging
-        std::cout << "Finished listener initialize." << std::endl;
 
         // Create a thread to listen for new connections
         connfd->socket = serverSocket;

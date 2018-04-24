@@ -1,0 +1,52 @@
+﻿How to Use:
+
+	File:
+		New: Ctrl + N
+			Open a new (blank) spreadsheet
+			
+		Save: Ctrl + S
+			Opens the file explorer, allowing for the user to save the current spreadsheet in the preferred location.
+			
+		Open: Ctrl + O
+			Opens the file explorer, allowing for the user to select the spreadsheet file they would like to open.
+			
+		Close: Ctrl + Q
+			Closes the current spreadsheet window
+			
+	Help:
+		About:
+			Text document that provides information about the purpose, authors, and updates on this program. 
+			
+		How to Use:
+			(Current Text Document Open) Text document that provides information on features about this program.
+		
+	Cell Properties:
+		Current Cell: 
+			Non-editable text box that informs the user about the cell they are currently in.
+		
+		Value:
+			Non-editable text box that informs the user of the highlighted cells value. Formula answers will be 
+			displayed here, as well as, words and numbers. 
+			
+		Contents:
+			Editable text box that informs the user about the contents of highlighted cell. This is where the user
+			can type and edit information about the cell. When the cell begins with a "=" then the cell
+			is calculated as a formula. The results are displayed in the value box. 
+		
+	Spreadsheet/ Grid:
+		A table of cells that tracks the inputs (contents) from the user. Each cell has a name. The names begin with
+		a letter between A-Z and ends with a number between 1-99.
+		
+	
+	Additional Features:
+		KeyBoard Shortcuts:
+			New:
+				Ctrl + N
+			Save:
+				Ctrl + S
+			Open:
+				Ctrl + O
+			Close:
+				Ctrl + Q
+			
+		

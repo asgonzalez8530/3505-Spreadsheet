@@ -1,0 +1,19 @@
+﻿About:
+	Purpose:
+		The purpose of the is program is to track words, numbers, and formulas. When specified with an "=", the 
+		program will attempt to calculate the given formula. This program is a simplified version of excel. All projects
+		made in this program are saved with a .sprd tag. You can open mulitple windows of this program. Other features 
+		include saving, opening, and closing a spreadsheet file. 
+		
+	Authors:
+		Anastasia Gonzalez
+		Aaron Bellis
+	
+	Versions:
+		PS2: 1.0
+		PS3: 1.0
+		PS4: 1.0
+		
+	Last Updated:
+		10/27/17
+	
