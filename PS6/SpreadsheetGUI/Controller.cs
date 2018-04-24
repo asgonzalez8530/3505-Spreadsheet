@@ -248,6 +248,10 @@ namespace SpreadsheetGUI
             
             // convert row and column to a cell name
             string cellName = parsed[0];
+            if(cellName == window.CurrentCellText)
+            {
+                UpdateCurrentCellBoxes();
+            }
 
             // reset the contents of the cell and recalculate dependent cells
             ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, parsed[1]);
@@ -604,6 +608,13 @@ namespace SpreadsheetGUI
             fullStateReceived = false;
             window.ShowErrorMessageBox(reason + ": The session has ended.");
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
+            foreach(string cell in clientCells.Values)
+            {
+                UnfocusCell(cell);
+            }
+
+            clientCells.Clear();
 
             window.StopPinging();
 
