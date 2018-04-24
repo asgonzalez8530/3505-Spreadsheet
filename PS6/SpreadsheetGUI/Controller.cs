@@ -35,7 +35,7 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Maps other client ID's to cellnames
         /// </summary>
-        private Dictionary<string, string> otherClientsCurrentCells;
+        private Dictionary<string, string> clientCells;
         private const char THREE = (char)3;
         private string[] sheetChoicesForUser;
         private bool fullStateReceived = false;
@@ -56,7 +56,7 @@ namespace SpreadsheetGUI
             string version = "ps6";
             sheet = new SS.Spreadsheet(CellValidator, CellNormalizer, version);
 
-            otherClientsCurrentCells = new Dictionary<string, string>();
+            clientCells = new Dictionary<string, string>();
 
             // register methods with events
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
@@ -569,15 +569,15 @@ namespace SpreadsheetGUI
                     // contents example: A9:unique_1d
                     string[] parsed = contents.Split(':');
                     if (parsed.Length != 2) return; // discard
-                    
+
                     // keep track of other client's selected cell
-                    if (!otherClientsCurrentCells.ContainsKey(parsed[1]))
+                    if (!clientCells.ContainsKey(parsed[1]))
                     {
-                        otherClientsCurrentCells.Add(parsed[1], parsed[0]);
+                        clientCells.Add(parsed[1], parsed[0]);
                     }
                     else
                     {
-                        otherClientsCurrentCells[parsed[1]] = parsed[0];
+                        clientCells[parsed[1]] = parsed[0];
                     }
 
                     FocusCell(parsed[0]);
@@ -586,9 +586,10 @@ namespace SpreadsheetGUI
                 case "unfocus":
                     Debug.WriteLine("unfocus received");
 
-                    if (otherClientsCurrentCells.ContainsKey(contents))
+                    string clientID = contents;
+                    if (clientCells.ContainsKey(clientID))
                     {
-                        UnfocusCell(otherClientsCurrentCells[contents]);
+                        UnfocusCell(clientCells[clientID]);
                     }
                     break;
             }
@@ -623,7 +624,7 @@ namespace SpreadsheetGUI
         {
             SpreadsheetPanel panel = window.GetSpreadsheetPanel();
             ConvertCellNameToRowCol(cellName, out int row, out int col);
-            panel.Focus(row, col);
+            panel.Unfocus(row, col);
         }
 
         /// <summary>
