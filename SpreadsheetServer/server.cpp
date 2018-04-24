@@ -204,7 +204,7 @@ namespace cs3505
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
                 {
-                    std::cout << "Reset Failed Pings!\n";
+                    //std::cout << "Reset Failed Pings!\n";
                     failed_pings = 0;
                 }
                 else
@@ -258,7 +258,7 @@ namespace cs3505
 			}
             else if (result.compare("1") == 0)
             {
-                std::cout << "ping_response registered\n";
+                //std::cout << "ping_response registered\n";
                 // current client pinged a response so we flag ping as true
                 (args->png)->ping_received(socket);
             }
@@ -282,7 +282,7 @@ namespace cs3505
             }
 
         }
-        
+
         close(socket);
     }
 
@@ -294,7 +294,7 @@ namespace cs3505
     int init_listener()
     {
         // the default port we'll listen on
-        int listenPort = 2112;
+        int listenPort = 2110;
 
         // Create a socket
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
