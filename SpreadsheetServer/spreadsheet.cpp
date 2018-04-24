@@ -64,7 +64,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::revert(std::string cellName)
 	{
-		if (sheet[cellName].empty()) return NULL; // nothing to revert, return null
+		if (sheet[cellName].empty()) return ""; // nothing to revert, return null
 
 		else
 		{
@@ -84,7 +84,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::undo()
 	{
-		if(edits.empty()) return NULL; //nothing to undo
+		if(edits.empty()) return ""; //nothing to undo
 
 		else
 		{
@@ -186,7 +186,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::update(std::string update)
 	{
-		// TODO: remove try catch?
+		
 		try
 		{
 			
@@ -212,12 +212,12 @@ namespace cs3505
 		    }
 
 		    else
-		        return NULL; // we didn't find a message that we know how to process :(
+		        return ""; // we didn't find a message that we know how to process :(
 		}
 
 		catch (const std::out_of_range &outOfRange)
 		{
-		    return NULL; // the message was not a protocol match
+		    return ""; // the message was not a protocol match
 		}
 	}
 
