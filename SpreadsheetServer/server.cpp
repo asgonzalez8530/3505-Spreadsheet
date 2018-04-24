@@ -75,6 +75,7 @@ namespace cs3505
         bool terminate_flag = false;
 
             {
+                // Create a thread to monitor for shutdown input
                 void * connection_file_descriptor = &terminate_flag;
                 pthread_t th;
                 pthread_create(&th, NULL, check_for_shutdown, connection_file_descriptor);
@@ -87,14 +88,12 @@ namespace cs3505
 
         if (!file_names.empty())
         {
-            //std::cout << "loading spreadsheet files\n";
             // get all the available spreadsheets
             for(std::set<std::string>::iterator iter = file_names.begin(); iter != file_names.end(); iter++)
             {
                 // get the spreadsheet name
                 std::string name = *iter;
 
-                //std::cout << "about to add spreadsheet\n";
                 // build and add the spreadsheet to the server
                 data.add_spreadsheet(name);
             }
@@ -141,6 +140,7 @@ namespace cs3505
         // print for debugging
         std::cout << "Finished listener initialize." << std::endl;
 
+        // Create a thread to listen for new connections
         connfd->socket = serverSocket;
 
         pthread_t new_connection_thread;
@@ -204,7 +204,6 @@ namespace cs3505
                 //Check for a ping response
 				if((args->png)->check_ping_response(socket) == 1)
                 {
-                    //std::cout << "Reset Failed Pings!\n";
                     failed_pings = 0;
                 }
                 else
@@ -234,14 +233,11 @@ namespace cs3505
 
         while (true)
         {
-            // print for debugging
-            std::cout << "Waiting to read reply from client." << std::endl;
 
             size = read(socket, buffer, 1023);
 
             if (size <= 0)
             {
-                std::cerr << "Error: " << strerror(errno) << " Error in client_loop()" << std::endl;
                 (args->data)->client_wants_to_disconnect(socket);
                 close(socket);
                 pthread_exit(0);
@@ -260,7 +256,6 @@ namespace cs3505
 			}
             else if (result.compare("1") == 0)
             {
-                //std::cout << "ping_response registered\n";
                 // current client pinged a response so we flag ping as true
                 (args->png)->ping_received(socket);
             }
@@ -273,7 +268,6 @@ namespace cs3505
             }
             else if (result.compare("3") == 0)
             {
-                std::cout << "client wants to disconnect\n";
                 // send to all the other clients connected to the same spreadsheet that client disconnected
                 (args->data)->client_wants_to_disconnect(socket);
                 break;
@@ -297,7 +291,7 @@ namespace cs3505
     int init_listener()
     {
         // the default port we'll listen on
-        int listenPort = 2110;
+        int listenPort = 2112;
 
         // Create a socket
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -464,7 +458,6 @@ namespace cs3505
      */
     void server::shutdown(int serverSocket)
     {
-        //std::cout << "hello from shutdown\n";
         // stop receiving messages and propogate appropriate changes
         // (i.e. call the process message method to process all previous messages)
         data.stop_receiving_and_propogate_all_messages();
@@ -474,12 +467,6 @@ namespace cs3505
 
         // save the spreadsheet
         data.save_all_spreadsheets();
-
-        // disconnect all clients (close all the sockets) 
-        //data.disconnect_all();
-
-        // close out of this program in a clean way
-        //close(serverSocket);
     }
 
     /**
