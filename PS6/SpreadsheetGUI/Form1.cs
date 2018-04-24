@@ -255,7 +255,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);            
-            //ValueBoxText = "STARTPINGING"; // TODO: debug
+            //ValueBoxText = "STARTPINGING"; // DEBUG: for pings
         }
 
         public void StopPinging()
@@ -267,7 +267,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            //ValueBoxText = "STOPPINGiNG"; // TODO: debug
+            //ValueBoxText = "STOPPINGiNG"; // DEBUG: for pings
         }
 
         public void ResetTimeout()
@@ -279,7 +279,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            //ValueBoxText = "RESETTIMEouT"; // TODO: debug
+            //ValueBoxText = "RESETTIMEouT"; // DEBUG: for pings
         }
 
         /// <summary>
@@ -320,14 +320,14 @@ namespace SpreadsheetGUI
         {
             Ping();
             pingTimer.Start();
-            //ValueBoxText = "ping tick"; // TODO: debug
+            //ValueBoxText = "ping tick"; // DEBUG: for pings
 
         }
 
         private void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             Timeout();
-            //ValueBoxText = "timeout tick"; // TODO: debug
+            //ValueBoxText = "timeout tick"; // DEBUG: for pings
 
         }
 

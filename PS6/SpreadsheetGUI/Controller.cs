@@ -619,13 +619,15 @@ namespace SpreadsheetGUI
             fullStateReceived = false;
             window.ShowErrorMessageBox(reason + ": The session has ended.");
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            ResetSheet(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
 
             foreach(string cell in clientCells.Values)
             {
                 UnfocusCell(cell);
             }
-
             clientCells.Clear();
+
 
             window.StopPinging();
 
@@ -636,6 +638,18 @@ namespace SpreadsheetGUI
             }
 
             theServer = null;
+        }
+
+        /// <summary>
+        /// Resets the underlying spreadsheet.
+        /// </summary>
+        /// <param name="hashSet"></param>
+        private void ResetSheet(HashSet<string> nonEmptyCells)
+        {
+            foreach(string cellName in nonEmptyCells)
+            {
+                sheet.SetContentsOfCell(cellName, "");
+            }
         }
 
         /// <summary>
