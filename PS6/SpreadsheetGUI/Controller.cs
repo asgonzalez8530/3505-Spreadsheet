@@ -101,7 +101,11 @@ namespace SpreadsheetGUI
         private void SendFocusToServer()
         {
             Networking.Send(theServer, "unfocus " + THREE);
+            Debug.WriteLine("unfocus sent");
+
             Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
+            Debug.WriteLine("focus sent");
+
         }
 
         private void FormCloses()
@@ -491,7 +495,9 @@ namespace SpreadsheetGUI
                     if (message[message.Length - 1] != THREE)
                         break;
 
-                    ProcessNext(message);
+                    string msg = message.Substring(0, message.Length - 1); // remove \3
+                    ProcessNext(msg);
+
                     state.sBuilder.Remove(0, message.Length);
                 }
 
@@ -548,6 +554,7 @@ namespace SpreadsheetGUI
 
                     // do some startup
                     Networking.Send(theServer, "focus " + window.CurrentCellText + THREE);
+                    Debug.WriteLine("focus sent");
                     Networking.Send(theServer, "ping " + THREE);
                     window.StartPinging();
                     break;
@@ -557,6 +564,8 @@ namespace SpreadsheetGUI
                     break;
 
                 case "focus":
+                    Debug.WriteLine("focus received");
+
                     // contents example: A9:unique_1d
                     string[] parsed = contents.Split(':');
                     if (parsed.Length != 2) return; // discard
@@ -575,6 +584,8 @@ namespace SpreadsheetGUI
                     break;
 
                 case "unfocus":
+                    Debug.WriteLine("unfocus received");
+
                     if (otherClientsCurrentCells.ContainsKey(contents))
                     {
                         UnfocusCell(otherClientsCurrentCells[contents]);
