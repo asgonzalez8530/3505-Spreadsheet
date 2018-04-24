@@ -180,6 +180,7 @@ namespace SS
         public void Focus(int row, int col)
         {
             drawingPanel.Focus(col, row);
+            Invalidate();
         }
 
         /// <summary>
@@ -190,6 +191,7 @@ namespace SS
         public void Unfocus(int row, int col)
         {
             drawingPanel.Unfocus(col, row);
+            Invalidate();
         }
 
         /// <summary>

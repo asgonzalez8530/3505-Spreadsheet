@@ -246,14 +246,20 @@ namespace SpreadsheetGUI
             
             // convert row and column to a cell name
             string cellName = parsed[0];
-            if(cellName == window.CurrentCellText)
-            {
-                SetCellValueBox();
-            }
+
 
             // reset the contents of the cell and recalculate dependent cells
             ISet<string> cellsToUpdate = sheet.SetContentsOfCell(cellName, parsed[1]);
             SetSpreadsheetPanelValues(cellsToUpdate);
+
+            if (cellName == window.CurrentCellText)
+            {
+                SetCellValueBox();
+                //SpreadsheetPanel mySheet = window.GetSpreadsheetPanel();
+                //int row, col;
+                //ConvertCellNameToRowCol(cellName, out row, out col);
+                //mySheet.SetSelection(col, row);
+            }
         }
 
         /// <summary>
