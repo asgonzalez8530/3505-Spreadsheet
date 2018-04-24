@@ -491,7 +491,9 @@ namespace SpreadsheetGUI
                     if (message[message.Length - 1] != THREE)
                         break;
 
-                    ProcessNext(message);
+                    string msg = message.Substring(0, message.Length - 1); // remove \3
+                    ProcessNext(msg);
+
                     state.sBuilder.Remove(0, message.Length);
                 }
 
