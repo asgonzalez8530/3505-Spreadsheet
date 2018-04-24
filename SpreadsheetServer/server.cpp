@@ -28,7 +28,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
-#include <mutex>
+//#include <mutex>
 #include <stack>
 #include <fstream>
 #include <thread> 
@@ -282,7 +282,7 @@ namespace cs3505
             }
 
         }
-        std::cout << "closing client's socket\n";
+        
         close(socket);
     }
 
