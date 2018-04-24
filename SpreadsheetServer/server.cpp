@@ -291,7 +291,7 @@ namespace cs3505
     int init_listener()
     {
         // the default port we'll listen on
-        int listenPort = 2110;
+        int listenPort = 2112;
 
         // Create a socket
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
