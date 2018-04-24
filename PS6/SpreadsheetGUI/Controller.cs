@@ -255,7 +255,7 @@ namespace SpreadsheetGUI
             if (cellName == window.CurrentCellText)
             {
                 SetCellValueBox();
-                SetCellContentsBox();
+                //SetCellContentsBox();
             }
         }
 

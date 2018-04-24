@@ -58,7 +58,7 @@ namespace SpreadsheetGUI
         {
             set
             {
-                Value_Text.Text = value;
+                //Value_Text.Text = value;
                 MethodInvoker m = new MethodInvoker(() => { Value_Text.Text = value; });
                 try
                 {
