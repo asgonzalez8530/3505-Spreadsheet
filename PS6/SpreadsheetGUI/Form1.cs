@@ -58,6 +58,7 @@ namespace SpreadsheetGUI
         {
             set
             {
+                Value_Text.Text = value;
                 MethodInvoker m = new MethodInvoker(() => { Value_Text.Text = value; });
                 try
                 {
@@ -65,6 +66,7 @@ namespace SpreadsheetGUI
                 }
                 catch (Exception)
                 {
+                    Value_Text.Text = value;
                     // this prevents the exception being thrown at the end of the program
                 }
             }
@@ -88,8 +90,9 @@ namespace SpreadsheetGUI
                 {
                     Invoke(m);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
+                    Text = value;
                     // this prevents the exception being thrown 
                     // at the end of the program if it is in the queue for form changes
                 }
@@ -97,18 +100,6 @@ namespace SpreadsheetGUI
 
         }
 
-        /// <summary>
-        /// Method evoked when the File -> new is clicked
-        /// </summary>
-        private void FileMenuNew_Click(object sender, EventArgs e)
-        {
-            //// fire off event if listeners are registered.
-            //if (NewSheetAction != null)
-            //{
-            //    NewSheetAction();
-            //}
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Creates a new window containing an empty spreadsheet.
@@ -374,6 +365,7 @@ namespace SpreadsheetGUI
         {
             // Invalidate this form and all its children (true)
             // This will cause the form to redraw as soon as it can
+            //spreadsheetPanel1.Invalidate(true);
             MethodInvoker m = new MethodInvoker(() => { spreadsheetPanel1.Invalidate(true); });
             try
             {
@@ -381,6 +373,7 @@ namespace SpreadsheetGUI
             }
             catch (Exception)
             {
+                spreadsheetPanel1.Invalidate(true);
                 // this try catch protects from an exception being thrown when the program is closed.
             }
         }

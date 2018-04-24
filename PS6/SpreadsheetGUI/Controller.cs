@@ -473,7 +473,7 @@ namespace SpreadsheetGUI
             // in combo box dialog, choose a spreadsheet
             string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
             
-            window.WindowText = spreadsheet;
+            // TODO: window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
             state.sBuilder.Clear();
@@ -628,7 +628,7 @@ namespace SpreadsheetGUI
 
             window.StopPinging();
 
-            if (theServer.Connected)
+            if (theServer != null && theServer.Connected)
             {
                 theServer.Shutdown(SocketShutdown.Both);
                 theServer.Close();
