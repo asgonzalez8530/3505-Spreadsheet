@@ -64,7 +64,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::revert(std::string cellName)
 	{
-		if (sheet[cellName].empty()) return NULL; // nothing to revert, return null
+		if (sheet[cellName].empty()) return ""; // nothing to revert, return null
 
 		else
 		{
@@ -84,7 +84,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::undo()
 	{
-		if(edits.empty()) return NULL; //nothing to undo
+		if(edits.empty()) return ""; //nothing to undo
 
 		else
 		{
@@ -139,6 +139,7 @@ namespace cs3505
 	{
 		
 		this->myName = fileName;
+		std::cout << fileName << std::endl;
 
 		// build file path to sheet map
 		boost::filesystem::path mySheet = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + fileName + "_sheet.sprd");
@@ -154,7 +155,7 @@ namespace cs3505
 		// if the "sheet" and "edits" files exist, read from it
 		if (sheetExists && editsExists)
 		{
-			std::cout << fileName << " spreadsheet exists so we load up the info\n";
+			std::cout << fileName << " spreadsheet exists so we load up the info." << std::endl;
 			boost::filesystem::ifstream sheetIn(mySheet); // set up in file streams
 			boost::archive::text_iarchive sheetArchive(sheetIn); // set up in archives
 			sheetArchive >> sheet; // populate this->sheet and this-> edits
@@ -185,6 +186,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::update(std::string update)
 	{
+		
 		try
 		{
 			
@@ -210,12 +212,12 @@ namespace cs3505
 		    }
 
 		    else
-		        return NULL; // we didn't find a message that we know how to process :(
+		        return ""; // we didn't find a message that we know how to process :(
 		}
 
 		catch (const std::out_of_range &outOfRange)
 		{
-		    return NULL; // the message was not a protocol match
+		    return ""; // the message was not a protocol match
 		}
 	}
 

@@ -95,6 +95,8 @@ namespace cs3505
             void propogate_to_client_without_a_lock(int, std::string);
             void parse_and_respond_to_message_without_lock(std::string, int socket, std::string);
             void propogate_to_spreadsheet_without_lock(std::string, std::string);
+            void propogate_full_state_without_lock(std::map<std::string, std::string> *, int);
+
     };
 } // end of class
 

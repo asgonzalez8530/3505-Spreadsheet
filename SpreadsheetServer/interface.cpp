@@ -126,8 +126,6 @@ namespace cs3505
         pthread_mutex_lock( &disconnect_lock );
 
         // for each client remove them from the list, the server, & their spreadsheet
-        //std::set<int>::iterator it;
-        //for (it = disconnect.begin(); it != disconnect.end(); it++)
         while (!disconnect.empty())
         {
             // pull out the socket
@@ -147,25 +145,36 @@ namespace cs3505
             messages.add_to_outbound(msg);
             pthread_mutex_unlock( &message_lock );
 
+            // message to send 
+            std::string unfocus = "unfocus " + std::to_string(socket);
+            unfocus.push_back((char)3);
+            
+            // get the spreadsheet the client is connected to 
+            std::string spreadsheet_name = get_spreadsheet(socket);
+
+            // send to each client the unfocus message
+            propogate_to_spreadsheet(spreadsheet_name, unfocus);
+
             pthread_mutex_lock( &spreadsheet_lock );
 
             // remove the client from the spreadsheet
             std::map<std::string, std::list<int>>::iterator it;
             for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
             {
-                std::list<int> clients = it->second;
+                it->second.remove(socket);
+                // std::list<int> clients = it->second;
 
-                // check to see if the client is in the list conenct to the spreadsheet
-                std::list<int>::iterator j;
-                for (j = clients.begin(); j != clients.end(); j++)
-                {
-                    if (*j == socket)
-                    {
-                        clients.remove(*j);
-                        map_of_spreadsheets.insert(std::pair<std::string, std::list<int>> (it->first, clients));
-                        break;
-                    }
-                }
+                // // check to see if the client is in the list conenct to the spreadsheet
+                // std::list<int>::iterator j;
+                // for (j = clients.begin(); j != clients.end(); j++)
+                // {
+                //     if (*j == socket)
+                //     {
+                //         clients.remove(*j);
+                //         map_of_spreadsheets.insert(std::pair<std::string, std::list<int>> (it->first, clients));
+                //         break;
+                //     }
+                // }
             }
             pthread_mutex_unlock( &spreadsheet_lock );
         }
@@ -239,6 +248,17 @@ namespace cs3505
 
         // send to each client the unfocus message
         propogate_to_spreadsheet(spreadsheet_name, unfocus);
+
+        // remove them from the spreadsheet
+        pthread_mutex_lock( &spreadsheet_lock );
+
+        // remove the client from the spreadsheet
+        std::map<std::string, std::list<int>>::iterator it;
+        for (it = map_of_spreadsheets.begin(); it != map_of_spreadsheets.end(); it++)
+        {
+            it->second.remove(socket);
+        }
+        pthread_mutex_unlock( &spreadsheet_lock );
     }
 
     /**
@@ -372,12 +392,18 @@ namespace cs3505
         {
             // get cell 
             result = iter->first;
+		
+			// format result
+			result += ":";
 
             // propogate to the client the result response 
             propogate_to_client_without_a_lock(socket, result);
             
             // get cell contents
             result = iter->second;
+
+			// format result
+			result += "\n";
 
             // propogate to the client the result response 
             propogate_to_client_without_a_lock(socket, result);
@@ -389,6 +415,44 @@ namespace cs3505
         propogate_to_client_without_a_lock(socket, last_char);
 
         pthread_mutex_unlock( &message_lock );
+    }
+
+    /**
+     * propogate all together the full state message to the client
+     */
+    void interface::propogate_full_state_without_lock(std::map<std::string, std::string> * contents, int socket)
+    {
+        // build up the response message
+        std::string result  = "full_state ";
+
+        // propogate to the client the result response 
+        propogate_to_client_without_a_lock(socket, result);
+
+        for(std::map<std::string, std::string>::iterator iter = contents->begin(); iter != contents->end(); iter++)
+        {
+            // get cell 
+            result = iter->first;
+		
+			// format result
+			result += ":";
+
+            // propogate to the client the result response 
+            propogate_to_client_without_a_lock(socket, result);
+            
+            // get cell contents
+            result = iter->second;
+
+			// format result
+			result += "\n";
+
+            // propogate to the client the result response 
+            propogate_to_client_without_a_lock(socket, result);
+        }
+
+        std:: string last_char = "";
+        last_char.push_back((char)3);
+        // propogate to the client the result response 
+        propogate_to_client_without_a_lock(socket, last_char);
     }
 
     /**
@@ -661,10 +725,20 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+
+                // save the spreadsheet
+                s->save();
+            }
         }
 
         // focus
@@ -681,14 +755,11 @@ namespace cs3505
 
             // get the cell id
             std::string cell_id = message.substr(p + 6);
-            std::cout << "cell id" << cell_id << "\n";
 
             // build up the response message
             std::string result  = "focus ";
             result += cell_id + ":" + std::to_string(socket);
             result.push_back((char)3);
-
-            std::cout << result << "\n";
             
             // propogate the message to all the clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
@@ -702,8 +773,6 @@ namespace cs3505
             std::string result  = "unfocus ";
             result += std::to_string(socket);
             result.push_back((char)3);
-
-            std::cout << result << std::endl;
             
             // propogate the message to all the clients in the spreadsheet
             propogate_to_spreadsheet(spreadsheet_name, result);
@@ -730,10 +799,20 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+
+                // save the spreadsheet
+                s->save();
+            }
         }
 
         // revert
@@ -757,10 +836,20 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return ret_val;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet(spreadsheet_name, result);
+
+                // save spreadsheet
+                s->save();
+            }
         }
         // else not a valid message so we do nothing
         return ret_val;
@@ -798,7 +887,7 @@ namespace cs3505
 
             result.push_back((char)3);
             // propogate to the client the result response 
-            propogate_to_client(socket, result);
+            propogate_to_client_without_a_lock(socket, result);
         }
         // load
         else if (std::regex_match(header, std::regex("load ")))
@@ -831,7 +920,7 @@ namespace cs3505
                     // load full state (iterate)
                     std::map<std::string, std::string> contents = s->full_state();
 
-                    propogate_full_state(&contents, socket);
+                    propogate_full_state_without_lock(&contents, socket);
                 }
                 else
                 {
@@ -847,7 +936,7 @@ namespace cs3505
                     
                     // load full state (iterate)
                     std::map<std::string, std::string> contents = s->full_state();
-                    propogate_full_state(&contents, socket);
+                    propogate_full_state_without_lock(&contents, socket);
                 }
             }
             catch (...)
@@ -856,7 +945,7 @@ namespace cs3505
                 // propogate to the client the file error message response 
                 std::string result = "file_load_error ";
                 result.push_back((char)3);
-                propogate_to_client(socket, result);
+                propogate_to_client_without_a_lock(socket, result);
             }
         }
 
@@ -881,10 +970,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            }
         }
 
         // focus
@@ -911,7 +1007,7 @@ namespace cs3505
             std::cout << result << "\n";
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // unfocus
@@ -926,7 +1022,7 @@ namespace cs3505
             std::cout << result << std::endl;
             
             // propogate the message to all the clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+            propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
         }
 
         // undo
@@ -950,10 +1046,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            }
         }
 
         // revert
@@ -977,10 +1080,17 @@ namespace cs3505
 
             // update spreadsheet with the change 
             std::string result = s->update(cleaned_up_message);
-            result.push_back((char)3);
+            if (result.empty())
+            {
+                return;
+            }
+            else
+            {
+                result.push_back((char)3);
 
-            // propgate the result to the other clients in the spreadsheet
-            propogate_to_spreadsheet(spreadsheet_name, result);
+                // propgate the result to the other clients in the spreadsheet
+                propogate_to_spreadsheet_without_lock(spreadsheet_name, result);
+            }
         }
         // else not a valid message so we do nothing
     }

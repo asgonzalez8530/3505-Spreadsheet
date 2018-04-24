@@ -2,6 +2,8 @@
 #include "testThis.cpp"
 #include "spreadsheet.h"
 #include <gtest/gtest.h>
+#include <string>
+#include <map>
 
 
 
@@ -65,6 +67,25 @@ TEST(SpreadsheetTests, UndoOneCell)
 	std::string change2 = otherNewSheet.update("undo ");
 	ASSERT_EQ("change A1:I love dogs!", change2);
 	otherNewSheet.save();
+}
+
+TEST(SpreadsheetTests, FullState)
+{
+	std::cout << "Hello from fullstate test." << std::endl;
+
+	cs3505::spreadsheet fullSheet("fullSheet");
+
+	std::cout << "Constructed. writing B2" << std::endl;
+	fullSheet.update("edit B2:=22");
+
+
+	std::cout << "Constructed. writing 10" << std::endl;
+	fullSheet.update("edit A10:five");
+	std::cout << "Attempting to call full_state()." << std::endl;
+	std::map<std::string, std::string> meMap = fullSheet.full_state();
+	std::cout << "Hello from fullstate test finish." << std::endl;
+	std::cout << "A10: " << meMap["A10"] << "\n" << "B2: " << meMap["B2"] << std::endl;
+	fullSheet.save();
 }
 
 int main(int argc, char **argv)
