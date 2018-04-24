@@ -372,12 +372,18 @@ namespace cs3505
         {
             // get cell 
             result = iter->first;
+		
+			// format result
+			result += ":";
 
             // propogate to the client the result response 
             propogate_to_client_without_a_lock(socket, result);
             
             // get cell contents
             result = iter->second;
+
+			// format result
+			result += "\n";
 
             // propogate to the client the result response 
             propogate_to_client_without_a_lock(socket, result);

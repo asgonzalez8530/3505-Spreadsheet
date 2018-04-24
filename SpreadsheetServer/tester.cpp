@@ -85,6 +85,7 @@ TEST(SpreadsheetTests, FullState)
 	std::map<std::string, std::string> meMap = fullSheet.full_state();
 	std::cout << "Hello from fullstate test finish." << std::endl;
 	std::cout << "A10: " << meMap["A10"] << "\n" << "B2: " << meMap["B2"] << std::endl;
+	fullSheet.save();
 }
 
 int main(int argc, char **argv)
