@@ -248,7 +248,7 @@ namespace SpreadsheetGUI
             string cellName = parsed[0];
             if(cellName == window.CurrentCellText)
             {
-                UpdateCurrentCellBoxes();
+                SetCellValueBox();
             }
 
             // reset the contents of the cell and recalculate dependent cells

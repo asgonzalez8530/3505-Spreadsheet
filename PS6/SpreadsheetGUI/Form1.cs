@@ -54,7 +54,21 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Sets the Value_Text.Text
         /// </summary>
-        public string ValueBoxText { set { Value_Text.Text = value; } }
+        public string ValueBoxText
+        {
+            set
+            {
+                MethodInvoker m = new MethodInvoker(() => { Text = value; });
+                try
+                {
+                    Invoke(m);
+                }
+                catch (Exception)
+                {
+                    // this prevents the exception being thrown at the end of the program
+                }
+            }
+        }
 
         /// <summary>
         /// Sets the Contents_Text.Text
@@ -226,22 +240,9 @@ namespace SpreadsheetGUI
 
         public void UpdateEditBoxLocation(int x, int y, int width, int height)
         {
-            MethodInvoker m = new MethodInvoker(() =>
-           {
-               Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
-               Contents_Text.Width = width;
-               Contents_Text.Height = height;
-           });
-            
-
-            try
-            {
-                Invoke(m);
-            }
-            catch
-            {
-                
-            }
+            Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
+            Contents_Text.Width = width;
+            Contents_Text.Height = height;
         }
 
         public void StartPinging()
