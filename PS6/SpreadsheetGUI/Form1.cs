@@ -58,7 +58,7 @@ namespace SpreadsheetGUI
         {
             set
             {
-                MethodInvoker m = new MethodInvoker(() => { Text = value; });
+                MethodInvoker m = new MethodInvoker(() => { Value_Text.Text = value; });
                 try
                 {
                     Invoke(m);
@@ -249,18 +249,23 @@ namespace SpreadsheetGUI
         {
             pingTimer.Start();
             timeoutTimer.Start();
+            ValueBoxText = "STARTPINGING"; // TODO: debug
         }
 
         public void StopPinging()
         {
             pingTimer.Stop();
             timeoutTimer.Stop();
+            ValueBoxText = "STOPPINGiNG"; // TODO: debug
+
         }
 
         public void ResetTimeout()
         {
             timeoutTimer.Stop();
             timeoutTimer.Start();
+            ValueBoxText = "RESETTIMEouT"; // TODO: debug
+
         }
 
         /// <summary>
@@ -301,11 +306,15 @@ namespace SpreadsheetGUI
         {
             Ping();
             pingTimer.Start();
+            ValueBoxText = "ping tick"; // TODO: debug
+
         }
 
         private void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             Timeout();
+            ValueBoxText = "timeout tick"; // TODO: debug
+
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
