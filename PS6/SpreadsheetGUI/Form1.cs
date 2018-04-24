@@ -331,6 +331,12 @@ namespace SpreadsheetGUI
 
         }
 
+        /// <summary>
+        /// Overriding ProcessCmdKey to move cells with the arrow keys.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Right || keyData == Keys.Left || keyData == Keys.Up || keyData == Keys.Down)
