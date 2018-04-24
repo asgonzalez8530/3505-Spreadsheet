@@ -640,7 +640,7 @@ namespace cs3505
         // load
         else if (std::regex_match(header, std::regex("load ")))
         {
-            std::cout << "got load message\n";
+            //std::cout << "got load message\n";
             // find where the message begins
             int p = message.find("load ");
 
@@ -657,10 +657,10 @@ namespace cs3505
             // try to make a open spreadsheet
             try 
             {
-                std::cout << "in try\n";
+                //std::cout << "in try\n";
                 if (spreadsheet_exists(spreadsheet_name))
                 {
-                    std::cout << "spreadsheet exists\n";
+                    //std::cout << "spreadsheet exists\n";
                     // add client 
                     add_client(spreadsheet_name, socket);
 
@@ -677,7 +677,7 @@ namespace cs3505
                 }
                 else
                 {
-                    std::cout << "spreadsheet does NOT exists\n";
+                    //std::cout << "spreadsheet does NOT exists\n";
                     // add spreadsheet
                     add_spreadsheet(spreadsheet_name);
 
@@ -696,7 +696,7 @@ namespace cs3505
             }
             catch (...)
             {
-                std::cout << "in catch... something went wrong!\n";
+                //std::cout << "in catch... something went wrong!\n";
                 // propogate to the client the file error message response 
                 std::string result = "file_load_error ";
                 result.push_back((char)3);
@@ -707,7 +707,7 @@ namespace cs3505
         // edit
         else if (std::regex_match(header, std::regex("edit ")))
         {
-            std::cout << "got edit message\n";
+            //std::cout << "got edit message\n";
             // find where the message begins
             int p = message.find("edit ");
 
@@ -744,7 +744,7 @@ namespace cs3505
         // focus
         else if (std::regex_match(header, std::regex("focus ")))
         {
-            std::cout << "got focus message\n";
+            //std::cout << "got focus message\n";
             // find where the message begins
             int p = message.find("focus ");
 
@@ -768,7 +768,7 @@ namespace cs3505
         // unfocus
         else if (std::regex_match(header, std::regex("unfocus ")))
         {
-            std::cout << "got unfocus message\n";
+            //std::cout << "got unfocus message\n";
             // build up the response message
             std::string result  = "unfocus ";
             result += std::to_string(socket);
@@ -781,7 +781,7 @@ namespace cs3505
         // undo
         else if (std::regex_match(header, std::regex("undo ")))
         {
-            std::cout << "got undo message\n";
+            ///std::cout << "got undo message\n";
             // find where the message begins
             int p = message.find("undo ");
 
@@ -818,7 +818,7 @@ namespace cs3505
         // revert
         else if (std::regex_match(header, std::regex("revert ")))
         {
-            std::cout << "got revert message\n";
+            //std::cout << "got revert message\n";
             // find where the message begins
             int p = message.find("revert ");
 
