@@ -520,10 +520,11 @@ namespace SpreadsheetGUI
             // Parse command/contents and switch on the command found
             string[] parse = message.Split(' ');
             string command = parse[0];
+
             string contents = "";
             if (parse.Length > 1)
             {
-                contents = parse[1];
+                contents = message.Substring(command.Length + 1);
             }
 
             switch (command)
