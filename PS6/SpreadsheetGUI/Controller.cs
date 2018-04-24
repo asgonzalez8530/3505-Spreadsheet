@@ -255,10 +255,7 @@ namespace SpreadsheetGUI
             if (cellName == window.CurrentCellText)
             {
                 SetCellValueBox();
-                //SpreadsheetPanel mySheet = window.GetSpreadsheetPanel();
-                //int row, col;
-                //ConvertCellNameToRowCol(cellName, out row, out col);
-                //mySheet.SetSelection(col, row);
+                SetCellContentsBox();
             }
         }
 
@@ -378,6 +375,8 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
+            window.StartPanelTimer();
+
             // if we have connected to a server previously, we need to disconnect and reset Server...
             if (theServer != null)
             {
@@ -474,7 +473,7 @@ namespace SpreadsheetGUI
             // in combo box dialog, choose a spreadsheet
             string spreadsheet = ChooseSpreadsheetBox(sheetChoicesForUser);
             
-            window.WindowText = spreadsheet;
+            // TODO: window.WindowText = spreadsheet;
             Networking.Send(theServer, "load " + spreadsheet + THREE);
 
             state.sBuilder.Clear();
@@ -617,23 +616,37 @@ namespace SpreadsheetGUI
             fullStateReceived = false;
             window.ShowErrorMessageBox(reason + ": The session has ended.");
             EmptyAllCells(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+            ResetSheet(new HashSet<string>(sheet.GetNamesOfAllNonemptyCells()));
+
 
             foreach(string cell in clientCells.Values)
             {
                 UnfocusCell(cell);
             }
-
             clientCells.Clear();
+
 
             window.StopPinging();
 
-            if (theServer.Connected)
+            if (theServer != null && theServer.Connected)
             {
                 theServer.Shutdown(SocketShutdown.Both);
                 theServer.Close();
             }
 
             theServer = null;
+        }
+
+        /// <summary>
+        /// Resets the underlying spreadsheet.
+        /// </summary>
+        /// <param name="hashSet"></param>
+        private void ResetSheet(HashSet<string> nonEmptyCells)
+        {
+            foreach(string cellName in nonEmptyCells)
+            {
+                sheet.SetContentsOfCell(cellName, "");
+            }
         }
 
         /// <summary>

@@ -20,7 +20,7 @@
 
 namespace cs3505
 {
-
+    // This struct holds the data needed by threads
 	typedef struct _ThreadData
 	{
 		int socket;
@@ -33,6 +33,7 @@ namespace cs3505
     {
         private:
 
+            // a pointer to the data to pass to threads
 			ThreadData * connfd;
 
             // track whether the "quit" command has been issued

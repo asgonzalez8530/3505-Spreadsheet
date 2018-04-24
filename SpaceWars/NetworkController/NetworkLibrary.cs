@@ -80,7 +80,7 @@ namespace NetworkController
         /// <summary>
         /// The default port for establishing a Socket.
         /// </summary>
-        public const int DEFAULT_PORT = 2110;
+        public const int DEFAULT_PORT = 2112;
 
 
         /// <summary>
@@ -181,6 +181,7 @@ namespace NetworkController
             catch (Exception e)
             {
                 state.hasError = true;
+                throw e; // TODO take this out?
             }
 
             // Don't start an event loop to receive data from the server. The client might not want to do that.

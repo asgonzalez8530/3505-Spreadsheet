@@ -29,7 +29,10 @@ namespace cs3505
 	}
 
 
-	// Enqueue this message to send to the client later.
+	/**
+	 * Enqueue this message to send to the client later.
+	 * 
+	 */
 	void message_queue::add_to_outbound(int socket, std::string & message)
 	{
 		Message msg;
@@ -38,13 +41,19 @@ namespace cs3505
 		outboundMessages.push(msg);
 	}
 
-		// Enqueue this message to send to the client later.
+	/* 
+	 * Enqueue this message to send to the client later.
+	 *
+	 */
 	void message_queue::add_to_outbound(Message msg)
 	{
 		outboundMessages.push(msg);
 	}
 
-	// Return the next message to send.
+	/**
+	 * Return the next message to send.
+	 * 
+	 */
 	Message message_queue::next_outbound()
 	{
 		Message nextMessage = outboundMessages.front();
@@ -52,13 +61,19 @@ namespace cs3505
 		return nextMessage;
 	}
 
-	// Enqueue this message to parse and process later.
+	/**
+	 * Enqueue this message to parse and process later.
+	 * 
+	 */
 	void message_queue::add_to_inbound(Message msg)	
 	{
 		inboundMessages.push(msg);
 	}
 
-	// Return the next message to process.
+	/** 
+	 * Return the next message to process.
+	 * 
+	 */
 	Message message_queue::next_inbound()
 	{
 		Message nextMessage = inboundMessages.front();
@@ -78,9 +93,12 @@ namespace cs3505
 
     void message_queue::send_message(Message message)
     {
+		// get socket and message to send
         int socket = message.socket;
         std::string tmp = message.message;
 		std::cout << "Sending " << tmp << " on socket " << socket << "\n";
+
+		// Send the message
         write(socket, tmp.c_str(), tmp.length());
     }
 }
