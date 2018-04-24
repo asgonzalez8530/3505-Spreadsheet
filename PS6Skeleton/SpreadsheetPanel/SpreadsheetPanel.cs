@@ -90,6 +90,7 @@ namespace SS
             hScroll.Scroll += drawingPanel.HandleHScroll;
             vScroll.Scroll += drawingPanel.HandleVScroll;
 
+            DoubleBuffered = true;
         }
 
 
@@ -215,11 +216,6 @@ namespace SS
             }
         }
 
-        private void Setup()
-        {
-
-        }
-        
         
         /// <summary>
         /// The event used to send notifications of a selection change

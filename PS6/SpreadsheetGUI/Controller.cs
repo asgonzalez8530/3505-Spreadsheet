@@ -378,6 +378,8 @@ namespace SpreadsheetGUI
         /// </summary>
         private void IPInputBox()
         {
+            window.StartPanelTimer();
+
             // if we have connected to a server previously, we need to disconnect and reset Server...
             if (theServer != null)
             {

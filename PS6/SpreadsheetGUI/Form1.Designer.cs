@@ -47,6 +47,7 @@
             this.pingTimer = new System.Windows.Forms.Timer(this.components);
             this.timeoutTimer = new System.Windows.Forms.Timer(this.components);
             this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
+            this.panelTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.CellProperties.SuspendLayout();
             this.SuspendLayout();
@@ -222,6 +223,11 @@
             this.spreadsheetPanel1.Size = new System.Drawing.Size(1064, 331);
             this.spreadsheetPanel1.TabIndex = 5;
             // 
+            // frameTimer
+            // 
+            this.panelTimer.Interval = 10;
+            this.panelTimer.Tick += new System.EventHandler(this.frameTimer_Tick);
+            // 
             // Spreadsheet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -264,6 +270,7 @@
         private System.Windows.Forms.TextBox Value_Text;
         private System.Windows.Forms.Timer timeoutTimer;
         public System.Windows.Forms.Timer pingTimer;
+        public System.Windows.Forms.Timer panelTimer;
     }
 }
 
