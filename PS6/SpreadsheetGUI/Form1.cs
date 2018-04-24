@@ -265,6 +265,7 @@ namespace SpreadsheetGUI
                 timeoutTimer.Stop();
             }
             );
+            Invoke(m);
             ValueBoxText = "STOPPINGiNG"; // TODO: debug
         }
 
@@ -276,6 +277,7 @@ namespace SpreadsheetGUI
                 timeoutTimer.Start();
             }
             );
+            Invoke(m);
             ValueBoxText = "RESETTIMEouT"; // TODO: debug
         }
 
