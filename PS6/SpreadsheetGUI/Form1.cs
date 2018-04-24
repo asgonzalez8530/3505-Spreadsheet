@@ -226,9 +226,22 @@ namespace SpreadsheetGUI
 
         public void UpdateEditBoxLocation(int x, int y, int width, int height)
         {
-            Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
-            Contents_Text.Width = width;
-            Contents_Text.Height = height;
+            MethodInvoker m = new MethodInvoker(() =>
+           {
+               Contents_Text.Location = new System.Drawing.Point(x, spreadsheetPanel1.Location.Y + y);
+               Contents_Text.Width = width;
+               Contents_Text.Height = height;
+           });
+            
+
+            try
+            {
+                Invoke(m);
+            }
+            catch
+            {
+                
+            }
         }
 
         public void StartPinging()
