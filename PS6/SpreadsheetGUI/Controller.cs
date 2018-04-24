@@ -481,7 +481,7 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
 
-            if (theServer.Connected && !state.hasError)
+            if (theServer != null && theServer.Connected && !state.hasError)
             {
                 // grab the incoming message(s)
                 string totalData = state.sBuilder.ToString();

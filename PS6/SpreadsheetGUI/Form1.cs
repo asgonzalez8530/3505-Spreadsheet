@@ -247,25 +247,36 @@ namespace SpreadsheetGUI
 
         public void StartPinging()
         {
-            pingTimer.Start();
-            timeoutTimer.Start();
+            MethodInvoker m = new MethodInvoker( () =>
+            {
+                pingTimer.Start();
+                timeoutTimer.Start();
+            }
+            );
+            Invoke(m);            
             ValueBoxText = "STARTPINGING"; // TODO: debug
         }
 
         public void StopPinging()
         {
-            pingTimer.Stop();
-            timeoutTimer.Stop();
+            MethodInvoker m = new MethodInvoker( () => 
+            {
+                pingTimer.Stop();
+                timeoutTimer.Stop();
+            }
+            );
             ValueBoxText = "STOPPINGiNG"; // TODO: debug
-
         }
 
         public void ResetTimeout()
         {
-            timeoutTimer.Stop();
-            timeoutTimer.Start();
+            MethodInvoker m = new MethodInvoker( () =>
+            {
+                timeoutTimer.Stop();
+                timeoutTimer.Start();
+            }
+            );
             ValueBoxText = "RESETTIMEouT"; // TODO: debug
-
         }
 
         /// <summary>
