@@ -80,7 +80,7 @@ namespace NetworkController
         /// <summary>
         /// The default port for establishing a Socket.
         /// </summary>
-        public const int DEFAULT_PORT = 2110;
+        public const int DEFAULT_PORT = 2112;
 
 
         /// <summary>

@@ -255,10 +255,7 @@ namespace SpreadsheetGUI
             if (cellName == window.CurrentCellText)
             {
                 SetCellValueBox();
-                //SpreadsheetPanel mySheet = window.GetSpreadsheetPanel();
-                //int row, col;
-                //ConvertCellNameToRowCol(cellName, out row, out col);
-                //mySheet.SetSelection(col, row);
+                SetCellContentsBox();
             }
         }
 
