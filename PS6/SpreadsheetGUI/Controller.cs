@@ -406,7 +406,7 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void FirstContact(SocketState state)
         {
-            if (theServer.Connected && !state.hasError)
+            if (theServer != null && theServer.Connected && !state.hasError)
             {
                 state.callMe = ReceiveStartup;
                 Networking.Send(state.theSocket, "register " + THREE);
@@ -425,6 +425,8 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void ReceiveStartup(SocketState state)
         {
+            if (theServer == null) return;
+
             // state error or sbuilder null
             if (state.hasError)
             {
@@ -683,6 +685,11 @@ namespace SpreadsheetGUI
             {
                 spreadsheet = comboForm.comboBox.Text;
                 spreadsheet = CleanFileName(spreadsheet);
+                if (spreadsheet == "")
+                {
+                    window.ShowErrorMessageBox("Not a viable filename, please try again.");
+                    spreadsheet = ChooseSpreadsheetBox(sheetChoices);
+                }
             }
             else
             {
