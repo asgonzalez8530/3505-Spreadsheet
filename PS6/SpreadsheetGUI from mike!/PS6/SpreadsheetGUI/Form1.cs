@@ -58,7 +58,6 @@ namespace SpreadsheetGUI
         {
             set
             {
-                //Value_Text.Text = value;
                 MethodInvoker m = new MethodInvoker(() => { Value_Text.Text = value; });
                 try
                 {
@@ -66,7 +65,6 @@ namespace SpreadsheetGUI
                 }
                 catch (Exception)
                 {
-                    Value_Text.Text = value;
                     // this prevents the exception being thrown at the end of the program
                 }
             }
@@ -90,16 +88,26 @@ namespace SpreadsheetGUI
                 {
                     Invoke(m);
                 }
-                catch (Exception)
+                catch(Exception)
                 {
-                    Text = value;
-                    // this prevents the exception being thrown 
-                    // at the end of the program if it is in the queue for form changes
+                    // this prevents the exception being thrown at the end of the program
                 }
             }
 
         }
 
+        /// <summary>
+        /// Method evoked when the File -> new is clicked
+        /// </summary>
+        private void FileMenuNew_Click(object sender, EventArgs e)
+        {
+            //// fire off event if listeners are registered.
+            //if (NewSheetAction != null)
+            //{
+            //    NewSheetAction();
+            //}
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Creates a new window containing an empty spreadsheet.
@@ -246,7 +254,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);            
-            //ValueBoxText = "STARTPINGING"; // DEBUG: for pings
+            //ValueBoxText = "STARTPINGING"; // TODO: debug
         }
 
         public void StopPinging()
@@ -258,7 +266,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            //ValueBoxText = "STOPPINGiNG"; // DEBUG: for pings
+            //ValueBoxText = "STOPPINGiNG"; // TODO: debug
         }
 
         public void ResetTimeout()
@@ -270,7 +278,7 @@ namespace SpreadsheetGUI
             }
             );
             Invoke(m);
-            //ValueBoxText = "RESETTIMEouT"; // DEBUG: for pings
+            //ValueBoxText = "RESETTIMEouT"; // TODO: debug
         }
 
         /// <summary>
@@ -311,23 +319,17 @@ namespace SpreadsheetGUI
         {
             Ping();
             pingTimer.Start();
-            //ValueBoxText = "ping tick"; // DEBUG: for pings
+            //ValueBoxText = "ping tick"; // TODO: debug
 
         }
 
         private void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             Timeout();
-            //ValueBoxText = "timeout tick"; // DEBUG: for pings
+            //ValueBoxText = "timeout tick"; // TODO: debug
 
         }
 
-        /// <summary>
-        /// Overriding ProcessCmdKey to move cells with the arrow keys.
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="keyData"></param>
-        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Right || keyData == Keys.Left || keyData == Keys.Up || keyData == Keys.Down)
@@ -354,36 +356,6 @@ namespace SpreadsheetGUI
             {
                 return base.ProcessCmdKey(ref msg, keyData);
             }
-        }
-
-        /// <summary>
-        /// Draws the most current version of our form.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void frameTimer_Tick(object sender, EventArgs e)
-        {
-            // Invalidate this form and all its children (true)
-            // This will cause the form to redraw as soon as it can
-            //spreadsheetPanel1.Invalidate(true);
-            MethodInvoker m = new MethodInvoker(() => { spreadsheetPanel1.Invalidate(true); });
-            try
-            {
-                this.Invoke(m);
-            }
-            catch (Exception)
-            {
-                spreadsheetPanel1.Invalidate(true);
-                // this try catch protects from an exception being thrown when the program is closed.
-            }
-        }
-
-        /// <summary>
-        /// Starts the timer for redrawing the panel
-        /// </summary>
-        public void StartPanelTimer()
-        {
-            panelTimer.Start();
         }
     }
 }

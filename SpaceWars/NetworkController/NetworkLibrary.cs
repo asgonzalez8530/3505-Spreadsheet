@@ -181,6 +181,7 @@ namespace NetworkController
             catch (Exception e)
             {
                 state.hasError = true;
+                throw e; // TODO take this out?
             }
 
             // Don't start an event loop to receive data from the server. The client might not want to do that.
