@@ -69,7 +69,8 @@ namespace cs3505
 		else
 		{
 		    std::string oldContents = sheet[cellName].top(); // grab the old value
-			sheet[cellName].pop(); // revert the value by popping
+
+			if(!(sheet[cellName].empty())) sheet[cellName].pop(); // revert the value by popping
 		    edits.push(cellName + ":" + oldContents); // store the old value onto edits
 		}
 
@@ -92,7 +93,7 @@ namespace cs3505
 			edits.pop(); // undo the last edit
 
 			std::string cellName = undo.substr(0, undo.find(":")); // grab the cell name
-			sheet[cellName].pop(); // undo the last edit to this cell
+			if(!sheet[cellName].empty()) sheet[cellName].pop(); // undo the last edit to this cell
 
 			return "change " + undo; // return the change message
 		}
@@ -110,6 +111,7 @@ namespace cs3505
 	 */
 	void spreadsheet::save() 
 	{
+			
 		// build file path to edits stack
 		boost::filesystem::path myEdits = boost::filesystem::current_path() / (const boost::filesystem::path&)("Spreadsheets/" + myName + "_edits.sprd");
 
@@ -185,6 +187,7 @@ namespace cs3505
 	 */
 	std::string spreadsheet::update(std::string update)
 	{
+		
 		try
 		{
 			
@@ -213,7 +216,7 @@ namespace cs3505
 		        return ""; // we didn't find a message that we know how to process :(
 		}
 
-		catch (...)
+		catch (const std::out_of_range &outOfRange)
 		{
 		    return ""; // the message was not a protocol match
 		}

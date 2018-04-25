@@ -1,0 +1,16 @@
+README:
+Authors: Anastasia Gonzalez, Rebekah Peterson, Jacqulyn MacHardy & Michael Raleigh
+Date: 4/24/18
+Class: 3505: Software Practice 2
+Purpose: To make a server to allow for clients to connect and send messages related to our spreadsheet client. 
+The server propogates all messages, keeps the client's views up to date with changes and people present on a spreadsheet, and
+saves spreadsheet files.
+Special Conditions: Our code uses C++ 11 (flags already in the make file)
+How to run: 
+    type the following commands into the console:
+        make
+        ./a.out
+    to clean the project type into the console:
+        make clean
+    to close the server gracefully type into the console:
+        quit

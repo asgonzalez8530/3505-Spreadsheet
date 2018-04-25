@@ -96,7 +96,7 @@ namespace cs3505
 		// get socket and message to send
         int socket = message.socket;
         std::string tmp = message.message;
-		std::cout << "Sending " << tmp << " on socket " << socket << "\n";
+		//std::cout << "Sending " << tmp << " on socket " << socket << "\n";
 
 		// Send the message
         write(socket, tmp.c_str(), tmp.length());
